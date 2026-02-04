@@ -1,0 +1,7 @@
+▲ Next.js 16.1.6
+- Local:         http://localhost:3000
+- Network:       http://76.13.140.146:3000
+
+✓ Starting...
+⚠ `images.domains` is deprecated in favor of `images.remotePatterns`. Please update next.config.ts to protect your application from malicious users.
+✓ Ready in 496ms
