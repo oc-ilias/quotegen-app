@@ -240,7 +240,7 @@ function VariablePicker({ onSelect, disabled }: VariablePickerProps) {
                   >
                     <div className="flex items-center justify-between">
                       <code className="text-xs bg-slate-900 px-2 py-1 rounded text-indigo-400 font-mono">
-                        {{{variable}}}
+                        {'{{'}{variable}{'}}'}
                       </code>
                       <PlusIcon className="w-4 h-4 text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>

@@ -64,44 +64,44 @@ const navigationItems: NavItem[] = [
   {
     id: 'quotes',
     label: 'Quotes',
-    href: '/quotes',
+    href: '/dashboard/quotes',
     icon: DocumentTextIcon,
   },
   {
     id: 'new-quote',
     label: 'New Quote',
-    href: '/quotes/new',
+    href: '/dashboard/quotes/new',
     icon: PlusIcon,
   },
   {
     id: 'templates',
     label: 'Templates',
-    href: '/templates',
+    href: '/dashboard/templates',
     icon: DocumentDuplicateIcon,
   },
   {
     id: 'analytics',
     label: 'Analytics',
-    href: '/analytics',
+    href: '/dashboard/analytics',
     icon: ChartBarIcon,
   },
   {
     id: 'customers',
     label: 'Customers',
-    href: '/customers',
+    href: '/dashboard/customers',
     icon: UsersIcon,
   },
   {
     id: 'emails',
     label: 'Emails',
-    href: '/emails',
+    href: '/dashboard/emails',
     icon: EnvelopeIcon,
     badge: 0,
   },
   {
     id: 'settings',
     label: 'Settings',
-    href: '/settings',
+    href: '/dashboard/settings',
     icon: Cog6ToothIcon,
   },
 ];
@@ -273,7 +273,7 @@ export function Sidebar({
                   role="menu"
                 >
                   <Link
-                    href="/quotes/new"
+                    href="/dashboard/quotes/new"
                     className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition-colors"
                     onClick={closeCreateMenu}
                     role="menuitem"
@@ -288,7 +288,7 @@ export function Sidebar({
                   </Link>
 
                   <Link
-                    href="/quotes/new?template=true"
+                    href="/dashboard/quotes/new?template=true"
                     className="flex items-center gap-3 px-4 py-3 hover:bg-slate-700 transition-colors"
                     onClick={closeCreateMenu}
                     role="menuitem"
