@@ -8,8 +8,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import {
-  SearchIcon,
+  MagnifyingGlassIcon as SearchIcon,
   UserIcon,
   BuildingOfficeIcon,
   EnvelopeIcon,
@@ -164,13 +165,30 @@ const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
         <p className="text-gray-600">Select an existing customer or create a new one.</p>
       </div>
       
+      {/* Error Alert */}
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-6 bg-red-500/10 border border-red-500/20 rounded-xl p-4"
+          >
+            <p className="text-red-400 text-sm flex items-center gap-2">
+              <ExclamationCircleIcon className="w-5 h-5" />
+              {error}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Toggle between search and create */}
       <div className="flex gap-4 mb-6">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => !hasSelection && handleCreateNew()}
-          disabled={hasSelection}
+          disabled={!!hasSelection}
           className={`
             flex-1 p-4 rounded-xl border-2 transition-all
             ${isCreatingNew
@@ -193,7 +211,7 @@ const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
             setIsCreatingNew(false);
             setSearchQuery('');
           }}
-          disabled={hasSelection}
+          disabled={!!hasSelection}
           className={`
             flex-1 p-4 rounded-xl border-2 transition-all
             ${!isCreatingNew
@@ -218,7 +236,7 @@ const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className="mb-6"
-003e
+          >
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search Customers
             </label>
@@ -279,7 +297,7 @@ const CustomerInfoStep: React.FC<CustomerInfoStepProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl"
-003e
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
                 <CheckCircleIcon className="w-6 h-6 text-green-600" />

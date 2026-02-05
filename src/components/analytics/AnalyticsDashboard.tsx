@@ -29,11 +29,16 @@ interface AnalyticsDashboardProps {
     stats?: {
       totalQuotes: number;
       pendingQuotes: number;
+      sentQuotes: number;
       acceptedQuotes: number;
       conversionRate: number;
       totalRevenue: number;
       avgQuoteValue: number;
+      averageQuoteValue: number;
       avgResponseTime: number;
+      quoteChange: number;
+      revenueChange: number;
+      conversionChange: number;
       periodChange: {
         totalQuotes: number;
         conversionRate: number;
@@ -51,7 +56,21 @@ interface AnalyticsDashboardProps {
 // ============================================================================
 
 export function AnalyticsDashboard({ data, isLoading = false, className }: AnalyticsDashboardProps) {
-  const stats = useDashboardStats(data.stats);
+  // Transform stats to match DashboardStatsData interface
+  const statsData = data.stats ? {
+    totalQuotes: data.stats.totalQuotes,
+    pendingQuotes: data.stats.pendingQuotes,
+    sentQuotes: data.stats.sentQuotes,
+    acceptedQuotes: data.stats.acceptedQuotes,
+    totalRevenue: data.stats.totalRevenue,
+    conversionRate: data.stats.conversionRate,
+    averageQuoteValue: data.stats.averageQuoteValue || data.stats.avgQuoteValue,
+    quoteChange: data.stats.quoteChange,
+    revenueChange: data.stats.revenueChange,
+    conversionChange: data.stats.conversionChange,
+  } : undefined;
+
+  const stats = useDashboardStats(statsData);
 
   if (isLoading) {
     return (

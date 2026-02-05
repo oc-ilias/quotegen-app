@@ -64,7 +64,7 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
         return EyeIcon;
       case 'accepted':
         return CheckCircleIcon;
-      case 'declined':
+      case 'rejected':
         return XCircleIcon;
       case 'expired':
         return ClockIcon;

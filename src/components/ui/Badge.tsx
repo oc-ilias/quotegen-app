@@ -6,8 +6,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import type { QuoteStatus } from '@/types/quote';
-import { QuoteStatusColors, QuoteStatusLabels } from '@/types/quote';
+import { QuoteStatus, QuoteStatusColors, QuoteStatusLabels } from '@/types/quote';
 
 // ============================================================================
 // Badge Props

@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom';
 
+// Set up environment variables for tests
+process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = 'test-anon-key';
+
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
@@ -28,13 +32,13 @@ Object.defineProperty(window, 'IntersectionObserver', {
 });
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = jest.fn() as jest.Mock;
 
 // Suppress console errors during tests
 const originalError = console.error;
 beforeAll(() => {
-  console.error = (...args: any[]) => {
-    if (/Warning.*not wrapped in act/.test(args[0])) {
+  console.error = (...args: unknown[]) => {
+    if (typeof args[0] === 'string' && /Warning.*not wrapped in act/.test(args[0])) {
       return;
     }
     originalError.call(console, ...args);

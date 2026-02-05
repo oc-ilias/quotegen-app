@@ -12,7 +12,6 @@ import '@testing-library/jest-dom';
 jest.mock('framer-motion', () => ({
   motion: {
     div: ({ children, ...props }: any) => {
-      // Filter out motion-specific props
       const { initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
       return <div {...rest}>{children}</div>;
     },
@@ -23,6 +22,10 @@ jest.mock('framer-motion', () => ({
     span: ({ children, ...props }: any) => {
       const { animate, ...rest } = props;
       return <span {...rest}>{children}</span>;
+    },
+    h3: ({ children, ...props }: any) => {
+      const { initial, animate, transition, ...rest } = props;
+      return <h3 {...rest}>{children}</h3>;
     },
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
@@ -117,17 +120,14 @@ describe('useDashboardStats', () => {
     const data = {
       totalQuotes: 100,
       pendingQuotes: 20,
+      sentQuotes: 30,
       acceptedQuotes: 50,
-      conversionRate: 50,
       totalRevenue: 50000,
-      avgQuoteValue: 1000,
-      avgResponseTime: 24,
-      periodChange: {
-        totalQuotes: 10,
-        conversionRate: 5,
-        totalRevenue: 5000,
-        avgQuoteValue: 100,
-      },
+      conversionRate: 50,
+      averageQuoteValue: 1000,
+      quoteChange: 10,
+      revenueChange: 5000,
+      conversionChange: 5,
     };
 
     const stats = useDashboardStats(data);
@@ -256,7 +256,9 @@ describe('ActivityFeed', () => {
 
   it('renders activity list correctly', () => {
     render(<ActivityFeed activities={mockActivities} />);
-    expect(screen.getByText('John Smith')).toBeInTheDocument();
+    // John Smith appears twice (once for quote created, once for quote sent)
+    const johnSmithElements = screen.getAllByText('John Smith');
+    expect(johnSmithElements.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Jane Doe')).toBeInTheDocument();
   });
 

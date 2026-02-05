@@ -299,12 +299,11 @@ export interface ConversionDataPoint {
   sent: number;
   viewed: number;
   accepted: number;
-  rejected: number;
   conversionRate: number;
 }
 
 export interface RevenueDataPoint {
-  date: string;
+  month: string;
   revenue: number;
   quotes: number;
   avgValue: number;

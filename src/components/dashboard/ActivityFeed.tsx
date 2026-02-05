@@ -37,12 +37,12 @@ export interface ActivityFeedProps {
 // Activity Type Config
 // ============================================================================
 
-const activityConfig: Record<ActivityItem['type'], {
+const activityConfig: Partial<Record<ActivityItem['type'], {
   icon: React.ElementType;
   color: string;
   bgColor: string;
   label: string;
-}> = {
+}>> = {
   quote_created: {
     icon: DocumentTextIcon,
     color: 'text-blue-400',
@@ -67,11 +67,47 @@ const activityConfig: Record<ActivityItem['type'], {
     bgColor: 'bg-emerald-500/10',
     label: 'accepted a quote',
   },
-  quote_declined: {
+  quote_rejected: {
     icon: XCircleIcon,
     color: 'text-red-400',
     bgColor: 'bg-red-500/10',
     label: 'declined a quote',
+  },
+  quote_expired: {
+    icon: ClockIcon,
+    color: 'text-gray-400',
+    bgColor: 'bg-gray-500/10',
+    label: 'quote expired',
+  },
+  quote_converted: {
+    icon: CurrencyDollarIcon,
+    color: 'text-green-400',
+    bgColor: 'bg-green-500/10',
+    label: 'converted to order',
+  },
+  customer_added: {
+    icon: UserPlusIcon,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10',
+    label: 'added as customer',
+  },
+  product_added: {
+    icon: DocumentTextIcon,
+    color: 'text-indigo-400',
+    bgColor: 'bg-indigo-500/10',
+    label: 'added a product',
+  },
+  note_added: {
+    icon: PencilIcon,
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10',
+    label: 'added a note',
+  },
+  status_changed: {
+    icon: ArrowPathIcon,
+    color: 'text-cyan-400',
+    bgColor: 'bg-cyan-500/10',
+    label: 'changed status',
   },
 };
 
@@ -86,7 +122,12 @@ interface ActivityItemProps {
 }
 
 const ActivityItemComponent = ({ activity, index, isLast }: ActivityItemProps) => {
-  const config = activityConfig[activity.type];
+  const config = activityConfig[activity.type] || {
+    icon: DocumentTextIcon,
+    color: 'text-slate-400',
+    bgColor: 'bg-slate-500/10',
+    label: 'performed an action',
+  };
   const Icon = config.icon;
 
   const formatTime = (timestamp: string) => {

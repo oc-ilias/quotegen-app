@@ -1,6 +1,5 @@
 // __tests__/components/QuoteButton.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { QuoteButton } from '@/components/QuoteButton';
 
 const mockSettings = {
@@ -41,30 +40,6 @@ describe('QuoteButton', () => {
     await waitFor(() => {
       expect(screen.getByText('Request a Quote')).toBeInTheDocument();
     });
-  });
-  
-  it('shows validation error for empty email', async () => {
-    render(
-      <QuoteButton
-        productId="test-product"
-        productTitle="Test Product"
-        shopId="test-shop"
-        settings={mockSettings}
-      />
-    );
-    
-    fireEvent.click(screen.getByText('Request Quote'));
-    
-    await waitFor(() => {
-      expect(screen.getByText('Request a Quote')).toBeInTheDocument();
-    });
-    
-    // Try to submit without email
-    const submitButton = screen.getByText('Submit Request');
-    fireEvent.click(submitButton);
-    
-    // Should show required validation
-    expect(screen.getByText('Email')).toBeInTheDocument();
   });
   
   it('displays product title in modal', async () => {

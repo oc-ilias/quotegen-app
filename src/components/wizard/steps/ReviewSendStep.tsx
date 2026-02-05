@@ -40,16 +40,17 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
   const [activeTab, setActiveTab] = useState<'preview' | 'details'>('preview');
   const [sendMethod, setSendMethod] = useState<'email' | 'link' | 'download'>('email');
 
-  // Calculate totals
+  // Calculate totals with null safety
   const totals = React.useMemo(() => {
-    const subtotal = data.line_items.reduce((sum, item) => {
-      const itemTotal = item.quantity * item.unit_price;
+    const lineItems = data.line_items || [];
+    const subtotal = lineItems.reduce((sum, item) => {
+      const itemTotal = (item.quantity || 0) * (item.unit_price || 0);
       const discount = itemTotal * (item.discount_percent || 0) / 100;
       return sum + itemTotal - discount;
     }, 0);
 
-    const taxTotal = data.line_items.reduce((sum, item) => {
-      const itemTotal = item.quantity * item.unit_price;
+    const taxTotal = lineItems.reduce((sum, item) => {
+      const itemTotal = (item.quantity || 0) * (item.unit_price || 0);
       const discount = itemTotal * (item.discount_percent || 0) / 100;
       const taxableAmount = itemTotal - discount;
       return sum + (taxableAmount * (item.tax_rate || 0) / 100);
@@ -76,7 +77,8 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
     }
   };
 
-  const hasErrors = data.line_items.length === 0 || !data.customer.name || !data.customer.email;
+  const lineItems = data.line_items || [];
+  const hasErrors = lineItems.length === 0 || !data.customer?.name || !data.customer?.email;
 
   return (
     <div className="p-6 lg:p-8">
@@ -157,10 +159,10 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
               <div className="mb-6 pb-6 border-b border-gray-200">
                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Bill To</h4>
                 <div className="text-gray-900">
-                  <p className="font-semibold">{data.customer.company || data.customer.name}</p>
-                  <p>{data.customer.name}</p>
-                  <p className="text-gray-600">{data.customer.email}</p>
-                  {data.customer.phone && <p className="text-gray-600">{data.customer.phone}</p>}
+                  <p className="font-semibold">{data.customer?.company || data.customer?.name || 'Not specified'}</p>
+                  <p>{data.customer?.name}</p>
+                  <p className="text-gray-600">{data.customer?.email}</p>
+                  {data.customer?.phone && <p className="text-gray-600">{data.customer.phone}</p>}
                 </div>
               </div>
 
@@ -176,7 +178,7 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
                     </tr>
                   </thead>
                   <tbody>
-                    {data.line_items.map((item, index) => {
+                    {lineItems.map((item, index) => {
                       const itemSubtotal = item.quantity * item.unit_price;
                       const discount = itemSubtotal * (item.discount_percent || 0) / 100;
                       const total = itemSubtotal - discount;
@@ -307,11 +309,11 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Items</span>
-                <span className="text-slate-300">{data.line_items.length}</span>
+                <span className="text-slate-300">{lineItems.length}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Customer</span>
-                <span className="text-slate-300 truncate max-w-[150px]">{data.customer.name}</span>
+                <span className="text-slate-300 truncate max-w-[150px]">{data.customer?.name || 'N/A'}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Total</span>

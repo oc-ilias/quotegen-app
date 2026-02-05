@@ -93,15 +93,16 @@ describe('Card', () => {
 
   it('applies hover effect when hover prop is true', () => {
     render(<Card hover>Hover Card</Card>);
-    expect(screen.getByText('Hover Card').parentElement).toHaveClass('hover:shadow-lg');
+    // getByText returns the element containing the text, which is the Card div
+    expect(screen.getByText('Hover Card')).toHaveClass('hover:shadow-lg');
   });
 
   it('applies correct padding based on padding prop', () => {
     const { rerender } = render(<Card padding="sm">Small Padding</Card>);
-    expect(screen.getByText('Small Padding').parentElement).toHaveClass('p-4');
+    expect(screen.getByText('Small Padding')).toHaveClass('p-4');
 
     rerender(<Card padding="lg">Large Padding</Card>);
-    expect(screen.getByText('Large Padding').parentElement).toHaveClass('p-8');
+    expect(screen.getByText('Large Padding')).toHaveClass('p-8');
   });
 
   it('renders complete card structure', () => {
@@ -228,21 +229,22 @@ import { Skeleton, CardSkeleton, StatCardSkeleton, TableSkeleton } from '@/compo
 
 describe('Skeleton', () => {
   it('renders with pulse animation by default', () => {
-    render(<Skeleton />);
-    expect(screen.getByRole('generic')).toHaveClass('animate-pulse');
+    const { container } = render(<Skeleton />);
+    const skeleton = container.firstChild as HTMLElement;
+    expect(skeleton).toHaveClass('animate-pulse');
   });
 
   it('applies variant classes correctly', () => {
-    const { rerender } = render(<Skeleton variant="circular" />);
-    expect(screen.getByRole('generic')).toHaveClass('rounded-full');
+    const { container, rerender } = render(<Skeleton variant="circular" />);
+    expect(container.firstChild).toHaveClass('rounded-full');
 
     rerender(<Skeleton variant="rectangular" />);
-    expect(screen.getByRole('generic')).toHaveClass('rounded-none');
+    expect(container.firstChild).toHaveClass('rounded-none');
   });
 
   it('applies custom width and height', () => {
-    render(<Skeleton width={100} height={50} />);
-    const skeleton = screen.getByRole('generic');
+    const { container } = render(<Skeleton width={100} height={50} />);
+    const skeleton = container.firstChild as HTMLElement;
     expect(skeleton).toHaveStyle({ width: '100px', height: '50px' });
   });
 });
