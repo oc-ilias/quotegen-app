@@ -23,7 +23,7 @@ import {
   TagIcon,
   DocumentTextIcon,
 } from '@heroicons/react/24/outline';
-import { type QuoteStatus, type QuoteFilters, QuoteStatusLabels, QuoteStatusColors } from '@/types/quote';
+import { QuoteStatus, type QuoteFilters, QuoteStatusLabels, QuoteStatusColors } from '@/types/quote';
 
 // ============================================================================
 // Types

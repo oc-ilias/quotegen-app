@@ -1,9 +1,17 @@
 /**
  * Analytics Components Index
- * Exports all analytics-related components
  * @module components/analytics
  */
 
+export { AnalyticsDashboardEnhanced } from './AnalyticsDashboardEnhanced';
+export type { 
+  AnalyticsDashboardEnhancedProps,
+  DateRange,
+  AnalyticsData,
+  DashboardStats,
+} from './AnalyticsDashboardEnhanced';
+
+// Re-export existing components
 export { RevenueChart } from './RevenueChart';
 export { ConversionChart } from './ConversionChart';
 export { StatusBreakdown } from './StatusBreakdown';
