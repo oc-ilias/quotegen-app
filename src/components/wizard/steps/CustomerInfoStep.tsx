@@ -8,7 +8,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import {
   MagnifyingGlassIcon as SearchIcon,
   UserIcon,

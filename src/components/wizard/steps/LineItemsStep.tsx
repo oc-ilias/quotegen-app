@@ -13,7 +13,7 @@ import {
   CalculatorIcon,
   TagIcon,
   CurrencyDollarIcon,
-  PercentIcon,
+  // PercentIcon removed - use alternative
   DocumentTextIcon,
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
