@@ -20,13 +20,14 @@ import {
   ChevronLeftIcon,
   XMarkIcon,
   PlusIcon,
+  EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 
 // ============================================================================
 // Types
 // ============================================================================
 
-export type NavItemId = 'dashboard' | 'quotes' | 'new-quote' | 'templates' | 'analytics' | 'customers' | 'settings';
+export type NavItemId = 'dashboard' | 'quotes' | 'new-quote' | 'templates' | 'analytics' | 'customers' | 'emails' | 'settings';
 
 export interface NavItem {
   id: NavItemId;
@@ -89,6 +90,13 @@ const navigationItems: NavItem[] = [
     label: 'Customers',
     href: '/customers',
     icon: UsersIcon,
+  },
+  {
+    id: 'emails',
+    label: 'Emails',
+    href: '/emails',
+    icon: EnvelopeIcon,
+    badge: 0,
   },
   {
     id: 'settings',
