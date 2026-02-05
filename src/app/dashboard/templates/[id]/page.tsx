@@ -598,8 +598,7 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
 
             <div className="mt-4 pt-4 border-t border-slate-800"
             >
-              <p className="text-xs text-slate-500"
-003e
+              <p className="text-xs text-slate-500">
                 <span className="text-amber-400">*</span> = Required variable
               </p>
             </div>

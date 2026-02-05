@@ -26,6 +26,9 @@ import {
   ChevronRightIcon,
   TrashIcon,
   PlusIcon,
+  UsersIcon,
+  WebhookIcon,
+  CodeBracketIcon,
 } from '@heroicons/react/24/outline';
 
 // ============================================================================
@@ -910,7 +913,9 @@ const IntegrationsSection: React.FC<{
 // Main Page Component
 // ============================================================================
 
-type TabId = 'company' | 'quotes' | 'notifications' | 'appearance' | 'integrations';
+import { TeamManagement, Billing, Webhooks, Security } from '@/components/settings';
+
+type TabId = 'company' | 'quotes' | 'notifications' | 'appearance' | 'integrations' | 'team' | 'billing' | 'webhooks' | 'security';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<TabId>('company');
@@ -959,6 +964,10 @@ export default function SettingsPage() {
     { id: 'notifications', label: 'Notifications', icon: BellIcon },
     { id: 'appearance', label: 'Appearance', icon: PaintBrushIcon },
     { id: 'integrations', label: 'Integrations', icon: GlobeAltIcon },
+    { id: 'team', label: 'Team', icon: UsersIcon },
+    { id: 'billing', label: 'Billing', icon: CreditCardIcon },
+    { id: 'webhooks', label: 'Webhooks', icon: CodeBracketIcon },
+    { id: 'security', label: 'Security', icon: ShieldCheckIcon },
   ];
 
   return (
@@ -1051,6 +1060,42 @@ export default function SettingsPage() {
                   settings={integrationSettings}
                   onChange={setIntegrationSettings}
                 />
+              )}
+
+              {activeTab === 'team' && (
+                <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-slate-100">Team Management</h3>
+                    <p className="text-slate-400 mt-1">Manage team members, roles, and permissions</p>
+                  </div>
+                  <TeamManagement />
+                </section>
+              )}
+
+              {activeTab === 'billing' && (
+                <section>
+                  <Billing />
+                </section>
+              )}
+
+              {activeTab === 'webhooks' && (
+                <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-slate-100">Webhook Management</h3>
+                    <p className="text-slate-400 mt-1">Configure webhooks for integrations with external services</p>
+                  </div>
+                  <Webhooks />
+                </section>
+              )}
+
+              {activeTab === 'security' && (
+                <section className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold text-slate-100">Security Settings</h3>
+                    <p className="text-slate-400 mt-1">Manage passwords, 2FA, sessions, and audit logs</p>
+                  </div>
+                  <Security />
+                </section>
               )}
             </motion.div>
           </AnimatePresence>

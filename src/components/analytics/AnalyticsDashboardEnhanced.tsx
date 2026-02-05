@@ -16,7 +16,7 @@ import {
   ArrowTrendingDownIcon,
   MinusIcon,
   DownloadIcon,
-  RefreshIcon,
+  ArrowPathIcon,
   FilterIcon,
   ChevronDownIcon,
   ExclamationCircleIcon,
@@ -428,7 +428,7 @@ const ErrorState = ({ error, onRetry }: { error: Error; onRetry: () => void }) =
       onClick={onRetry}
       className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
     >
-      <RefreshIcon className="w-4 h-4" />
+      <ArrowPathIcon className="w-4 h-4" />
       Try Again
     </button>
   </motion.div>
@@ -502,7 +502,7 @@ export function AnalyticsDashboardEnhanced({
               className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
               title="Refresh data"
             >
-              <RefreshIcon className="w-5 h-5" />
+              <ArrowPathIcon className="w-5 h-5" />
             </button>
           )}
         </div>

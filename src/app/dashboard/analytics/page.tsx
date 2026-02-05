@@ -13,11 +13,13 @@ import {
   CalendarIcon,
   ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
-import { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
-import { RevenueChart } from '@/components/analytics/RevenueChart';
-import { ConversionChart } from '@/components/analytics/ConversionChart';
-import { StatusBreakdown } from '@/components/analytics/StatusBreakdown';
-import { TopProducts } from '@/components/analytics/TopProducts';
+import { 
+  AnalyticsDashboardEnhanced,
+  FunnelChart,
+  GeographicMap,
+  PerformanceMetrics,
+  generateMockRegionData,
+} from '@/components/analytics';
 import { StatCardsGrid, useDashboardStats } from '@/components/dashboard/StatCards';
 import { QuoteStatus } from '@/types/quote';
 
@@ -67,6 +69,29 @@ const mockStats = {
   quoteChange: 12.5,
   revenueChange: 18.2,
   conversionChange: 3.1,
+  newCustomers: 34,
+  avgResponseTime: 45,
+};
+
+const mockFunnelData = {
+  created: 245,
+  sent: 198,
+  viewed: 156,
+  accepted: 88,
+  declined: 12,
+  totalValue: 685000,
+  acceptedValue: 485000,
+};
+
+const mockPerformanceData = {
+  avgQuoteValue: 3240,
+  avgResponseTime: 45,
+  conversionRate: 35.9,
+  winRate: 44.4,
+  customerLifetimeValue: 12450,
+  quoteToOrderRatio: 35.9,
+  avgTimeToClose: 12,
+  repeatCustomerRate: 42,
 };
 
 type DateRange = '7d' | '30d' | '90d' | '1y';
@@ -102,6 +127,8 @@ export default function AnalyticsPage() {
     '90d': 'Last 90 Days',
     '1y': 'Last Year',
   };
+
+  const regionData = generateMockRegionData();
 
   return (
     <div className="space-y-8">
@@ -159,14 +186,19 @@ export default function AnalyticsPage() {
         <StatCardsGrid stats={stats} isLoading={isLoading} />
       </section>
 
-      {/* Charts Grid */}
+      {/* Performance Metrics */}
+      <section>
+        <PerformanceMetrics data={mockPerformanceData} isLoading={isLoading} />
+      </section>
+
+      {/* Conversion Funnel & Geographic Map */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <RevenueChart data={mockRevenueData} isLoading={isLoading} />
+          <FunnelChart data={mockFunnelData} isLoading={isLoading} />
         </motion.section>
 
         <motion.section
@@ -174,25 +206,27 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <ConversionChart data={mockConversionData} isLoading={isLoading} />
-        </motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <StatusBreakdown data={mockStatusData} isLoading={isLoading} />
-        </motion.section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <TopProducts data={mockTopProducts} isLoading={isLoading} />
+          <GeographicMap data={regionData} isLoading={isLoading} />
         </motion.section>
       </div>
+
+      {/* Enhanced Analytics Dashboard */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <AnalyticsDashboardEnhanced 
+          data={{
+            revenueData: mockRevenueData,
+            conversionData: mockConversionData,
+            statusData: mockStatusData,
+            topProducts: mockTopProducts,
+            stats: mockStats,
+          }}
+          isLoading={isLoading}
+        />
+      </motion.section>
     </div>
   );
 }

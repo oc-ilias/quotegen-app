@@ -3,11 +3,5 @@
  * @module components/navigation
  */
 
-export { SidebarEnhanced, MobileMenuToggle, SidebarProvider, useSidebar } from './SidebarEnhanced';
-export type { 
-  NavItemId, 
-  NavItem, 
-  SidebarProps, 
-  SidebarContextType,
-  MobileMenuToggleProps 
-} from './SidebarEnhanced';
+export { SidebarEnhanced } from './SidebarEnhanced';
+export type { SidebarEnhancedProps } from './SidebarEnhanced';

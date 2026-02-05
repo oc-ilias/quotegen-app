@@ -17,10 +17,9 @@ import {
   ExclamationTriangleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  DocumentTextIcon,
   UserIcon,
   ShoppingCartIcon,
-  FileTextIcon,
+  DocumentTextIcon,
   EyeIcon,
   TrashIcon,
   DocumentDuplicateIcon,
@@ -265,8 +264,7 @@ const CustomerStep: React.FC<{
             }`}
           >
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold"
-003e
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
                 {customer.contactName.charAt(0)}
               </div>
               <div className="flex-1">
@@ -743,7 +741,7 @@ export default function QuoteEditPage({ params }: { params: { id: string } }) {
   const steps = [
     { id: 'customer', label: 'Customer', icon: UserIcon },
     { id: 'items', label: 'Line Items', icon: ShoppingCartIcon },
-    { id: 'terms', label: 'Terms', icon: FileTextIcon },
+    { id: 'terms', label: 'Terms', icon: DocumentTextIcon },
     { id: 'review', label: 'Review', icon: EyeIcon },
   ];
 

@@ -164,14 +164,14 @@ describe('Customer Detail Page Components', () => {
     });
 
     it('applies correct styling for different statuses', () => {
-      const { rerender } = render(<StatusBadge status="DRAFT" />);
-      expect(screen.getByText('DRAFT').parentElement).toHaveClass('bg-slate-500/10');
+      const { rerender, container } = render(<StatusBadge status="DRAFT" />);
+      expect(container.firstChild).toHaveClass('bg-slate-500/10');
 
       rerender(<StatusBadge status="ACCEPTED" />);
-      expect(screen.getByText('ACCEPTED').parentElement).toHaveClass('bg-emerald-500/10');
+      expect(container.firstChild).toHaveClass('bg-emerald-500/10');
 
       rerender(<StatusBadge status="REJECTED" />);
-      expect(screen.getByText('REJECTED').parentElement).toHaveClass('bg-red-500/10');
+      expect(container.firstChild).toHaveClass('bg-red-500/10');
     });
   });
 

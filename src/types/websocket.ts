@@ -248,9 +248,11 @@ export interface UseRealtimeActivityReturn {
 // Server Types
 // ============================================================================
 
+import type { WebSocket as WSWebSocket } from 'ws';
+
 export interface WebSocketClient {
   id: string;
-  socket: WebSocket;
+  socket: WSWebSocket;
   userId?: string;
   isAuthenticated: boolean;
   subscribedChannels: Set<string>;
