@@ -166,7 +166,9 @@ async function handleScopesUpdate(
   console.log(`🔐 Scopes updated for shop: ${shop}`);
 
   // Log scope changes for audit
-  console.log('New scopes:', payload.current_app_installation?.access_scopes);
+  const installation = payload.current_app_installation as Record<string, unknown> | undefined;
+  const scopes = installation?.access_scopes as string[] | undefined;
+  console.log('New scopes:', scopes);
 
   return { success: true, processed: true };
 }
@@ -301,9 +303,10 @@ async function handleOrderCreate(
 
   try {
     // Check if this order originated from a quote
-    if (payload.note_attributes) {
-      const quoteId = payload.note_attributes.find(
-        (attr: { name: string; value: string }) => attr.name === 'quote_id'
+    const noteAttributes = payload.note_attributes as Array<{ name: string; value: string }> | undefined;
+    if (noteAttributes) {
+      const quoteId = noteAttributes.find(
+        (attr) => attr.name === 'quote_id'
       )?.value;
 
       if (quoteId && supabase) {
@@ -332,7 +335,7 @@ async function handleOrderCreate(
         shopify_id: payload.id.toString(),
         shop_domain: shop,
         order_number: payload.order_number,
-        customer_id: payload.customer?.id?.toString(),
+        customer_id: (payload.customer as Record<string, unknown> | undefined)?.id?.toString(),
         total_price: payload.total_price,
         currency: payload.currency,
         financial_status: payload.financial_status,

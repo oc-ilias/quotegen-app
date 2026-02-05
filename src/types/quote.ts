@@ -362,7 +362,7 @@ export interface ProductSelectionData {
 }
 
 export interface LineItemsData {
-  items: LineItem[];
+  items: LineItemInput[];
 }
 
 export interface TermsNotesData {

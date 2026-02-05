@@ -31,6 +31,58 @@ jest.mock('framer-motion', () => ({
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
+// Mock WebSocket types and context
+jest.mock('@/types/websocket', () => ({
+  WebSocketState: {
+    CONNECTING: 'CONNECTING',
+    CONNECTED: 'CONNECTED',
+    DISCONNECTING: 'DISCONNECTING',
+    DISCONNECTED: 'DISCONNECTED',
+    RECONNECTING: 'RECONNECTING',
+    ERROR: 'ERROR',
+  },
+  WebSocketClientEvent: {
+    AUTHENTICATE: 'AUTHENTICATE',
+    SUBSCRIBE: 'SUBSCRIBE',
+    UNSUBSCRIBE: 'UNSUBSCRIBE',
+    PING: 'PING',
+  },
+  WebSocketServerEvent: {
+    PONG: 'PONG',
+    ACTIVITY: 'ACTIVITY',
+    ERROR: 'ERROR',
+  },
+}));
+
+jest.mock('@/contexts/WebSocketContext', () => ({
+  WebSocketProvider: ({ children }: any) => <>{children}</>,
+  useWebSocket: () => ({
+    isConnected: false,
+    lastMessage: null,
+    sendMessage: jest.fn(),
+    connect: jest.fn(),
+    disconnect: jest.fn(),
+  }),
+  useWebSocketState: () => ({
+    state: 'DISCONNECTED',
+    isConnected: false,
+  }),
+  ConnectionStatus: ({ state }: any) => <div data-testid="connection-status">{state}</div>,
+}));
+
+// Mock useRealtimeActivity hook
+jest.mock('@/hooks/useRealtimeActivity', () => ({
+  useRealtimeActivity: () => ({
+    activities: [],
+    isLoading: false,
+    error: null,
+    hasMore: false,
+    loadMore: jest.fn(),
+    refresh: jest.fn(),
+    addActivity: jest.fn(),
+  }),
+}));
+
 // ============================================================================
 // Stat Cards Tests
 // ============================================================================

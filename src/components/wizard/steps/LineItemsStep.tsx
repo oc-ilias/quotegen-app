@@ -13,7 +13,7 @@ import {
   CalculatorIcon,
   TagIcon,
   CurrencyDollarIcon,
-  // PercentIcon removed - use alternative
+  PercentBadgeIcon,
   DocumentTextIcon,
   ExclamationCircleIcon,
 } from '@heroicons/react/24/outline';
@@ -32,16 +32,16 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
   // Calculate totals
   const totals = useMemo(() => {
     const subtotal = data.items.reduce((sum, item) => {
-      const itemTotal = item.quantity * item.unit_price;
-      const discount = itemTotal * (item.discount_percent || 0) / 100;
+      const itemTotal = item.quantity * item.unitPrice;
+      const discount = itemTotal * (item.discountPercentage || 0) / 100;
       return sum + itemTotal - discount;
     }, 0);
 
     const taxTotal = data.items.reduce((sum, item) => {
-      const itemTotal = item.quantity * item.unit_price;
-      const discount = itemTotal * (item.discount_percent || 0) / 100;
+      const itemTotal = item.quantity * item.unitPrice;
+      const discount = itemTotal * (item.discountPercentage || 0) / 100;
       const taxableAmount = itemTotal - discount;
-      return sum + (taxableAmount * (item.tax_rate || 0) / 100);
+      return sum + (taxableAmount * (item.taxRate || 0) / 100);
     }, 0);
 
     const total = subtotal + taxTotal;
@@ -57,14 +57,14 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
         const variant = product.variants.find((v) => v.id === variantId) || product.variants[0];
         
         return {
-          product_id: product.id,
+          productId: product.id,
           name: product.title,
           description: variant?.title,
           quantity: 1,
-          unit_price: variant?.price || 0,
+          unitPrice: variant?.price || 0,
           sku: variant?.sku,
-          discount_percent: 0,
-          tax_rate: 0,
+          discountPercentage: 0,
+          taxRate: 0,
         };
       });
 
@@ -73,13 +73,13 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
   }, [products, variants, data.items.length, onUpdate]);
 
   const handleAddItem = useCallback(() => {
-    const newItem: LineItemInput = {
+    const newItem: LineItem = {
       name: '',
       description: '',
       quantity: 1,
-      unit_price: 0,
-      discount_percent: 0,
-      tax_rate: 0,
+      unitPrice: 0,
+      discountPercentage: 0,
+      taxRate: 0,
     };
     onUpdate({ items: [...data.items, newItem] });
   }, [data.items, onUpdate]);
@@ -103,10 +103,10 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
     }).format(value);
   };
 
-  const calculateItemTotal = (item: LineItemInput) => {
-    const subtotal = item.quantity * item.unit_price;
-    const discount = subtotal * (item.discount_percent || 0) / 100;
-    const tax = (subtotal - discount) * (item.tax_rate || 0) / 100;
+  const calculateItemTotal = (item: LineItem) => {
+    const subtotal = item.quantity * item.unitPrice;
+    const discount = subtotal * (item.discountPercentage || 0) / 100;
+    const tax = (subtotal - discount) * (item.taxRate || 0) / 100;
     return subtotal - discount + tax;
   };
 
@@ -202,8 +202,8 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
                         type="number"
                         min="0"
                         step="0.01"
-                        value={item.unit_price}
-                        onChange={(e) => handleUpdateItem(index, { unit_price: parseFloat(e.target.value) || 0 })}
+                        value={item.unitPrice}
+                        onChange={(e) => handleUpdateItem(index, { unitPrice: parseFloat(e.target.value) || 0 })}
                         className="w-full pl-7 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                       />
                     </div>
@@ -221,11 +221,11 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
                         type="number"
                         min="0"
                         max="100"
-                        value={item.discount_percent || 0}
-                        onChange={(e) => handleUpdateItem(index, { discount_percent: parseFloat(e.target.value) || 0 })}
+                        value={item.discountPercentage || 0}
+                        onChange={(e) => handleUpdateItem(index, { discountPercentage: parseFloat(e.target.value) || 0 })}
                         className="w-full px-3 pr-8 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                       />
-                      <PercentIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <PercentBadgeIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     </div>
                   </div>
                   
@@ -238,11 +238,11 @@ export function LineItemsStep({ data, products, variants, onUpdate, error }: Lin
                         type="number"
                         min="0"
                         max="100"
-                        value={item.tax_rate || 0}
-                        onChange={(e) => handleUpdateItem(index, { tax_rate: parseFloat(e.target.value) || 0 })}
+                        value={item.taxRate || 0}
+                        onChange={(e) => handleUpdateItem(index, { taxRate: parseFloat(e.target.value) || 0 })}
                         className="w-full px-3 pr-8 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
                       />
-                      <PercentIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                      <PercentBadgeIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                     </div>
                   </div>
                 </div>

@@ -19,7 +19,9 @@ import {
   EyeIcon,
   ArrowDownTrayIcon,
   CheckIcon,
+  EnvelopeIcon,
 } from '@heroicons/react/24/outline';
+import { EmailPreviewModal } from '../EmailPreviewModal';
 import type { QuoteFormData } from '@/types/quote';
 
 interface ReviewSendStepProps {
@@ -39,6 +41,7 @@ interface ReviewSendStepProps {
 export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSendStepProps) {
   const [activeTab, setActiveTab] = useState<'preview' | 'details'>('preview');
   const [sendMethod, setSendMethod] = useState<'email' | 'link' | 'download'>('email');
+  const [isEmailPreviewOpen, setIsEmailPreviewOpen] = useState(false);
 
   // Calculate totals with null safety
   const totals = React.useMemo(() => {
@@ -77,8 +80,29 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
     }
   };
 
+  const handleOpenEmailPreview = () => {
+    setIsEmailPreviewOpen(true);
+  };
+
+  const handleCloseEmailPreview = () => {
+    setIsEmailPreviewOpen(false);
+  };
+
   const lineItems = data.line_items || [];
   const hasErrors = lineItems.length === 0 || !data.customer?.name || !data.customer?.email;
+
+  // Prepare quote data for email preview
+  const quoteDataForPreview: QuoteFormData = {
+    customer: data.customer,
+    line_items: data.line_items,
+    title: data.title,
+    notes: data.notes || '',
+    terms: data.terms || '',
+    valid_until: data.valid_until || '',
+    description: '',
+    discount_total: 0,
+    tax_rate: 0,
+  };
 
   return (
     <div className="p-6 lg:p-8">
@@ -268,13 +292,26 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
               ))}
             </div>
 
+            {/* Preview Email Button */}
+            {sendMethod === 'email' && (
+              <motion.button
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                onClick={handleOpenEmailPreview}
+                className="w-full mt-4 py-2.5 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all border border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600"
+              >
+                <EnvelopeIcon className="w-5 h-5" />
+                Preview Email
+              </motion.button>
+            )}
+
             {/* Send Button */}
             <motion.button
               whileHover={{ scale: hasErrors ? 1 : 1.02 }}
               whileTap={{ scale: hasErrors ? 1 : 0.98 }}
               onClick={handleSubmit}
               disabled={isSubmitting || hasErrors}
-              className={`w-full mt-6 py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
+              className={`w-full mt-4 py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
                 hasErrors
                   ? 'bg-slate-700 text-slate-400 cursor-not-allowed'
                   : 'bg-indigo-500 hover:bg-indigo-600 text-white'
@@ -330,6 +367,15 @@ export function ReviewSendStep({ data, onSubmit, isSubmitting, error }: ReviewSe
           </motion.div>
         </div>
       </div>
+
+      {/* Email Preview Modal */}
+      <EmailPreviewModal
+        isOpen={isEmailPreviewOpen}
+        onClose={handleCloseEmailPreview}
+        quoteData={quoteDataForPreview}
+        shopName="Your Shop"
+        shopEmail="quotes@example.com"
+      />
     </div>
   );
 }
