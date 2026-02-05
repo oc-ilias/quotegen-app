@@ -3,6 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --focus-color: #6366f1;
+  --focus-offset: 2px;
 }
 
 @theme inline {
@@ -23,4 +25,268 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ============================================================================
+   Accessibility: Focus Management
+   ============================================================================ */
+
+/* Visible focus indicators for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: var(--focus-offset);
+}
+
+/* Remove default focus outline for mouse users, keep for keyboard */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Ensure interactive elements have visible focus */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+}
+
+/* ============================================================================
+   Accessibility: Screen Reader Only Content
+   ============================================================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Show on focus - for skip links */
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ============================================================================
+   Accessibility: Reduced Motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Disable parallax and other motion effects */
+  .motion-safe {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ============================================================================
+   Accessibility: High Contrast Mode Support
+   ============================================================================ */
+
+@media (prefers-contrast: high) {
+  :root {
+    --focus-color: #000000;
+  }
+
+  /* Ensure borders are visible */
+  button,
+  input,
+  select,
+  textarea {
+    border: 2px solid currentColor;
+  }
+
+  /* Ensure links are underlined */
+  a {
+    text-decoration: underline;
+  }
+
+  /* Enhance focus visibility */
+  :focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 3px;
+  }
+}
+
+/* ============================================================================
+   Accessibility: Print Styles
+   ============================================================================ */
+
+@media print {
+  /* Hide non-essential elements */
+  .no-print,
+  nav,
+  button:not([type="submit"]),
+  [role="alert"],
+  [role="status"],
+  .toast,
+  .skip-nav {
+    display: none !important;
+  }
+
+  /* Ensure text is readable */
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Show URLs for links */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Ensure tables are readable */
+  table {
+    border-collapse: collapse;
+  }
+
+  th,
+  td {
+    border: 1px solid #000;
+    padding: 0.5em;
+  }
+}
+
+/* ============================================================================
+   Accessibility: Color Contrast Utilities
+   ============================================================================ */
+
+/* Ensure minimum contrast ratios */
+.text-contrast-high {
+  color: #000000;
+}
+
+.text-contrast-high-light {
+  color: #ffffff;
+}
+
+/* Don't rely on color alone - add visual indicators */
+.error-indicator::before {
+  content: "⚠ ";
+}
+
+.success-indicator::before {
+  content: "✓ ";
+}
+
+.warning-indicator::before {
+  content: "⚡ ";
+}
+
+.info-indicator::before {
+  content: "ℹ ";
+}
+
+/* ============================================================================
+   Accessibility: Touch Targets
+   ============================================================================ */
+
+/* Minimum 44x44px touch targets for mobile */
+@media (pointer: coarse) {
+  button,
+  a,
+  input[type="checkbox"],
+  input[type="radio"],
+  select {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Increase spacing for touch */
+  .touch-spaced > * + * {
+    margin-top: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   Accessibility: Form Enhancements
+   ============================================================================ */
+
+/* Required field indicator */
+.required::after {
+  content: " *";
+  color: #ef4444;
+}
+
+/* Invalid field styling */
+input:invalid:not(:placeholder-shown),
+select:invalid:not(:placeholder-shown),
+textarea:invalid:not(:placeholder-shown) {
+  border-color: #ef4444;
+}
+
+input:invalid:not(:placeholder-shown):focus,
+select:invalid:not(:placeholder-shown):focus,
+textarea:invalid:not(:placeholder-shown):focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+/* ============================================================================
+   Accessibility: Dialog/Modal
+   ============================================================================ */
+
+/* Prevent body scroll when modal is open */
+body:has([role="dialog"][aria-modal="true"]) {
+  overflow: hidden;
+}
+
+/* Ensure dialogs are on top */
+[role="dialog"] {
+  z-index: 9999;
+}
+
+/* ============================================================================
+   Accessibility: Scrollbar
+   ============================================================================ */
+
+/* Visible scrollbars for keyboard users */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 6px;
+  border: 3px solid #1e293b;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #475569 #1e293b;
 }

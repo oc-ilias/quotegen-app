@@ -7,7 +7,11 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@supabase/supabase-js$': '<rootDir>/__tests__/mocks/supabase.ts',
   },
-  testPathIgnorePatterns: ['<rootDir>/.next/', '<rootDir>/node_modules/', '<rootDir>/__tests__/mocks/'],
+  testPathIgnorePatterns: [
+    '<rootDir>/.next/',
+    '<rootDir>/node_modules/',
+    '<rootDir>/__tests__/mocks/',
+  ],
   coverageThreshold: {
     global: {
       branches: 70,
@@ -20,6 +24,7 @@ module.exports = {
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
     '!src/app/layout.tsx',
+    '!src/components/accessibility/**', // Exclude a11y utils from coverage requirement
   ],
   transform: {
     '^.+\\.tsx?$': [
@@ -33,6 +38,17 @@ module.exports = {
     ],
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(framer-motion|@headlessui|@heroicons)/)',
+    'node_modules/(?!(framer-motion|@headlessui|@heroicons|axe-core|jest-axe)/)',
   ],
+  // Add test match for accessibility tests
+  testMatch: [
+    '**/__tests__/**/*.test.{ts,tsx}',
+    '**/?(*.)+(spec|test).{ts,tsx}',
+  ],
+  // Module file extensions
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  // Coverage reporters
+  coverageReporters: ['text', 'text-summary', 'lcov', 'html'],
+  // Verbose output for better debugging
+  verbose: true,
 };

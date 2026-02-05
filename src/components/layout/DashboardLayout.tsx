@@ -1,6 +1,7 @@
 /**
- * Dashboard Layout
- * Main layout wrapper with sidebar, header, and content area
+ * Dashboard Layout (Accessibility Enhanced)
+ * Main layout wrapper with sidebar, header, and accessible content area
+ * @module components/layout/DashboardLayout
  */
 
 'use client';
@@ -10,6 +11,8 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Sidebar, type NavItemId } from '@/components/navigation/Sidebar';
 import { Header, type Notification } from '@/components/layout/Header';
+import { SkipNavigation } from '@/components/accessibility/SkipNavigation';
+import { ToastProvider } from '@/components/ui/Toast';
 
 // ============================================================================
 // Types
@@ -43,24 +46,24 @@ interface BreadcrumbsProps {
 }
 
 export const Breadcrumbs = ({ items }: BreadcrumbsProps) => (
-  <nav className="flex items-center gap-2 text-sm text-slate-500 mb-4">
-    {items.map((item, index) => (
-      <React.Fragment key={item.label}>
-        {index > 0 && (
-          <span className="text-slate-700">/</span>
-        )}
-        {item.href ? (
-          <a
-            href={item.href}
-            className="hover:text-slate-300 transition-colors"
-          >
-            {item.label}
-          </a>
-        ) : (
-          <span className="text-slate-300">{item.label}</span>
-        )}
-      </React.Fragment>
-    ))}
+  <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-slate-500 mb-4">
+    <ol className="flex items-center gap-2">
+      {items.map((item, index) => (
+        <li key={item.label} className="flex items-center gap-2">
+          {index > 0 && <span className="text-slate-700" aria-hidden="true">/</span>}
+          {item.href ? (
+            <a
+              href={item.href}
+              className="hover:text-slate-300 transition-colors"
+            >
+              {item.label}
+            </a>
+          ) : (
+            <span className="text-slate-300" aria-current="page">{item.label}</span>
+          )}
+        </li>
+      ))}
+    </ol>
   </nav>
 );
 
@@ -76,7 +79,7 @@ export interface PageHeaderProps {
 }
 
 export const PageHeader = ({ title, subtitle, actions, breadcrumbs }: PageHeaderProps) => (
-  <div className="mb-8">
+  <header className="mb-8">
     {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
     
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -91,7 +94,7 @@ export const PageHeader = ({ title, subtitle, actions, breadcrumbs }: PageHeader
         <div className="flex items-center gap-3">{actions}</div>
       )}
     </div>
-  </div>
+  </header>
 );
 
 // ============================================================================
@@ -113,60 +116,73 @@ export function DashboardLayout({
 }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="min-h-screen bg-slate-950">
-      {/* Sidebar */}
-      <Sidebar
-        activeItem={activeNavItem}
-        onNavigate={onNavigate}
-        userName={userName}
-        userEmail={userEmail}
-        shopName={shopName}
-        notificationCount={unreadCount}
-      />
-
-      {/* Main Content Area */}
-      <div 
-        className={cn(
-          'transition-all duration-300 ease-in-out',
-          'lg:ml-20', // Collapsed sidebar width
-          'xl:ml-64', // Expanded sidebar width on larger screens
-        )}
-      >
-        {/* Header */}
-        <Header
-          userName={userName}
-          userEmail={userEmail}
-          userAvatar={userAvatar}
-          notificationCount={unreadCount}
-          notifications={notifications}
-          onSearch={onSearch}
-          onNotificationClick={onNotificationClick}
-          onMarkAllRead={() => {
-            // Handle mark all as read
-            console.log('Mark all notifications as read');
-          }}
-          onSettings={() => {
-            onNavigate?.('settings');
-          }}
+    <ToastProvider>
+      <div className="min-h-screen bg-slate-950">
+        {/* Skip Navigation Links */}
+        <SkipNavigation
+          links={[
+            { id: 'main-content', label: 'Skip to main content' },
+            { id: 'navigation', label: 'Skip to navigation' },
+            { id: 'search', label: 'Skip to search' },
+          ]}
         />
 
-        {/* Page Content */}
-        <motion.main
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+        {/* Sidebar Navigation */}
+        <Sidebar
+          activeItem={activeNavItem}
+          onNavigate={onNavigate}
+          userName={userName}
+          userEmail={userEmail}
+          shopName={shopName}
+          notificationCount={unreadCount}
+        />
+
+        {/* Main Content Area */}
+        <div
           className={cn(
-            'p-6 lg:p-8 min-h-[calc(100vh-80px)]',
-            className
+            'transition-all duration-300 ease-in-out',
+            'lg:ml-20', // Collapsed sidebar width
+            'xl:ml-64' // Expanded sidebar width on larger screens
           )}
         >
-          {children}
-        </motion.main>
+          {/* Header */}
+          <Header
+            userName={userName}
+            userEmail={userEmail}
+            userAvatar={userAvatar}
+            notificationCount={unreadCount}
+            notifications={notifications}
+            onSearch={onSearch}
+            onNotificationClick={onNotificationClick}
+            onMarkAllRead={() => {
+              console.log('Mark all notifications as read');
+            }}
+            onSettings={() => {
+              onNavigate?.('settings');
+            }}
+          />
+
+          {/* Main Content */}
+          <motion.main
+            id="main-content"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className={cn(
+              'p-6 lg:p-8 min-h-[calc(100vh-80px)]',
+              'focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950',
+              className
+            )}
+            tabIndex={-1}
+          >
+            {children}
+          </motion.main>
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 }
 
@@ -174,12 +190,12 @@ export function DashboardLayout({
 // Content Container Components
 // ============================================================================
 
-export const ContentGrid = ({ 
-  children, 
+export const ContentGrid = ({
+  children,
   className,
-  cols = 3 
-}: { 
-  children: React.ReactNode; 
+  cols = 3,
+}: {
+  children: React.ReactNode;
   className?: string;
   cols?: 1 | 2 | 3 | 4;
 }) => {
@@ -197,21 +213,25 @@ export const ContentGrid = ({
   );
 };
 
-export const ContentSection = ({ 
-  children, 
+export const ContentSection = ({
+  children,
   className,
   title,
-  action
-}: { 
-  children: React.ReactNode; 
+  action,
+}: {
+  children: React.ReactNode;
   className?: string;
   title?: string;
   action?: React.ReactNode;
 }) => (
-  <section className={cn('space-y-4', className)}>
+  <section className={cn('space-y-4', className)} aria-labelledby={title ? `section-${title}` : undefined}>
     {(title || action) && (
       <div className="flex items-center justify-between">
-        {title && <h2 className="text-lg font-semibold text-slate-200">{title}</h2>}
+        {title && (
+          <h2 id={`section-${title}`} className="text-lg font-semibold text-slate-200">
+            {title}
+          </h2>
+        )}
         {action && <div>{action}</div>}
       </div>
     )}
