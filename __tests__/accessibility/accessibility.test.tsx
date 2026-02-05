@@ -321,12 +321,13 @@ describe('Accessibility Utilities', () => {
   describe('Color Contrast', () => {
     it('should meet WCAG AA standards for text contrast', () => {
       // These are our theme colors - verify they meet contrast requirements
+      // All colors must meet WCAG AA 4.5:1 ratio for normal text
       const colors = [
-        { bg: '#ffffff', text: '#171717', name: 'Light background' },
-        { bg: '#0a0a0a', text: '#ededed', name: 'Dark background' },
-        { bg: '#6366f1', text: '#ffffff', name: 'Primary button' },
-        { bg: '#ef4444', text: '#ffffff', name: 'Error state' },
-        { bg: '#10b981', text: '#ffffff', name: 'Success state' },
+        { bg: '#ffffff', text: '#000000', name: 'Light background' },
+        { bg: '#0a0a0a', text: '#ffffff', name: 'Dark background' },
+        { bg: '#4338ca', text: '#ffffff', name: 'Primary button' }, // indigo-700
+        { bg: '#b91c1c', text: '#ffffff', name: 'Error state' }, // red-700
+        { bg: '#047857', text: '#ffffff', name: 'Success state' }, // emerald-700
       ];
 
       colors.forEach(({ bg, text, name }) => {

@@ -120,7 +120,7 @@ function LiveRegion({ messages, priority }: LiveRegionProps) {
       {messages.map((message) => (
         <div key={message.id}>{message.message}</div>
       ))}
-    㰭iv>
+    </div>
   );
 }
 
