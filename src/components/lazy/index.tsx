@@ -1,292 +1,215 @@
 /**
- * Lazy Loaded Components
- * Exports dynamically imported components for code splitting
+ * Lazy Loading Components
+ * Provides dynamic imports and code splitting for heavy components
  * @module components/lazy
  */
 
 'use client';
 
-import dynamic from 'next/dynamic';
-import { Suspense } from 'react';
-import {
-  ChartSkeleton,
-  CardSkeleton,
-  ActivityFeedSkeleton,
-  WizardStepSkeleton,
-} from '@/components/ui/Skeleton';
+import { Suspense, lazy, ComponentType, ReactNode } from 'react';
+import { LoadingSpinner } from '@/components/ErrorBoundary';
 
 // ============================================================================
-// Analytics Components (Heavy - Lazy Loaded)
+// Loading Fallback Components
 // ============================================================================
 
-export const LazyAnalyticsDashboard = dynamic(
-  () => import('@/components/analytics/AnalyticsDashboard').then(mod => mod.AnalyticsDashboard),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <CardSkeleton key={i} />
-          ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <ChartSkeleton height={300} />
-          <ChartSkeleton height={300} />
-        </div>
-      </div>
-    ),
-  }
-);
-
-export const LazyRevenueChart = dynamic(
-  () => import('@/components/analytics/RevenueChart').then(mod => mod.RevenueChart),
-  {
-    ssr: false,
-    loading: () => <ChartSkeleton height={400} />,
-  }
-);
-
-export const LazyConversionChart = dynamic(
-  () => import('@/components/analytics/ConversionChart').then(mod => mod.ConversionChart),
-  {
-    ssr: false,
-    loading: () => <ChartSkeleton height={400} />,
-  }
-);
-
-export const LazyStatusBreakdown = dynamic(
-  () => import('@/components/analytics/StatusBreakdown').then(mod => mod.StatusBreakdown),
-  {
-    ssr: false,
-    loading: () => <CardSkeleton header contentLines={5} />,
-  }
-);
-
-export const LazyTopProducts = dynamic(
-  () => import('@/components/analytics/TopProducts').then(mod => mod.TopProducts),
-  {
-    ssr: false,
-    loading: () => <CardSkeleton header contentLines={5} />,
-  }
-);
-
-// ============================================================================
-// PDF Components (Heavy - Lazy Loaded)
-// ============================================================================
-
-export const LazyQuotePDF = dynamic(
-  () => import('@/components/pdf/QuotePDF').then(mod => mod.QuotePDFDocument),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex items-center gap-3 text-slate-500">
-          <div className="w-5 h-5 border-2 border-slate-600 border-t-indigo-500 rounded-full animate-spin" />
-          Loading PDF generator...
-        </div>
-      </div>
-    ),
-  }
-);
-
-export const LazyPDFDownloadButton = dynamic(
-  () => import('@/components/pdf/QuotePDF').then(mod => mod.PDFDownloadButton),
-  {
-    ssr: false,
-    loading: () => (
-      <button
-        disabled
-        className="inline-flex items-center gap-2 px-4 py-2 bg-slate-700 text-slate-400 rounded-lg cursor-not-allowed"
-      >
-        <div className="w-4 h-4 border-2 border-slate-500 border-t-slate-300 rounded-full animate-spin" />
-        Loading...
-      </button>
-    ),
-  }
-);
-
-export const LazyPDFPreview = dynamic(
-  () => import('@/components/pdf/QuotePDF').then(mod => mod.PDFPreview),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="flex items-center justify-center h-[600px] bg-slate-900/50 rounded-xl">
-        <div className="flex items-center gap-3 text-slate-500">
-          <div className="w-5 h-5 border-2 border-slate-600 border-t-indigo-500 rounded-full animate-spin" />
-          Loading PDF preview...
-        </div>
-      </div>
-    ),
-  }
-);
-
-// ============================================================================
-// Wizard Step Components (Lazy Loaded for Progressive Loading)
-// ============================================================================
-
-export const LazyCustomerInfoStep = dynamic(
-  () => import('@/components/wizard/steps/CustomerInfoStep'),
-  {
-    ssr: false,
-    loading: () => <WizardStepSkeleton />,
-  }
-);
-
-export const LazyProductSelectionStep = dynamic(
-  () => import('@/components/wizard/steps/ProductSelectionStep'),
-  {
-    ssr: false,
-    loading: () => <WizardStepSkeleton />,
-  }
-);
-
-export const LazyLineItemsStep = dynamic(
-  () => import('@/components/wizard/steps/LineItemsStep'),
-  {
-    ssr: false,
-    loading: () => <WizardStepSkeleton />,
-  }
-);
-
-export const LazyTermsNotesStep = dynamic(
-  () => import('@/components/wizard/steps/TermsNotesStep'),
-  {
-    ssr: false,
-    loading: () => <WizardStepSkeleton />,
-  }
-);
-
-export const LazyReviewSendStep = dynamic(
-  () => import('@/components/wizard/steps/ReviewSendStep'),
-  {
-    ssr: false,
-    loading: () => <WizardStepSkeleton />,
-  }
-);
-
-// ============================================================================
-// Dashboard Components
-// ============================================================================
-
-export const LazyActivityFeed = dynamic(
-  () => import('@/components/dashboard/ActivityFeed').then(mod => mod.ActivityFeed),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-6">
-        <ActivityFeedSkeleton />
-      </div>
-    ),
-  }
-);
-
-export const LazyRecentQuotes = dynamic(
-  () => import('@/components/dashboard/RecentQuotes'),
-  {
-    ssr: false,
-    loading: () => <CardSkeleton header contentLines={5} />,
-  }
-);
-
-// ============================================================================
-// Email Components
-// ============================================================================
-
-export const LazyEmailHistory = dynamic(
-  () => import('@/components/email/EmailHistory').then(mod => mod.EmailHistory),
-  {
-    ssr: false,
-    loading: () => <CardSkeleton header contentLines={5} />,
-  }
-);
-
-// ============================================================================
-// Wrappers with Suspense boundaries
-// ============================================================================
-
-interface LazyComponentWrapperProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+interface LoadingFallbackProps {
+  message?: string;
+  fullPage?: boolean;
 }
 
-export function LazyAnalyticsWrapper({ children, fallback }: LazyComponentWrapperProps) {
+export function LoadingFallback({ message = 'Loading...', fullPage = false }: LoadingFallbackProps) {
+  const content = (
+    <div className={`flex flex-col items-center justify-center gap-4 ${fullPage ? 'min-h-[60vh]' : 'py-12'}`}>
+      <LoadingSpinner size="lg" />
+      <p className="text-gray-500 animate-pulse">{message}</p>
+    </div>
+  );
+
+  return content;
+}
+
+export function TableLoadingFallback() {
   return (
-    <Suspense
-      fallback={
-        fallback || (
-          <div className="space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <CardSkeleton key={i} />
-              ))}
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <ChartSkeleton height={300} />
-              <ChartSkeleton height={300} />
-            </div>
-          </div>
-        )
-      }
-    >
-      {children}
+    <div className="animate-pulse">
+      <div className="h-10 bg-gray-200 rounded mb-4" />
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="h-16 bg-gray-100 rounded mb-2" />
+      ))}
+    </div>
+  );
+}
+
+export function CardLoadingFallback({ count = 3 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {[...Array(count)].map((_, i) => (
+        <div key={i} className="h-32 bg-gray-100 rounded-lg animate-pulse" />
+      ))}
+    </div>
+  );
+}
+
+// ============================================================================
+// Lazy Loaded Components
+// ============================================================================
+
+// Heavy: PDF Viewer - only loaded when needed
+export const PDFViewer = lazy(() => 
+  import('@/components/PDFViewer').then(mod => ({ default: mod.PDFViewer }))
+);
+
+// Heavy: Charts - only loaded when analytics tab is accessed
+export const QuoteAnalytics = lazy(() => 
+  import('@/components/QuoteAnalytics').then(mod => ({ default: mod.QuoteAnalytics }))
+);
+
+// Heavy: Data Grid for large datasets
+export const DataGrid = lazy(() => 
+  import('@/components/DataGrid').then(mod => ({ default: mod.DataGrid }))
+);
+
+// Heavy: Rich text editor
+export const RichTextEditor = lazy(() => 
+  import('@/components/RichTextEditor').then(mod => ({ default: mod.RichTextEditor }))
+);
+
+// Heavy: Full-screen modal with complex content
+export const QuoteWizard = lazy(() => 
+  import('@/components/QuoteWizard').then(mod => ({ default: mod.QuoteWizard }))
+);
+
+// ============================================================================
+// Suspense Wrapper Components
+// ============================================================================
+
+interface LazyComponentProps {
+  children?: ReactNode;
+  fallback?: ReactNode;
+}
+
+export function LazyPDFViewer(props: React.ComponentProps<typeof PDFViewer>) {
+  return (
+    <Suspense fallback={<LoadingFallback message="Loading PDF viewer..." />}>
+      <PDFViewer {...props} />
     </Suspense>
   );
 }
 
-export function LazyPDFWrapper({ children, fallback }: LazyComponentWrapperProps) {
+export function LazyQuoteAnalytics(props: React.ComponentProps<typeof QuoteAnalytics>) {
   return (
-    <Suspense
-      fallback={
-        fallback || (
-          <div className="flex items-center justify-center h-64">
-            <div className="flex items-center gap-3 text-slate-500">
-              <div className="w-5 h-5 border-2 border-slate-600 border-t-indigo-500 rounded-full animate-spin" />
-              Loading PDF...
-            </div>
-          </div>
-        )
-      }
-    >
-      {children}
+    <Suspense fallback={<LoadingFallback message="Loading analytics..." />}>
+      <QuoteAnalytics {...props} />
     </Suspense>
   );
 }
 
-export function LazyWizardWrapper({ children, fallback }: LazyComponentWrapperProps) {
+export function LazyDataGrid(props: React.ComponentProps<typeof DataGrid>) {
   return (
-    <Suspense fallback={fallback || <WizardStepSkeleton />}>
-      {children}
+    <Suspense fallback={<TableLoadingFallback />}>
+      <DataGrid {...props} />
+    </Suspense>
+  );
+}
+
+export function LazyRichTextEditor(props: React.ComponentProps<typeof RichTextEditor>) {
+  return (
+    <Suspense fallback={<LoadingFallback message="Loading editor..." />}>
+      <RichTextEditor {...props} />
+    </Suspense>
+  );
+}
+
+export function LazyQuoteWizard(props: React.ComponentProps<typeof QuoteWizard>) {
+  return (
+    <Suspense fallback={<LoadingFallback message="Loading wizard..." fullPage />}>
+      <QuoteWizard {...props} />
     </Suspense>
   );
 }
 
 // ============================================================================
-// Preload functions for eager loading when needed
+// Dynamic Import Helper
 // ============================================================================
 
-export function preloadAnalytics(): void {
-  void import('@/components/analytics/AnalyticsDashboard');
-  void import('@/components/analytics/RevenueChart');
-  void import('@/components/analytics/ConversionChart');
-}
-
-export function preloadPDF(): void {
-  void import('@/components/pdf/QuotePDF');
-}
-
-export function preloadWizardStep(step: 'customer-info' | 'product-selection' | 'line-items' | 'terms-notes' | 'review-send'): void {
-  const stepImports = {
-    'customer-info': () => import('@/components/wizard/steps/CustomerInfoStep'),
-    'product-selection': () => import('@/components/wizard/steps/ProductSelectionStep'),
-    'line-items': () => import('@/components/wizard/steps/LineItemsStep'),
-    'terms-notes': () => import('@/components/wizard/steps/TermsNotesStep'),
-    'review-send': () => import('@/components/wizard/steps/ReviewSendStep'),
+/**
+ * Creates a lazy loaded component with a custom loading fallback
+ */
+export function createLazyComponent<T extends ComponentType<any>>(
+  importFn: () => Promise<{ default: T }>,
+  fallback?: ReactNode
+) {
+  const LazyComponent = lazy(importFn);
+  
+  return function LazyWrapper(props: React.ComponentProps<T>) {
+    return (
+      <Suspense fallback={fallback || <LoadingFallback />}>
+        <LazyComponent {...props} />
+      </Suspense>
+    );
   };
-  void stepImports[step]();
 }
 
-// Re-export original components for static imports when needed
-export { AnalyticsDashboard } from '@/components/analytics/AnalyticsDashboard';
-export { RevenueChart } from '@/components/analytics/RevenueChart';
-export { PDFDownloadButton, PDFPreview } from '@/components/pdf/QuotePDF';
+// ============================================================================
+// Preload Utilities
+// ============================================================================
+
+const preloadedModules = new Set<string>();
+
+/**
+ * Preload a component in the background
+ * Call this when you anticipate the user will need a component soon
+ */
+export function preloadComponent(componentName: 'pdf' | 'analytics' | 'wizard' | 'charts') {
+  if (preloadedModules.has(componentName)) return;
+  
+  preloadedModules.add(componentName);
+  
+  // Use requestIdleCallback to preload during browser idle time
+  const preload = () => {
+    switch (componentName) {
+      case 'pdf':
+        import('@/components/PDFViewer');
+        break;
+      case 'analytics':
+        import('@/components/QuoteAnalytics');
+        break;
+      case 'wizard':
+        import('@/components/QuoteWizard');
+        break;
+      case 'charts':
+        import('@/components/QuoteAnalytics');
+        break;
+    }
+  };
+
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    requestIdleCallback(preload, { timeout: 2000 });
+  } else {
+    setTimeout(preload, 100);
+  }
+}
+
+/**
+ * Hook to preload a component on hover or focus
+ */
+export function usePreloadOnInteraction(componentName: 'pdf' | 'analytics' | 'wizard' | 'charts') {
+  return {
+    onMouseEnter: () => preloadComponent(componentName),
+    onFocus: () => preloadComponent(componentName),
+  };
+}
+
+export default {
+  PDFViewer: LazyPDFViewer,
+  QuoteAnalytics: LazyQuoteAnalytics,
+  DataGrid: LazyDataGrid,
+  RichTextEditor: LazyRichTextEditor,
+  QuoteWizard: LazyQuoteWizard,
+  LoadingFallback,
+  TableLoadingFallback,
+  CardLoadingFallback,
+  createLazyComponent,
+  preloadComponent,
+  usePreloadOnInteraction,
+};

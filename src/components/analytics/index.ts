@@ -1,30 +1,22 @@
-/**
- * Analytics Components Index
- * @module components/analytics
- */
+// Analytics Components Index
+// Comprehensive exports for all analytics-related components
 
+export { AnalyticsDashboard } from './AnalyticsDashboard';
 export { AnalyticsDashboardEnhanced } from './AnalyticsDashboardEnhanced';
-export type { 
-  AnalyticsDashboardEnhancedProps,
-  DateRange,
-  AnalyticsData,
-  DashboardStats,
-} from './AnalyticsDashboardEnhanced';
-
-// New analytics components
-export { FunnelChart } from './FunnelChart';
-export type { FunnelChartProps } from './FunnelChart';
-
-export { GeographicMap } from './GeographicMap';
-export type { GeographicMapProps } from './GeographicMap';
-export { generateMockRegionData } from './GeographicMap';
-
-export { PerformanceMetrics } from './PerformanceMetrics';
-export type { PerformanceMetricsProps } from './PerformanceMetrics';
-
-// Re-export existing components
-export { RevenueChart } from './RevenueChart';
 export { ConversionChart } from './ConversionChart';
+export { FunnelChart } from './FunnelChart';
+export { GeographicMap } from './GeographicMap';
+export { PerformanceMetrics } from './PerformanceMetrics';
+export { RevenueChart } from './RevenueChart';
 export { StatusBreakdown } from './StatusBreakdown';
 export { TopProducts } from './TopProducts';
-export { AnalyticsDashboard } from './AnalyticsDashboard';
+
+// Re-export types
+export type { AnalyticsDashboardProps } from './AnalyticsDashboard';
+export type { RevenueChartProps } from './RevenueChart';
+export type { ConversionChartProps } from './ConversionChart';
+export type { FunnelChartProps } from './FunnelChart';
+export type { GeographicMapProps } from './GeographicMap';
+export type { PerformanceMetricsProps } from './PerformanceMetrics';
+export type { StatusBreakdownProps } from './StatusBreakdown';
+export type { TopProductsProps } from './TopProducts';
