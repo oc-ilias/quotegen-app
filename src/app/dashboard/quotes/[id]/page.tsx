@@ -36,7 +36,7 @@ import {
   ChevronDownIcon,
   LinkIcon,
 } from '@heroicons/react/24/outline';
-import { QuoteStatus, QuoteStatusLabels, QuoteStatusColors, type Quote, type Customer, type LineItem, type Activity } from '@/types/quote';
+import { QuoteStatus, QuotePriority, ActivityType, QuoteStatusLabels, QuoteStatusColors, type Quote, type Customer, type LineItem, type Activity } from '@/types/quote';
 
 // ============================================================================
 // Mock Data
@@ -73,7 +73,7 @@ const mockQuote: Quote = {
   },
   title: 'Industrial Equipment Quote - Q1 2024',
   status: QuoteStatus.SENT,
-  priority: 'high' as const,
+  priority: QuotePriority.HIGH,
   lineItems: [
     {
       id: 'li_001',
@@ -149,7 +149,7 @@ const mockQuote: Quote = {
 const mockActivities: Activity[] = [
   {
     id: 'act_001',
-    type: 'quote_sent' as const,
+    type: ActivityType.QUOTE_SENT,
     quoteId: 'qt_001',
     quoteNumber: 'QT-2024-001',
     customerName: 'John Smith',
@@ -160,7 +160,7 @@ const mockActivities: Activity[] = [
   },
   {
     id: 'act_002',
-    type: 'quote_viewed' as const,
+    type: ActivityType.QUOTE_VIEWED,
     quoteId: 'qt_001',
     quoteNumber: 'QT-2024-001',
     customerName: 'John Smith',
@@ -170,7 +170,7 @@ const mockActivities: Activity[] = [
   },
   {
     id: 'act_003',
-    type: 'note_added' as const,
+    type: ActivityType.NOTE_ADDED,
     quoteId: 'qt_001',
     quoteNumber: 'QT-2024-001',
     userName: 'Jane Wilson',
@@ -179,7 +179,7 @@ const mockActivities: Activity[] = [
   },
   {
     id: 'act_004',
-    type: 'quote_created' as const,
+    type: ActivityType.QUOTE_CREATED,
     quoteId: 'qt_001',
     quoteNumber: 'QT-2024-001',
     customerName: 'John Smith',

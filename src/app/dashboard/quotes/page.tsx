@@ -16,7 +16,7 @@ import {
   ChevronDownIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
-import { QuoteStatus, type Quote } from '@/types/quote';
+import { QuoteStatus, QuotePriority, type Quote } from '@/types/quote';
 
 // Mock data
 const mockQuotes: Quote[] = [
@@ -35,7 +35,7 @@ const mockQuotes: Quote[] = [
     title: 'Industrial Equipment Quote',
     total: 15000,
     status: QuoteStatus.ACCEPTED,
-    priority: 'medium',
+    priority: QuotePriority.MEDIUM,
     lineItems: [],
     subtotal: 14000,
     discountTotal: 500,
@@ -72,7 +72,7 @@ const mockQuotes: Quote[] = [
     title: 'Software Licensing Quote',
     total: 8500,
     status: QuoteStatus.SENT,
-    priority: 'medium',
+    priority: QuotePriority.MEDIUM,
     lineItems: [],
     subtotal: 8000,
     discountTotal: 0,
@@ -109,7 +109,7 @@ const mockQuotes: Quote[] = [
     title: 'Construction Materials',
     total: 23000,
     status: QuoteStatus.PENDING,
-    priority: 'high',
+    priority: QuotePriority.HIGH,
     lineItems: [],
     subtotal: 21000,
     discountTotal: 500,
@@ -146,7 +146,7 @@ const mockQuotes: Quote[] = [
     title: 'Design Services Package',
     total: 5200,
     status: QuoteStatus.VIEWED,
-    priority: 'low',
+    priority: QuotePriority.LOW,
     lineItems: [],
     subtotal: 4800,
     discountTotal: 0,
@@ -183,7 +183,7 @@ const mockQuotes: Quote[] = [
     title: 'Raw Materials Order',
     total: 45000,
     status: QuoteStatus.EXPIRED,
-    priority: 'medium',
+    priority: QuotePriority.MEDIUM,
     lineItems: [],
     subtotal: 42000,
     discountTotal: 0,

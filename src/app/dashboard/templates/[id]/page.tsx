@@ -24,7 +24,7 @@ import {
   ExclamationTriangleIcon,
   BeakerIcon,
 } from '@heroicons/react/24/outline';
-import { type EmailTemplate, TemplateVariable } from '@/types/template';
+import { type EmailTemplate, TemplateVariable, TemplateCategory, TemplateVariableLabels, TemplateVariableDescriptions } from '@/types/template';
 
 // ============================================================================
 // Mock Data
@@ -34,7 +34,7 @@ const mockTemplate: EmailTemplate = {
   id: 'tpl_001',
   name: 'Quote Sent Notification',
   subject: 'Your Quote {{quoteNumber}} from {{companyName}}',
-  body: `<!DOCTYPE html>
+  htmlContent: `<!DOCTYPE html>
 <html>
 <head>
   <style>
@@ -73,30 +73,34 @@ const mockTemplate: EmailTemplate = {
   </div>
 </body>
 </html>`,
-  category: 'quotes',
+  category: TemplateCategory.QUOTE,
   isDefault: true,
   description: 'Sent to customers when a new quote is created and sent',
-  variables: [
-    { key: 'customerName', label: 'Customer Name', description: 'Full name of the customer', required: true },
-    { key: 'quoteNumber', label: 'Quote Number', description: 'Unique quote identifier', required: true },
-    { key: 'quoteTotal', label: 'Quote Total', description: 'Total amount of the quote', required: true },
-    { key: 'quoteExpiryDate', label: 'Expiry Date', description: 'Quote expiration date', required: true },
-    { key: 'quoteUrl', label: 'Quote URL', description: 'Link to view the quote', required: true },
-    { key: 'companyName', label: 'Company Name', description: 'Your company name', required: true },
-    { key: 'senderName', label: 'Sender Name', description: 'Name of the person sending the quote', required: false },
-    { key: 'companyPhone', label: 'Company Phone', description: 'Company phone number', required: false },
-    { key: 'companyEmail', label: 'Company Email', description: 'Company email address', required: false },
-  ],
-  createdAt: new Date('2024-01-15'),
-  updatedAt: new Date('2024-02-01'),
+  theme: {
+    primaryColor: '#4f46e5',
+    secondaryColor: '#8b5cf6',
+    backgroundColor: '#f8fafc',
+    contentBackground: '#ffffff',
+    textColor: '#0f172a',
+    mutedTextColor: '#64748b',
+    borderColor: '#e2e8f0',
+    headerBackground: '#4f46e5',
+    footerBackground: '#f1f5f9',
+    linkColor: '#4f46e5',
+    buttonTextColor: '#ffffff',
+  },
+  footerText: '{{companyName}} | {{companyPhone}} | {{companyEmail}}',
+  createdAt: '2024-01-15T00:00:00.000Z',
+  updatedAt: '2024-02-01T00:00:00.000Z',
+  version: 1,
 };
 
 // Available template categories
 const categories = [
-  { id: 'quotes', name: 'Quotes', description: 'Quote-related emails' },
-  { id: 'followups', name: 'Follow-ups', description: 'Reminder and follow-up emails' },
-  { id: 'notifications', name: 'Notifications', description: 'System notifications' },
-  { id: 'onboarding', name: 'Onboarding', description: 'New customer emails' },
+  { id: TemplateCategory.QUOTE, name: 'Quotes', description: 'Quote-related emails' },
+  { id: TemplateCategory.FOLLOW_UP, name: 'Follow-ups', description: 'Reminder and follow-up emails' },
+  { id: TemplateCategory.REMINDER, name: 'Reminders', description: 'System notifications' },
+  { id: TemplateCategory.GENERAL, name: 'General', description: 'General purpose emails' },
 ];
 
 // ============================================================================
@@ -110,13 +114,12 @@ const VariablePill: React.FC<{
   <motion.button
     whileHover={{ scale: 1.05 }}
     whileTap={{ scale: 0.95 }}
-    onClick={() => onInsert(variable.key)}
+    onClick={() => onInsert(variable)}
     className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-lg text-sm transition-colors"
-    title={variable.description}
+    title={TemplateVariableDescriptions[variable]}
   >
     <VariableIcon className="w-3 h-3" />
-    {variable.key}
-    {variable.required && <span className="text-amber-400">*</span>}
+    {variable}
   </motion.button>
 );
 
@@ -172,7 +175,7 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
   const [formData, setFormData] = useState({
     name: mockTemplate.name,
     subject: mockTemplate.subject,
-    body: mockTemplate.body,
+    htmlContent: mockTemplate.htmlContent,
     category: mockTemplate.category,
     description: mockTemplate.description || '',
     isDefault: mockTemplate.isDefault,
@@ -200,8 +203,8 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
     if (!formData.subject.trim()) {
       newErrors.subject = 'Subject is required';
     }
-    if (!formData.body.trim()) {
-      newErrors.body = 'Body content is required';
+    if (!formData.htmlContent.trim()) {
+      newErrors.htmlContent = 'Body content is required';
     }
     if (!formData.category) {
       newErrors.category = 'Category is required';
@@ -240,8 +243,8 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
       if (textarea) {
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-        const newBody = formData.body.substring(0, start) + variable + formData.body.substring(end);
-        setFormData({ ...formData, body: newBody });
+        const newBody = formData.htmlContent.substring(0, start) + variable + formData.htmlContent.substring(end);
+        setFormData({ ...formData, htmlContent: newBody });
         
         // Restore cursor position after variable
         setTimeout(() => {
@@ -253,12 +256,12 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
   };
 
   const getProcessedHtml = (): string => {
-    let html = formData.body;
+    let html = formData.htmlContent;
     
     // Replace variables with preview data
-    template.variables?.forEach(variable => {
-      const value = previewData[variable.key] || `[${variable.key}]`;
-      html = html.replace(new RegExp(`{{${variable.key}}}`, 'g'), value);
+    Object.values(TemplateVariable).forEach(variable => {
+      const value = previewData[variable] || `[${variable}]`;
+      html = html.replace(new RegExp(`{{${variable}}}`, 'g'), value);
     });
     
     return html;
@@ -435,7 +438,7 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
               <FormField label="Category" required error={errors.category}>
                 <select
                   value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value as TemplateCategory })}
                   className="w-full px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                 >
                   {categories.map(cat => (
@@ -520,12 +523,12 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
                   <label className="block text-sm font-medium text-slate-300"
                   >
                     Email Body
-                    {errors.body && <span className="text-red-400 ml-2">{errors.body}</span>}
+                    {errors.htmlContent && <span className="text-red-400 ml-2">{errors.htmlContent}</span>}
                   </label>
                   <textarea
                     id="template-body"
-                    value={formData.body}
-                    onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                    value={formData.htmlContent}
+                    onChange={(e) => setFormData({ ...formData, htmlContent: e.target.value })}
                     rows={20}
                     className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-slate-200 font-mono text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
                     placeholder="Enter HTML template content..."
@@ -541,8 +544,8 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
                   >HTML Source</label>
                   <textarea
                     id="template-body-html"
-                    value={formData.body}
-                    onChange={(e) => setFormData({ ...formData, body: e.target.value })}
+                    value={formData.htmlContent}
+                    onChange={(e) => setFormData({ ...formData, htmlContent: e.target.value })}
                     rows={20}
                     className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 font-mono text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
                     spellCheck={false}
@@ -587,9 +590,9 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
             
             <div className="flex flex-wrap gap-2"
             >
-              {template.variables?.map((variable) => (
+              {Object.values(TemplateVariable).map((variable) => (
                 <VariablePill
-                  key={variable.key}
+                  key={variable}
                   variable={variable}
                   onInsert={insertVariable}
                 />
@@ -634,15 +637,15 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
 
             <div className="space-y-3"
             >
-              {template.variables?.slice(0, 5).map((variable) => (
-                <div key={variable.key}>
+              {Object.values(TemplateVariable).slice(0, 5).map((variable) => (
+                <div key={variable}>
                   <label className="block text-xs font-medium text-slate-500 mb-1">
-                    {variable.label}
+                    {TemplateVariableLabels[variable]}
                   </label>
                   <input
                     type="text"
-                    value={previewData[variable.key] || ''}
-                    onChange={(e) => setPreviewData({ ...previewData, [variable.key]: e.target.value })}
+                    value={previewData[variable] || ''}
+                    onChange={(e) => setPreviewData({ ...previewData, [variable]: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-slate-200 text-sm focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
                   />
                 </div>
@@ -663,12 +666,12 @@ export default function TemplateEditPage({ params }: { params: { id: string } })
               <div className="flex justify-between"
             >
                 <span className="text-slate-400">Created</span>
-                <span className="text-slate-200">{template.createdAt.toLocaleDateString()}</span>
+                <span className="text-slate-200">{new Date(template.createdAt).toLocaleDateString()}</span>
               </div>
               <div className="flex justify-between"
             >
                 <span className="text-slate-400">Last Updated</span>
-                <span className="text-slate-200">{template.updatedAt.toLocaleDateString()}</span>
+                <span className="text-slate-200">{new Date(template.updatedAt).toLocaleDateString()}</span>
               </div>
               <div className="flex justify-between"
             >

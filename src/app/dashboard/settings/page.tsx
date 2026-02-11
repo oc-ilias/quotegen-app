@@ -27,7 +27,7 @@ import {
   TrashIcon,
   PlusIcon,
   UsersIcon,
-  WebhookIcon,
+  LinkIcon as WebhookIcon,
   CodeBracketIcon,
 } from '@heroicons/react/24/outline';
 

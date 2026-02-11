@@ -765,7 +765,7 @@ export default function CustomerEditPage() {
       setSaveStatus('saved');
       
       if (shouldNavigate) {
-        router.push(shouldNavigate);
+        router.push(shouldNavigate as any);
       }
 
       // Reset save status after 3 seconds
@@ -784,7 +784,7 @@ export default function CustomerEditPage() {
       setPendingNavigation(path);
       setShowUnsavedModal(true);
     } else {
-      router.push(path);
+      router.push(path as any);
     }
   }, [hasUnsavedChanges, router]);
 
@@ -852,7 +852,7 @@ export default function CustomerEditPage() {
         onDiscard={() => {
           setShowUnsavedModal(false);
           if (pendingNavigation) {
-            router.push(pendingNavigation);
+            router.push(pendingNavigation as any);
           }
         }}
         onSave={() => handleSave(pendingNavigation || undefined)}

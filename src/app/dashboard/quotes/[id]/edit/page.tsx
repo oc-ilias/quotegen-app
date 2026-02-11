@@ -24,7 +24,7 @@ import {
   TrashIcon,
   DocumentDuplicateIcon,
 } from '@heroicons/react/24/outline';
-import { type Quote, QuoteStatus, type Customer, type LineItem, type Terms } from '@/types/quote';
+import { type Quote, QuoteStatus, QuotePriority, type Customer, type LineItem, type QuoteTerms } from '@/types/quote';
 
 // ============================================================================
 // Mock Data
@@ -61,7 +61,7 @@ const mockQuote: Quote = {
   },
   title: 'Industrial Equipment Quote - Q1 2024',
   status: QuoteStatus.DRAFT,
-  priority: 'high',
+  priority: QuotePriority.HIGH,
   lineItems: [
     {
       id: 'li_001',
@@ -495,10 +495,10 @@ const LineItemsStep: React.FC<{
 };
 
 const TermsStep: React.FC<{
-  terms: Terms;
-  onChange: (terms: Terms) => void;
+  terms: QuoteTerms;
+  onChange: (terms: QuoteTerms) => void;
 }> = ({ terms, onChange }) => {
-  const updateTerms = (updates: Partial<Terms>) => {
+  const updateTerms = (updates: Partial<QuoteTerms>) => {
     onChange({ ...terms, ...updates });
   };
 
