@@ -54,29 +54,19 @@ export function CardLoadingFallback({ count = 3 }: { count?: number }) {
 // Lazy Loaded Components
 // ============================================================================
 
-// Heavy: PDF Viewer - only loaded when needed
-export const PDFViewer = lazy(() => 
-  import('@/components/PDFViewer').then(mod => ({ default: mod.PDFViewer }))
+// Heavy: PDF Components - only loaded when needed
+export const QuotePDF = lazy(() => 
+  import('@/components/pdf/QuotePDF').then(mod => ({ default: mod.QuotePDF }))
 );
 
-// Heavy: Charts - only loaded when analytics tab is accessed
-export const QuoteAnalytics = lazy(() => 
-  import('@/components/QuoteAnalytics').then(mod => ({ default: mod.QuoteAnalytics }))
+// Heavy: Analytics Charts - only loaded when analytics tab is accessed
+export const AnalyticsDashboard = lazy(() => 
+  import('@/components/analytics/AnalyticsDashboard').then(mod => ({ default: mod.AnalyticsDashboard }))
 );
 
-// Heavy: Data Grid for large datasets
-export const DataGrid = lazy(() => 
-  import('@/components/DataGrid').then(mod => ({ default: mod.DataGrid }))
-);
-
-// Heavy: Rich text editor
-export const RichTextEditor = lazy(() => 
-  import('@/components/RichTextEditor').then(mod => ({ default: mod.RichTextEditor }))
-);
-
-// Heavy: Full-screen modal with complex content
-export const QuoteWizard = lazy(() => 
-  import('@/components/QuoteWizard').then(mod => ({ default: mod.QuoteWizard }))
+// Heavy: Wizard Components - only loaded when creating quotes
+export const QuoteWizardEnhanced = lazy(() => 
+  import('@/components/wizard/QuoteWizardEnhanced').then(mod => ({ default: mod.QuoteWizardEnhanced }))
 );
 
 // ============================================================================
