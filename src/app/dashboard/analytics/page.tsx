@@ -47,7 +47,7 @@ const mockStatusData = [
   { status: QuoteStatus.SENT, count: 35, percentage: 22.4, value: 125000 },
   { status: QuoteStatus.PENDING, count: 20, percentage: 12.8, value: 68000 },
   { status: QuoteStatus.VIEWED, count: 10, percentage: 6.4, value: 32000 },
-  { status: QuoteStatus.DECLINED, count: 3, percentage: 1.9, value: 8500 },
+  { status: QuoteStatus.REJECTED, count: 3, percentage: 1.9, value: 8500 },
 ];
 
 const mockTopProducts = [

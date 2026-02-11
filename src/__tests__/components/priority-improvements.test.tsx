@@ -34,7 +34,13 @@ const mockQuotes: Quote[] = [
     discountTotal: 100,
     taxTotal: 90,
     total: 990,
-    terms: { currency: 'USD' },
+    terms: { 
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
     metadata: {
       createdBy: 'user1',
       createdByName: 'Admin',
@@ -61,7 +67,13 @@ const mockQuotes: Quote[] = [
     discountTotal: 0,
     taxTotal: 180,
     total: 2180,
-    terms: { currency: 'USD' },
+    terms: { 
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
     metadata: {
       createdBy: 'user1',
       createdByName: 'Admin',
@@ -88,7 +100,13 @@ const mockQuotes: Quote[] = [
     discountTotal: 300,
     taxTotal: 270,
     total: 2970,
-    terms: { currency: 'USD' },
+    terms: { 
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
     metadata: {
       createdBy: 'user1',
       createdByName: 'Admin',

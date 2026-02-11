@@ -7,7 +7,7 @@ export { ConversionChart } from './ConversionChart';
 export { DateRangeSelector } from './DateRangeSelector';
 export { ExportMenu } from './ExportMenu';
 export { FunnelChart } from './FunnelChart';
-export { GeographicMap } from './GeographicMap';
+export { GeographicMap, generateMockRegionData } from './GeographicMap';
 export { PerformanceMetrics } from './PerformanceMetrics';
 export { RevenueChart } from './RevenueChart';
 export { StatusBreakdown } from './StatusBreakdown';

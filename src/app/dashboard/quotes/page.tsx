@@ -22,83 +22,188 @@ import { QuoteStatus, type Quote } from '@/types/quote';
 const mockQuotes: Quote[] = [
   {
     id: '1',
-    quote_number: 'QT-2024-001',
+    quoteNumber: 'QT-2024-001',
+    customerId: 'c1',
     customer: {
       id: 'c1',
-      name: 'John Smith',
+      contactName: 'John Smith',
       email: 'john@acme.com',
-      company: 'Acme Corp',
+      companyName: 'Acme Corp',
+      customerSince: new Date('2023-01-01'),
+      tags: [],
     },
     title: 'Industrial Equipment Quote',
     total: 15000,
     status: QuoteStatus.ACCEPTED,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    valid_until: new Date(Date.now() + 7 * 86400000).toISOString(),
-    line_items: [],
+    priority: 'medium',
+    lineItems: [],
+    subtotal: 14000,
+    discountTotal: 500,
+    taxTotal: 500,
+    shippingTotal: 0,
+    terms: {
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
+    metadata: {
+      createdBy: 'user1',
+      createdByName: 'Admin',
+      source: 'web',
+    },
+    createdAt: new Date(Date.now() - 86400000),
+    updatedAt: new Date(Date.now() - 86400000),
+    expiresAt: new Date(Date.now() + 7 * 86400000),
   },
   {
     id: '2',
-    quote_number: 'QT-2024-002',
+    quoteNumber: 'QT-2024-002',
+    customerId: 'c2',
     customer: {
       id: 'c2',
-      name: 'Sarah Johnson',
+      contactName: 'Sarah Johnson',
       email: 'sarah@techflow.io',
-      company: 'TechFlow Solutions',
+      companyName: 'TechFlow Solutions',
+      customerSince: new Date('2023-01-01'),
+      tags: [],
     },
     title: 'Software Licensing Quote',
     total: 8500,
     status: QuoteStatus.SENT,
-    created_at: new Date(Date.now() - 172800000).toISOString(),
-    valid_until: new Date(Date.now() + 5 * 86400000).toISOString(),
-    line_items: [],
+    priority: 'medium',
+    lineItems: [],
+    subtotal: 8000,
+    discountTotal: 0,
+    taxTotal: 500,
+    shippingTotal: 0,
+    terms: {
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
+    metadata: {
+      createdBy: 'user1',
+      createdByName: 'Admin',
+      source: 'web',
+    },
+    createdAt: new Date(Date.now() - 172800000),
+    updatedAt: new Date(Date.now() - 172800000),
+    expiresAt: new Date(Date.now() + 5 * 86400000),
   },
   {
     id: '3',
-    quote_number: 'QT-2024-003',
+    quoteNumber: 'QT-2024-003',
+    customerId: 'c3',
     customer: {
       id: 'c3',
-      name: 'Mike Chen',
+      contactName: 'Mike Chen',
       email: 'mike@buildcraft.com',
-      company: 'BuildCraft Inc',
+      companyName: 'BuildCraft Inc',
+      customerSince: new Date('2023-01-01'),
+      tags: [],
     },
     title: 'Construction Materials',
     total: 23000,
     status: QuoteStatus.PENDING,
-    created_at: new Date(Date.now() - 259200000).toISOString(),
-    valid_until: new Date(Date.now() + 10 * 86400000).toISOString(),
-    line_items: [],
+    priority: 'high',
+    lineItems: [],
+    subtotal: 21000,
+    discountTotal: 500,
+    taxTotal: 1500,
+    shippingTotal: 0,
+    terms: {
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
+    metadata: {
+      createdBy: 'user1',
+      createdByName: 'Admin',
+      source: 'web',
+    },
+    createdAt: new Date(Date.now() - 259200000),
+    updatedAt: new Date(Date.now() - 259200000),
+    expiresAt: new Date(Date.now() + 10 * 86400000),
   },
   {
     id: '4',
-    quote_number: 'QT-2024-004',
+    quoteNumber: 'QT-2024-004',
+    customerId: 'c4',
     customer: {
       id: 'c4',
-      name: 'Emily Davis',
+      contactName: 'Emily Davis',
       email: 'emily@stellar.design',
-      company: 'Stellar Design',
+      companyName: 'Stellar Design',
+      customerSince: new Date('2023-01-01'),
+      tags: [],
     },
     title: 'Design Services Package',
     total: 5200,
     status: QuoteStatus.VIEWED,
-    created_at: new Date(Date.now() - 345600000).toISOString(),
-    valid_until: new Date(Date.now() + 3 * 86400000).toISOString(),
-    line_items: [],
+    priority: 'low',
+    lineItems: [],
+    subtotal: 4800,
+    discountTotal: 0,
+    taxTotal: 400,
+    shippingTotal: 0,
+    terms: {
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
+    metadata: {
+      createdBy: 'user1',
+      createdByName: 'Admin',
+      source: 'web',
+    },
+    createdAt: new Date(Date.now() - 345600000),
+    updatedAt: new Date(Date.now() - 345600000),
+    expiresAt: new Date(Date.now() + 3 * 86400000),
   },
   {
     id: '5',
-    quote_number: 'QT-2024-005',
+    quoteNumber: 'QT-2024-005',
+    customerId: 'c5',
     customer: {
       id: 'c5',
-      name: 'David Wilson',
+      contactName: 'David Wilson',
       email: 'david@manufacture.co',
-      company: 'ManufactureCo',
+      companyName: 'ManufactureCo',
+      customerSince: new Date('2023-01-01'),
+      tags: [],
     },
     title: 'Raw Materials Order',
     total: 45000,
     status: QuoteStatus.EXPIRED,
-    created_at: new Date(Date.now() - 432000000).toISOString(),
-    valid_until: new Date(Date.now() - 86400000).toISOString(),
-    line_items: [],
+    priority: 'medium',
+    lineItems: [],
+    subtotal: 42000,
+    discountTotal: 0,
+    taxTotal: 3000,
+    shippingTotal: 0,
+    terms: {
+      currency: 'USD',
+      paymentTerms: 'net30',
+      deliveryTerms: 'standard',
+      validityPeriod: 30,
+      depositRequired: false,
+    },
+    metadata: {
+      createdBy: 'user1',
+      createdByName: 'Admin',
+      source: 'web',
+    },
+    createdAt: new Date(Date.now() - 432000000),
+    updatedAt: new Date(Date.now() - 432000000),
+    expiresAt: new Date(Date.now() - 86400000),
   },
 ];
 
@@ -108,7 +213,7 @@ const statusColors: Record<QuoteStatus, string> = {
   [QuoteStatus.SENT]: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   [QuoteStatus.VIEWED]: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
   [QuoteStatus.ACCEPTED]: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  [QuoteStatus.DECLINED]: 'bg-red-500/10 text-red-400 border-red-500/20',
+  [QuoteStatus.REJECTED]: 'bg-red-500/10 text-red-400 border-red-500/20',
   [QuoteStatus.EXPIRED]: 'bg-slate-500/10 text-slate-500 border-slate-500/20',
   [QuoteStatus.CONVERTED]: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
 };
@@ -123,9 +228,9 @@ export default function QuotesPage() {
     return mockQuotes.filter((quote) => {
       const matchesSearch =
         searchQuery === '' ||
-        quote.quote_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        quote.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        quote.customer.company?.toLowerCase().includes(searchQuery.toLowerCase());
+        quote.quoteNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.customer.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        quote.customer.companyName?.toLowerCase().includes(searchQuery.toLowerCase());
 
       const matchesStatus =
         statusFilter === 'all' || quote.status === statusFilter;
@@ -269,13 +374,13 @@ export default function QuotesPage() {
                   className="hover:bg-slate-800/50 cursor-pointer transition-colors"
                 >
                   <td className="py-4 px-6">
-                    <span className="font-mono text-sm text-indigo-400">{quote.quote_number}</span>
+                    <span className="font-mono text-sm text-indigo-400">{quote.quoteNumber}</span>
                   </td>
                   <td className="py-4 px-6">
                     <div>
-                      <p className="text-slate-200 font-medium">{quote.customer.name}</p>
-                      {quote.customer.company && (
-                        <p className="text-sm text-slate-500">{quote.customer.company}</p>
+                      <p className="text-slate-200 font-medium">{quote.customer.contactName}</p>
+                      {quote.customer.companyName && (
+                        <p className="text-sm text-slate-500">{quote.customer.companyName}</p>
                       )}
                     </div>
                   </td>
@@ -293,10 +398,10 @@ export default function QuotesPage() {
                     </span>
                   </td>
                   <td className="py-4 px-6">
-                    <span className="text-slate-400 text-sm">{formatDate(quote.created_at)}</span>
+                    <span className="text-slate-400 text-sm">{quote.createdAt.toLocaleDateString()}</span>
                   </td>
                   <td className="py-4 px-6">
-                    <span className="text-slate-400 text-sm">{formatDate(quote.valid_until)}</span>
+                    <span className="text-slate-400 text-sm">{quote.expiresAt?.toLocaleDateString()}</span>
                   </td>
                 </motion.tr>
               ))}

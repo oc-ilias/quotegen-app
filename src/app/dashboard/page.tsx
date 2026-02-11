@@ -15,6 +15,7 @@ import { QuickActions } from '@/components/dashboard/QuickActions';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { QuoteStatus, ActivityType, type ActivityItem, type Quote } from '@/types/quote';
+import type { RecentQuoteItem } from '@/components/dashboard/RecentQuotes';
 
 // ============================================================================
 // Types
@@ -33,7 +34,7 @@ interface DashboardData {
     revenueChange: number;
     conversionChange: number;
   };
-  recentQuotes: Quote[];
+  recentQuotes: RecentQuoteItem[];
   activities: ActivityItem[];
 }
 
@@ -41,70 +42,50 @@ interface DashboardData {
 // Mock Data (for demo)
 // ============================================================================
 
-const mockQuotes: Quote[] = [
+const mockQuotes: RecentQuoteItem[] = [
   {
     id: '1',
-    quote_number: 'QT-2024-001',
-    customer: {
-      id: 'c1',
-      name: 'John Smith',
-      email: 'john@acme.com',
-      company: 'Acme Corp',
-    },
+    quoteNumber: 'QT-2024-001',
+    customerName: 'John Smith',
+    customerEmail: 'john@acme.com',
+    company: 'Acme Corp',
     title: 'Industrial Equipment Quote',
     total: 15000,
     status: QuoteStatus.ACCEPTED,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    valid_until: new Date(Date.now() + 7 * 86400000).toISOString(),
-    line_items: [],
+    createdAt: new Date(Date.now() - 86400000).toISOString(),
   },
   {
     id: '2',
-    quote_number: 'QT-2024-002',
-    customer: {
-      id: 'c2',
-      name: 'Sarah Johnson',
-      email: 'sarah@techflow.io',
-      company: 'TechFlow Solutions',
-    },
+    quoteNumber: 'QT-2024-002',
+    customerName: 'Sarah Johnson',
+    customerEmail: 'sarah@techflow.io',
+    company: 'TechFlow Solutions',
     title: 'Software Licensing Quote',
     total: 8500,
     status: QuoteStatus.SENT,
-    created_at: new Date(Date.now() - 172800000).toISOString(),
-    valid_until: new Date(Date.now() + 5 * 86400000).toISOString(),
-    line_items: [],
+    createdAt: new Date(Date.now() - 172800000).toISOString(),
   },
   {
     id: '3',
-    quote_number: 'QT-2024-003',
-    customer: {
-      id: 'c3',
-      name: 'Mike Chen',
-      email: 'mike@buildcraft.com',
-      company: 'BuildCraft Inc',
-    },
+    quoteNumber: 'QT-2024-003',
+    customerName: 'Mike Chen',
+    customerEmail: 'mike@buildcraft.com',
+    company: 'BuildCraft Inc',
     title: 'Construction Materials',
     total: 23000,
     status: QuoteStatus.PENDING,
-    created_at: new Date(Date.now() - 259200000).toISOString(),
-    valid_until: new Date(Date.now() + 10 * 86400000).toISOString(),
-    line_items: [],
+    createdAt: new Date(Date.now() - 259200000).toISOString(),
   },
   {
     id: '4',
-    quote_number: 'QT-2024-004',
-    customer: {
-      id: 'c4',
-      name: 'Emily Davis',
-      email: 'emily@stellar.design',
-      company: 'Stellar Design',
-    },
+    quoteNumber: 'QT-2024-004',
+    customerName: 'Emily Davis',
+    customerEmail: 'emily@stellar.design',
+    company: 'Stellar Design',
     title: 'Design Services Package',
     total: 5200,
     status: QuoteStatus.VIEWED,
-    created_at: new Date(Date.now() - 345600000).toISOString(),
-    valid_until: new Date(Date.now() + 3 * 86400000).toISOString(),
-    line_items: [],
+    createdAt: new Date(Date.now() - 345600000).toISOString(),
   },
 ];
 

@@ -34,6 +34,7 @@ export enum ActivityType {
   QUOTE_REJECTED = 'quote_rejected',
   QUOTE_EXPIRED = 'quote_expired',
   QUOTE_CONVERTED = 'quote_converted',
+  QUOTE_REMINDER_SENT = 'quote_reminder_sent',
   CUSTOMER_ADDED = 'customer_added',
   PRODUCT_ADDED = 'product_added',
   NOTE_ADDED = 'note_added',
