@@ -4,6 +4,8 @@
 export { AnalyticsDashboard } from './AnalyticsDashboard';
 export { AnalyticsDashboardEnhanced } from './AnalyticsDashboardEnhanced';
 export { ConversionChart } from './ConversionChart';
+export { DateRangeSelector } from './DateRangeSelector';
+export { ExportMenu } from './ExportMenu';
 export { FunnelChart } from './FunnelChart';
 export { GeographicMap } from './GeographicMap';
 export { PerformanceMetrics } from './PerformanceMetrics';
