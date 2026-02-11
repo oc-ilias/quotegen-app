@@ -182,7 +182,7 @@ export function useOptimizedData<T>({
 
   // Fetch function with retry logic
   const fetchData = useCallback(
-    async (isBackground = false): Promise<void> {
+    async function fetchDataFn(isBackground = false): Promise<void> {
       if (!enabled) return;
 
       const cached = globalCache.get<T>(key);
@@ -209,7 +209,7 @@ export function useOptimizedData<T>({
         if (retryCountRef.current < retryCount) {
           retryCountRef.current++;
           setTimeout(() => {
-            fetchData(isBackground);
+            fetchDataFn(isBackground);
           }, retryDelay * retryCountRef.current);
           return;
         }

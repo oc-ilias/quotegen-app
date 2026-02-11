@@ -204,7 +204,7 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({
             {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
               <div key={i} className="h-28 bg-slate-800 rounded-xl" />
             ))}
-          㰯/div>
+          </div>
         </div>
       </div>
     );

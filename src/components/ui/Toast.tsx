@@ -1,4 +1,4 @@
-//**
+/**
  * Toast Notification System (Accessibility Enhanced)
  * Global toast notifications with screen reader announcements
  * @module components/ui/Toast

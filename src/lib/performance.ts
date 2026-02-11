@@ -108,7 +108,7 @@ function collectLCP(): void {
   let lcpEntries: PerformanceEntry[] = [];
 
   const observer = new PerformanceObserver((entries) => {
-    const lastEntry = entries.getEntries().at(-1) as PerformanceEntry &amp; { startTime: number };
+    const lastEntry = entries.getEntries().at(-1) as PerformanceEntry & { startTime: number };
     if (lastEntry) {
       lcpValue = lastEntry.startTime;
       lcpEntries = Array.from(entries.getEntries());
@@ -206,7 +206,7 @@ function collectCLS(): void {
 
   const observer = new PerformanceObserver((entries) => {
     entries.getEntries().forEach((entry) => {
-      const layoutShiftEntry = entry as PerformanceEntry &amp; { hadRecentInput: boolean; value: number };
+      const layoutShiftEntry = entry as PerformanceEntry & { hadRecentInput: boolean; value: number };
       if (!layoutShiftEntry.hadRecentInput) {
         clsValue += layoutShiftEntry.value;
         clsEntries.push(entry);
@@ -219,7 +219,7 @@ function collectCLS(): void {
 
     // Report final CLS on page hide
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'hidden' &amp;&amp; clsValue > 0) {
+      if (document.visibilityState === 'hidden' && clsValue > 0) {
         reportMetric('CLS', clsValue, clsEntries);
       }
     });
@@ -341,12 +341,12 @@ export function reportToAnalytics(metrics: WebVitalsMetrics): void {
     url: typeof window !== 'undefined' ? window.location.href : '',
     timestamp: Date.now(),
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
-    connection: typeof navigator !== 'undefined' &amp;&amp; 'connection' in navigator
+    connection: typeof navigator !== 'undefined' && 'connection' in navigator
       ? {
-          effectiveType: (navigator as Navigator &amp; { connection?: NetworkInformation }).connection?.effectiveType,
-          downlink: (navigator as Navigator &amp; { connection?: NetworkInformation }).connection?.downlink,
-          rtt: (navigator as Navigator &amp; { connection?: NetworkInformation }).connection?.rtt,
-          saveData: (navigator as Navigator &amp; { connection?: NetworkInformation }).connection?.saveData,
+          effectiveType: (navigator as Navigator & { connection?: NetworkInformation }).connection?.effectiveType,
+          downlink: (navigator as Navigator & { connection?: NetworkInformation }).connection?.downlink,
+          rtt: (navigator as Navigator & { connection?: NetworkInformation }).connection?.rtt,
+          saveData: (navigator as Navigator & { connection?: NetworkInformation }).connection?.saveData,
         }
       : undefined,
   };
@@ -366,7 +366,7 @@ export function reportToAnalytics(metrics: WebVitalsMetrics): void {
 export function sendToGA4(metrics: WebVitalsMetrics): void {
   if (typeof window === 'undefined' || !('gtag' in window)) return;
 
-  const gtag = (window as Window &amp; { gtag?: (...args: unknown[]) => void }).gtag;
+  const gtag = (window as Window & { gtag?: (...args: unknown[]) => void }).gtag;
   if (!gtag) return;
 
   Object.entries(metrics).forEach(([name, value]) => {
@@ -449,7 +449,7 @@ export function initPerformanceMonitoring(options: {
       );
 
       // Report full buffer when we have all core vitals
-      if (metricsBuffer.LCP &amp;&amp; metricsBuffer.FID &amp;&amp; metricsBuffer.CLS) {
+      if (metricsBuffer.LCP && metricsBuffer.FID && metricsBuffer.CLS) {
         // eslint-disable-next-line no-console
         console.log('%c[Web Vitals] Full Report:', 'color: #6366f1; font-weight: bold;', metricsBuffer);
       }

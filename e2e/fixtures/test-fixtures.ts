@@ -531,7 +531,7 @@ export const test = base.extend<TestFixtures>(
   
   waitForLoadingState: async ({ page }, use) => {
     await use(async (testPage: Page, selector?: string) => {
-      const loadingSelector = selector || '[data-testid="loading"], .loading, [aria-busy="true"]'];
+      const loadingSelector = selector || '[data-testid="loading"], .loading, [aria-busy="true"]';
       await testPage.waitForSelector(loadingSelector, { state: 'hidden', timeout: 10000 });
     });
   },

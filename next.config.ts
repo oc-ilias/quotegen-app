@@ -20,8 +20,6 @@ const baseConfig: NextConfig = {
   experimental: {
     // Enable optimistic client cache
     optimisticClientCache: true,
-    // Enable partial prerendering
-    ppr: true,
     // Enable typed routes
     typedRoutes: true,
     // Enable webpack build worker
@@ -39,7 +37,12 @@ const baseConfig: NextConfig = {
   
   // Image optimization
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'localhost',
+      },
+    ],
     unoptimized: process.env.NODE_ENV === 'development',
     // Modern image formats
     formats: ['image/webp', 'image/avif'],
@@ -53,17 +56,6 @@ const baseConfig: NextConfig = {
   
   // Enable compression
   compress: true,
-  
-  // Performance budgets
-  performance: {
-    // Bundle size budgets
-    bundles: {
-      // Maximum size for initial JS bundle (in KB)
-      maxInitialSize: 250,
-      // Maximum size for async chunks (in KB)
-      maxAsyncSize: 500,
-    },
-  },
   
   // Security headers with performance optimizations
   async headers() {
@@ -208,12 +200,6 @@ const baseConfig: NextConfig = {
         },
       };
     }
-
-    // Add support for web workers if needed
-    config.module.rules.push({
-      test: /\.worker\.(js|ts)$/,
-      use: { loader: 'worker-loader' },
-    });
 
     return config;
   },

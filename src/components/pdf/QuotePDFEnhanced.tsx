@@ -498,7 +498,7 @@ const ModernQuotePDF = ({ quote, companySettings }: { quote: Quote; companySetti
             )}
             {quote.notes && (
               <>
-                <Text style={[modernStyles.notesTitle, { marginTop: quote.terms ? 12 : 0 }]}">Notes</Text>
+                <Text style={[modernStyles.notesTitle, { marginTop: quote.terms ? 12 : 0 }]}>Notes</Text>
                 <Text style={modernStyles.notesText}>{quote.notes}</Text>
               </>
             )}
@@ -735,7 +735,7 @@ export function QuotePDFDownloadEnhanced({
                 <div className="flex-1 p-4 overflow-auto bg-slate-950">
                   <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-2xl p-8 min-h-[800px]">
                     <div className="text-slate-900">
-                      <!-- Preview content would be rendered here -->
+                      {/* Preview content would be rendered here */}
                       <div className="text-center text-slate-400 py-20">
                         PDF Preview ({selectedTemplate} template)
                       </div>

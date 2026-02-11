@@ -773,7 +773,7 @@ export function QuoteWizardEnhanced({
       </AnimatePresence>
 
       {/* Navigation Buttons */}
-      <{currentStep !== 'review-send' && (
+      {currentStep !== 'review-send' && (
         <div className="flex items-center justify-between mt-8">
           <button
             onClick={isFirstStep ? onCancel : previousStep}

@@ -250,7 +250,7 @@ export const GeographicMap: React.FC<GeographicMapProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-red-500" />
-              <span className="text-xs text-slate-400"><0%</span>
+              <span className="text-xs text-slate-400">003c 0%</span>
             </div>
           </div>
         </div>
