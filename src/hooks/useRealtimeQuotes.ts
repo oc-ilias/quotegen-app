@@ -174,9 +174,10 @@ export function useQuoteViewTracking(quoteId: string) {
         setLastViewedAt(new Date());
         
         if (update.data && typeof update.data === 'object' && 'ip' in update.data) {
+          const data = update.data as { ip: string; userAgent: string };
           setViewers(prev => [...prev, {
-            ip: update.data.ip as string,
-            userAgent: update.data.userAgent as string,
+            ip: data.ip,
+            userAgent: data.userAgent,
             timestamp: new Date(),
           }]);
         }

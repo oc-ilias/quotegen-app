@@ -4,7 +4,7 @@
  * @module lib/accessibility
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
 // ============================================================================
 // Focus Management
@@ -277,7 +277,7 @@ export function useLabelAssociation(prefix: string = 'field'): LabelAssociation 
     errorId,
     helpId,
     get describedById() {
-      const ids = [];
+      const ids: string[] = [];
       // Note: errorId and helpId are available but should be conditionally included
       return ids.length > 0 ? ids.join(' ') : undefined;
     },
@@ -348,8 +348,3 @@ export function meetsWCAGAA(color1: string, color2: string, isLargeText: boolean
   const threshold = isLargeText ? 3 : 4.5;
   return ratio >= threshold;
 }
-
-// ============================================================================
-// Import React useState for the hook
-// ============================================================================
-import { useState } from 'react';

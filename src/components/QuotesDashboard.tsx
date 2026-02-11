@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useMemo, memo } from 'react';
-import { Quote } from '@/types/quote';
+import { Quote, QuoteStatus } from '@/types/quote';
 import { useOptimizedQuotes, useOptimizedQuoteStats, useOptimizedMutation } from '@/hooks/useOptimizedData';
 import { supabase } from '@/lib/supabase';
 import { VirtualList } from '@/components/VirtualList';
@@ -50,27 +50,31 @@ const QuoteRow = memo(function QuoteRow({
   quote: Quote;
   onView: (quote: Quote) => void;
 }) {
-  const statusColors: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    quoted: 'bg-blue-100 text-blue-800',
-    accepted: 'bg-green-100 text-green-800',
-    declined: 'bg-red-100 text-red-800',
+  const statusColors: Record<QuoteStatus, string> = {
+    [QuoteStatus.DRAFT]: 'bg-gray-100 text-gray-800',
+    [QuoteStatus.PENDING]: 'bg-yellow-100 text-yellow-800',
+    [QuoteStatus.SENT]: 'bg-blue-100 text-blue-800',
+    [QuoteStatus.VIEWED]: 'bg-purple-100 text-purple-800',
+    [QuoteStatus.ACCEPTED]: 'bg-green-100 text-green-800',
+    [QuoteStatus.REJECTED]: 'bg-red-100 text-red-800',
+    [QuoteStatus.EXPIRED]: 'bg-orange-100 text-orange-800',
+    [QuoteStatus.CONVERTED]: 'bg-indigo-100 text-indigo-800',
   };
 
   return (
     <tr className="hover:bg-gray-50 transition-colors">
       <td className="px-6 py-4">
-        <div className="font-medium text-gray-900">{quote.product_title || quote.title}</div>
-        {quote.quantity && (
-          <div className="text-sm text-gray-500">Qty: {quote.quantity}</div>
+        <div className="font-medium text-gray-900">{quote.title}</div>
+        {quote.lineItems?.length > 0 && (
+          <div className="text-sm text-gray-500">{quote.lineItems.length} items</div>
         )}
       </td>
       <td className="px-6 py-4">
-        <div className="text-gray-900">{quote.customer_name || 'N/A'}</div>
-        <div className="text-sm text-gray-500">{quote.customer_email}</div>
+        <div className="text-gray-900">{quote.customer?.contactName || quote.customer?.companyName || 'N/A'}</div>
+        <div className="text-sm text-gray-500">{quote.customer?.email}</div>
       </td>
       <td className="px-6 py-4 text-sm text-gray-500">
-        {new Date(quote.created_at || quote.createdAt).toLocaleDateString()}
+        {new Date(quote.createdAt).toLocaleDateString()}
       </td>
       <td className="px-6 py-4">
         <span className={`px-2 py-1 text-xs rounded-full capitalize ${statusColors[quote.status] || 'bg-gray-100'}`}>
@@ -118,70 +122,76 @@ const QuoteDetailModal = memo(function QuoteDetailModal({
 
         <div className="p-6 space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-500">Product</label>
-            <div className="font-medium text-gray-900">{quote.product_title || quote.title}</div>
+            <label className="text-sm font-medium text-gray-500">Quote Title</label>
+            <div className="font-medium text-gray-900">{quote.title}</div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium text-gray-500">Customer</label>
-              <div className="text-gray-900">{quote.customer_name || 'N/A'}</div>
+              <div className="text-gray-900">{quote.customer?.contactName || quote.customer?.companyName || 'N/A'}</div>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">Email</label>
-              <div className="text-gray-900">{quote.customer_email}</div>
+              <div className="text-gray-900">{quote.customer?.email || 'N/A'}</div>
             </div>
           </div>
 
-          {quote.customer_phone && (
+          {quote.customer?.phone && (
             <div>
               <label className="text-sm font-medium text-gray-500">Phone</label>
-              <div>{quote.customer_phone}</div>
+              <div>{quote.customer.phone}</div>
             </div>
           )}
 
-          {quote.quantity && (
+          {quote.lineItems && quote.lineItems.length > 0 && (
             <div>
-              <label className="text-sm font-medium text-gray-500">Quantity</label>
-              <div>{quote.quantity}</div>
+              <label className="text-sm font-medium text-gray-500">Line Items ({quote.lineItems.length})</label>
+              <div className="bg-gray-50 p-3 rounded-lg text-gray-700">
+                {quote.lineItems.map((item, idx) => (
+                  <div key={idx} className="text-sm">
+                    {item.quantity}x {item.title} - ${item.total.toFixed(2)}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
-          {quote.message && (
+          {quote.terms?.notes && (
             <div>
-              <label className="text-sm font-medium text-gray-500">Message</label>
-              <div className="bg-gray-50 p-3 rounded-lg text-gray-700">{quote.message}</div>
+              <label className="text-sm font-medium text-gray-500">Notes</label>
+              <div className="bg-gray-50 p-3 rounded-lg text-gray-700">{quote.terms.notes}</div>
             </div>
           )}
 
           <div className="pt-4 border-t">
             <label className="text-sm font-medium text-gray-500">Update Status</label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {quote.status !== 'quoted' && (
+              {quote.status !== QuoteStatus.SENT && (
                 <button
-                  onClick={() => onStatusUpdate('quoted')}
+                  onClick={() => onStatusUpdate(QuoteStatus.SENT)}
                   disabled={isUpdating}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUpdating ? 'Updating...' : 'Mark Quoted'}
+                  {isUpdating ? 'Updating...' : 'Mark Sent'}
                 </button>
               )}
-              {quote.status !== 'accepted' && (
+              {quote.status !== QuoteStatus.ACCEPTED && (
                 <button
-                  onClick={() => onStatusUpdate('accepted')}
+                  onClick={() => onStatusUpdate(QuoteStatus.ACCEPTED)}
                   disabled={isUpdating}
                   className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUpdating ? 'Updating...' : 'Mark Accepted'}
                 </button>
               )}
-              {quote.status !== 'declined' && (
+              {quote.status !== QuoteStatus.REJECTED && (
                 <button
-                  onClick={() => onStatusUpdate('declined')}
+                  onClick={() => onStatusUpdate(QuoteStatus.REJECTED)}
                   disabled={isUpdating}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUpdating ? 'Updating...' : 'Mark Declined'}
+                  {isUpdating ? 'Updating...' : 'Mark Rejected'}
                 </button>
               )}
             </div>
@@ -193,7 +203,7 @@ const QuoteDetailModal = memo(function QuoteDetailModal({
 });
 
 export function QuotesDashboard({ shopId }: QuotesDashboardProps) {
-  const [filter, setFilter] = useState<'all' | 'pending' | 'quoted' | 'accepted' | 'declined'>('all');
+  const [filter, setFilter] = useState<'all' | QuoteStatus>('all');
   const [page, setPage] = useState(1);
   const [selectedQuote, setSelectedQuote] = useState<Quote | null>(null);
 
@@ -202,7 +212,7 @@ export function QuotesDashboard({ shopId }: QuotesDashboardProps) {
   // Convert filter to status array
   const statusFilter = useMemo(() => {
     if (filter === 'all') return undefined;
-    return [filter];
+    return [filter as QuoteStatus];
   }, [filter]);
 
   // Fetch quotes with optimized hook
@@ -267,7 +277,7 @@ export function QuotesDashboard({ shopId }: QuotesDashboardProps) {
   }, []);
 
   // Handle filter change with page reset
-  const handleFilterChange = useCallback((newFilter: typeof filter) => {
+  const handleFilterChange = useCallback((newFilter: 'all' | QuoteStatus) => {
     setFilter(newFilter);
     setPage(1);
   }, []);
@@ -324,17 +334,27 @@ export function QuotesDashboard({ shopId }: QuotesDashboardProps) {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {(['all', 'pending', 'quoted', 'accepted', 'declined'] as const).map((f) => (
+        <button
+          onClick={() => handleFilterChange('all')}
+          className={`px-4 py-2 rounded-lg capitalize transition-colors ${
+            filter === 'all'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          All
+        </button>
+        {Object.values(QuoteStatus).map((status) => (
           <button
-            key={f}
-            onClick={() => handleFilterChange(f)}
+            key={status}
+            onClick={() => handleFilterChange(status)}
             className={`px-4 py-2 rounded-lg capitalize transition-colors ${
-              filter === f
+              filter === status
                 ? 'bg-blue-600 text-white shadow-md'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            {f}
+            {status}
           </button>
         ))}
       </div>

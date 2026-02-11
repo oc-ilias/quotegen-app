@@ -89,7 +89,6 @@ export default function NewQuotePage() {
         <QuoteWizard
           onComplete={handleComplete}
           onCancel={handleCancel}
-          isSubmitting={isSubmitting}
         />
       </motion.div>
     </div>

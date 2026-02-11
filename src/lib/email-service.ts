@@ -30,6 +30,11 @@ export interface EmailAttachment {
   contentType?: string;
 }
 
+export interface EmailTag {
+  name: string;
+  value: string;
+}
+
 export interface EmailOptions {
   to: string | string[];
   subject: string;
@@ -40,7 +45,7 @@ export interface EmailOptions {
   cc?: string | string[];
   bcc?: string | string[];
   attachments?: EmailAttachment[];
-  tags?: string[];
+  tags?: EmailTag[];
 }
 
 export interface EmailResult {
@@ -114,7 +119,10 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
         filename: att.filename,
         content: att.content,
       })),
-      tags: options.tags,
+      tags: options.tags?.map(tag => ({
+        name: tag.name,
+        value: tag.value,
+      })),
     });
 
     if (error) {
@@ -692,7 +700,10 @@ export async function sendQuoteEmail(
     to: data.customer.email,
     subject: template.subject,
     html: template.html,
-    tags: [`quote_${type}`, `quote_${data.quote.id}`],
+    tags: [
+      { name: 'type', value: type },
+      { name: 'quote_id', value: data.quote.id },
+    ],
   });
 }
 

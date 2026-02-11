@@ -23,7 +23,7 @@ type QuoteStatus = typeof validStatuses[number];
 interface CreateQuoteBody {
   shop_id: string;
   product_id: string;
-  product_title: string;
+  product_title?: string;
   customer_email: string;
   customer_name?: string;
   customer_phone?: string;
@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
       const quote = await createQuote({
         shop_id: body.shop_id,
         product_id: body.product_id,
-        product_title: body.product_title,
+        product_title: body.product_title || 'Untitled Quote',
         customer_email: body.customer_email,
         customer_name: body.customer_name || null,
         customer_phone: body.customer_phone || null,
@@ -176,10 +176,10 @@ export async function POST(request: NextRequest) {
       
       // Send email notification if enabled (async, don't block)
       getShopSettings(body.shop_id).then((settings) => {
-        if (settings.email_notifications) {
+        if (settings.email_notifications && body.product_title) {
           const { subject, html } = newQuoteEmailTemplate({
             productTitle: body.product_title,
-            customerName: body.customer_name,
+            customerName: body.customer_name || '',
             customerEmail: body.customer_email,
             quantity: body.quantity,
             message: body.message,
@@ -193,9 +193,10 @@ export async function POST(request: NextRequest) {
             subject,
           });
         }
-      }).catch((emailError) => {
-        logger.warn('Failed to prepare email notification', emailError as Error, {
+      }).catch((emailError: unknown) => {
+        logger.warn('Failed to prepare email notification', {
           quoteId: quote.id,
+          error: emailError instanceof Error ? { name: emailError.name, message: emailError.message } : { name: 'UnknownError', message: String(emailError) },
         });
       });
       
@@ -241,7 +242,7 @@ export async function GET(request: NextRequest) {
         );
       }
       
-      const quotes = await getQuotes(shopId);
+      const quotes = await getQuotes(shopId || '');
       
       logger.info('Quotes fetched successfully', {
         shopId,
@@ -345,9 +346,10 @@ export async function PATCH(request: NextRequest) {
               quoteId: body.id,
               subject,
             });
-          } catch (emailError) {
-            logger.warn('Failed to prepare status email', emailError as Error, {
+          } catch (emailError: unknown) {
+            logger.warn('Failed to prepare status email', {
               quoteId: body.id,
+              error: emailError instanceof Error ? { name: emailError.name, message: emailError.message } : { name: 'UnknownError', message: String(emailError) },
             });
           }
         });

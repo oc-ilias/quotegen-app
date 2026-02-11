@@ -9,6 +9,17 @@
 import { useEffect, useCallback } from 'react';
 
 // ============================================================================
+// Type Definitions
+// ============================================================================
+
+interface NetworkInformation {
+  effectiveType?: string;
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+}
+
+// ============================================================================
 // Types
 // ============================================================================
 
@@ -250,7 +261,8 @@ function collectINP(): void {
   });
 
   try {
-    observer.observe({ type: 'event', buffered: true, durationThreshold: 0 });
+    // Use type assertion for durationThreshold which is supported but not in all TypeScript lib versions
+    observer.observe({ type: 'event', buffered: true, durationThreshold: 0 } as PerformanceObserverInit);
   } catch {
     // INP not supported
   }

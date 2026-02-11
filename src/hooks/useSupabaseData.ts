@@ -381,7 +381,10 @@ export function usePaginatedQuotes(
     return `quotes:paginated:${filterKey}:${page}:${limit}`;
   }, [filters, page, limit]);
 
-  const { data, ...rest } = useSupabaseQuery(cacheKey, queryFn, options);
+  const { data: rawData, ...rest } = useSupabaseQuery(cacheKey, queryFn, options);
+  
+  // Type assertion for paginated data structure
+  const data = rawData as { data: Quote[]; total: number } | null;
 
   const pagination = useMemo(() => {
     const total = data?.total || 0;

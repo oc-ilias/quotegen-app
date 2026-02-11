@@ -9,6 +9,19 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 // ============================================================================
+// Type Definitions
+// ============================================================================
+
+interface NetworkInformation {
+  effectiveType?: string;
+  downlink?: number;
+  rtt?: number;
+  saveData?: boolean;
+  addEventListener(type: string, listener: EventListener): void;
+  removeEventListener(type: string, listener: EventListener): void;
+}
+
+// ============================================================================
 // Debounce Hook
 // ============================================================================
 

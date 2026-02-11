@@ -53,7 +53,7 @@ const mockTemplates: Template[] = [
     id: '3',
     name: 'Quote Accepted',
     description: 'Confirmation email when a quote is accepted',
-    category: TemplateCategory.NOTIFICATION,
+    category: TemplateCategory.ACCEPTED,
     subject: 'Quote Accepted - {{quoteNumber}}',
     isDefault: true,
     updatedAt: new Date(Date.now() - 259200000).toISOString(),

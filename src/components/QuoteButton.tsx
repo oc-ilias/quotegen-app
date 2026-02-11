@@ -18,6 +18,16 @@ interface QuoteButtonProps {
 }
 
 // Memoized form input component
+interface FormInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+}
+
 const FormInput = memo(function FormInput({
   label,
   name,
@@ -27,15 +37,7 @@ const FormInput = memo(function FormInput({
   onChange,
   placeholder,
   ...props
-}: {
-  label: string;
-  name: string;
-  type?: string;
-  required?: boolean;
-  value: string;
-  onChange: (value: string) => void;
-  placeholder?: string;
-} & React.InputHTMLAttributes<HTMLInputElement>) {
+}: FormInputProps) {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value),
     [onChange]
