@@ -57,7 +57,7 @@ export const ExportMenu: React.FC<ExportMenuProps> = ({
         variant="secondary"
         onClick={() => setIsOpen(!isOpen)}
         isLoading={isLoading}
-        leftIcon={ArrowDownTrayIcon}
+        leftIcon={<ArrowDownTrayIcon className="w-4 h-4" />}
       >
         Export
       </Button>

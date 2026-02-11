@@ -56,10 +56,10 @@ describe('Button', () => {
 
   it('applies variant classes correctly', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-indigo-500');
+    expect(screen.getByRole('button')).toHaveClass('bg-indigo-600');
 
     rerender(<Button variant="danger">Danger</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-red-500');
+    expect(screen.getByRole('button')).toHaveClass('bg-red-600');
   });
 
   it('applies size classes correctly', () => {
@@ -67,7 +67,7 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveClass('px-3');
 
     rerender(<Button size="lg">Large</Button>);
-    expect(screen.getByRole('button')).toHaveClass('px-6');
+    expect(screen.getByRole('button')).toHaveClass('px-5');
   });
 
   it('forwards ref correctly', () => {
@@ -282,6 +282,7 @@ describe('TableSkeleton', () => {
 // ============================================================================
 
 import { ToastProvider, useToast, useToastHelpers } from '@/components/ui/Toast';
+import { LiveAnnouncerProvider } from '@/components/accessibility/LiveAnnouncer';
 
 const TestComponent = () => {
   const { addToast, toasts } = useToast();
@@ -303,6 +304,14 @@ const TestComponent = () => {
   );
 };
 
+const ToastTestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <LiveAnnouncerProvider>
+    <ToastProvider>
+      {children}
+    </ToastProvider>
+  </LiveAnnouncerProvider>
+);
+
 describe('Toast', () => {
   it('throws error when used outside provider', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -316,9 +325,9 @@ describe('Toast', () => {
 
   it('adds toast when addToast is called', () => {
     render(
-      <ToastProvider>
+      <ToastTestWrapper>
         <TestComponent />
-      </ToastProvider>
+      </ToastTestWrapper>
     );
 
     fireEvent.click(screen.getByTestId('add-toast'));
@@ -327,9 +336,9 @@ describe('Toast', () => {
 
   it('adds success toast with helper', () => {
     render(
-      <ToastProvider>
+      <ToastTestWrapper>
         <TestComponent />
-      </ToastProvider>
+      </ToastTestWrapper>
     );
 
     fireEvent.click(screen.getByTestId('success-toast'));

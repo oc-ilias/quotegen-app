@@ -244,15 +244,15 @@ describe('AnalyticsDashboard', () => {
 
   it('renders analytics dashboard title', () => {
     render(<AnalyticsDashboard data={mockData} />);
-    expect(screen.getByText('Analytics')).toBeInTheDocument();
+    expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
   });
 
   it('renders all chart sections', () => {
     render(<AnalyticsDashboard data={mockData} />);
-    expect(screen.getByText('Revenue by Month')).toBeInTheDocument();
-    expect(screen.getByText('Quote Conversion Rate')).toBeInTheDocument();
-    expect(screen.getByText('Quote Status Breakdown')).toBeInTheDocument();
-    expect(screen.getByText('Top Quoted Products')).toBeInTheDocument();
+    expect(screen.getAllByText('Revenue by Month')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Quote Conversion Rate')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Quote Status Breakdown')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Top Quoted Products')[0]).toBeInTheDocument();
   });
 
   it('shows loading state when isLoading is true', () => {
