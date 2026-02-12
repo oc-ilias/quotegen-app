@@ -201,11 +201,12 @@ describe('usePrevious', () => {
 
     rerender({ value: 'second' });
     const firstPrevious = result.current;
+    expect(firstPrevious).toBe('first');
 
     rerender({ value: 'third' });
     
-    // Previous value should be the string 'first', not a new reference
-    expect(result.current).toBe('first');
+    // Previous value should be the string 'second', not a new reference
+    expect(result.current).toBe('second');
   });
 
   it('should handle string values correctly', () => {

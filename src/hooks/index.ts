@@ -1,5 +1,10 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
+// Re-export from separate files for better testability
+export { useMediaQuery } from './useMediaQuery';
+export { useBreakpoints } from './useBreakpoints';
+export type { Breakpoints, BreakpointValues } from './useBreakpoints';
+
 // ============================================================================
 // Hook 1: useAsync - Handle async operations with loading/error states
 // ============================================================================
@@ -238,137 +243,7 @@ export function useLocalStorage<T>(
 }
 
 // ============================================================================
-// Hook 5: useMediaQuery - Respond to CSS media queries
-// ============================================================================
-
-/**
- * Hook that returns whether a media query matches.
- * Useful for responsive design in JavaScript.
- *
- * @param query - The CSS media query string (e.g., '(max-width: 768px)')
- * @returns boolean indicating if the media query matches
- *
- * @example
- * ```tsx
- * const isMobile = useMediaQuery('(max-width: 768px)');
- * return isMobile ? <MobileView /> : <DesktopView />;
- * ```
- */
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState<boolean>(() => {
-    if (typeof window === 'undefined') {
-      return false;
-    }
-    return window.matchMedia(query).matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia(query);
-    const handler = (event: MediaQueryListEvent | MediaQueryList) => {
-      setMatches(event.matches);
-    };
-
-    // Set initial value
-    handler(mediaQuery);
-
-    // Modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', handler);
-      return () => mediaQuery.removeEventListener('change', handler);
-    } else {
-      // Legacy support
-      mediaQuery.addListener(handler);
-      return () => mediaQuery.removeListener(handler);
-    }
-  }, [query]);
-
-  return matches;
-}
-
-// ============================================================================
-// Hook 6: useBreakpoints - Hook for responsive breakpoints
-// ============================================================================
-
-export interface Breakpoints {
-  xs: boolean;
-  sm: boolean;
-  md: boolean;
-  lg: boolean;
-  xl: boolean;
-}
-
-export interface BreakpointValues {
-  xs: number;
-  sm: number;
-  md: number;
-  lg: number;
-  xl: number;
-}
-
-const DEFAULT_BREAKPOINTS: BreakpointValues = {
-  xs: 0,
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-};
-
-/**
- * Hook that provides responsive breakpoint detection.
- * Returns an object with boolean flags for each breakpoint.
- *
- * @param customBreakpoints - Optional custom breakpoint values
- * @returns Object with boolean flags for each breakpoint
- *
- * @example
- * ```tsx
- * const { isMobile, isTablet, isDesktop, isWide } = useBreakpoints();
- * // or with custom breakpoints
- * const bp = useBreakpoints({ sm: 600, md: 900, lg: 1200, xl: 1600 });
- * ```
- */
-export function useBreakpoints(customBreakpoints?: Partial<BreakpointValues>): Breakpoints {
-  const breakpoints = useMemo(
-    () => ({ ...DEFAULT_BREAKPOINTS, ...customBreakpoints }),
-    [customBreakpoints]
-  );
-
-  // xs: 0 to sm-1 (no min-width needed, just max-width)
-  const isXs = useMediaQuery(`(max-width: ${breakpoints.sm - 1}px)`);
-  
-  // sm: sm to md-1
-  const isSm = useMediaQuery(
-    `(min-width: ${breakpoints.sm}px) and (max-width: ${breakpoints.md - 1}px)`
-  );
-  
-  // md: md to lg-1
-  const isMd = useMediaQuery(
-    `(min-width: ${breakpoints.md}px) and (max-width: ${breakpoints.lg - 1}px)`
-  );
-  
-  // lg: lg to xl-1
-  const isLg = useMediaQuery(
-    `(min-width: ${breakpoints.lg}px) and (max-width: ${breakpoints.xl - 1}px)`
-  );
-  
-  // xl: xl and up (no max-width needed, just min-width)
-  const isXl = useMediaQuery(`(min-width: ${breakpoints.xl}px)`);
-
-  return {
-    xs: isXs,
-    sm: isSm,
-    md: isMd,
-    lg: isLg,
-    xl: isXl,
-  };
-}
-
-// ============================================================================
-// Hook 7: useClickOutside - Detect clicks outside an element
+// Hook 5: useClickOutside - Detect clicks outside an element
 // ============================================================================
 
 /**
@@ -413,7 +288,7 @@ export function useClickOutside<T extends HTMLElement>(
 }
 
 // ============================================================================
-// Hook 8: useKeyPress - Listen for keyboard events
+// Hook 6: useKeyPress - Listen for keyboard events
 // ============================================================================
 
 /**
@@ -625,13 +500,25 @@ export function useFormField<T extends string | number | boolean | string[]>(
 ): UseFormFieldReturn<T> {
   const { initialValue, validate, required = false } = options;
 
-  const [value, setValue] = useState<T>(initialValue);
+  const [value, setValueState] = useState<T>(initialValue);
   const [error, setError] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
+  
+  // Use ref to always have access to the latest value
+  const valueRef = useRef<T>(value);
+  
+  // Sync ref with state
+  valueRef.current = value;
+
+  // Stable setValue that updates both state and ref
+  const setValue = useCallback((newValue: T) => {
+    valueRef.current = newValue;
+    setValueState(newValue);
+  }, []);
 
   const validateField = useCallback(
     (val: T): boolean => {
-      if (required && (val === '' || val === 0 || (Array.isArray(val) && val.length === 0))) {
+      if (required && (val === '' || val === 0 || val === false || (Array.isArray(val) && val.length === 0))) {
         setError('This field is required');
         return false;
       }
@@ -651,7 +538,8 @@ export function useFormField<T extends string | number | boolean | string[]>(
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       const newValue = e.target.value as T;
-      setValue(newValue);
+      valueRef.current = newValue;
+      setValueState(newValue);
       if (touched) {
         validateField(newValue);
       }
@@ -661,14 +549,20 @@ export function useFormField<T extends string | number | boolean | string[]>(
 
   const handleBlur = useCallback(() => {
     setTouched(true);
-    validateField(value);
-  }, [value, validateField]);
+    validateField(valueRef.current);
+  }, [validateField]);
 
   const reset = useCallback(() => {
-    setValue(initialValue);
+    valueRef.current = initialValue;
+    setValueState(initialValue);
     setError(null);
     setTouched(false);
   }, [initialValue]);
+
+  // Stable validate function that uses current value from ref
+  const doValidate = useCallback((): boolean => {
+    return validateField(valueRef.current);
+  }, [validateField]);
 
   return {
     value,
@@ -679,7 +573,7 @@ export function useFormField<T extends string | number | boolean | string[]>(
     onChange: handleChange,
     onBlur: handleBlur,
     reset,
-    validate: () => validateField(value),
+    validate: doValidate,
   };
 }
 
@@ -741,17 +635,16 @@ export function useInterval(callback: () => void, delay: number | null): void {
  * ```
  */
 export function usePrevious<T>(value: T): T | undefined {
-  const [current, setCurrent] = useState<T>(value);
-  const [previous, setPrevious] = useState<T | undefined>(undefined);
+  const currentRef = useRef<T>(value);
+  const previousRef = useRef<T | undefined>(undefined);
 
-  useEffect(() => {
-    if (value !== current) {
-      setPrevious(current);
-      setCurrent(value);
-    }
-  }, [value, current]);
+  // Update refs during render if value changed
+  if (value !== currentRef.current) {
+    previousRef.current = currentRef.current;
+    currentRef.current = value;
+  }
 
-  return previous;
+  return previousRef.current;
 }
 
 // ============================================================================

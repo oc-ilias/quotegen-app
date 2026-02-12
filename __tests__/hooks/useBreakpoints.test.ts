@@ -1,17 +1,13 @@
 import { renderHook } from '@testing-library/react';
 import { useBreakpoints } from '@/hooks';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-// Mock the useMediaQuery hook at the module level
-jest.mock('@/hooks/index.ts', () => {
-  const actual = jest.requireActual('@/hooks/index.ts');
-  return {
-    ...actual,
-    useMediaQuery: jest.fn(),
-  };
-});
+// Mock useMediaQuery hook
+jest.mock('@/hooks/useMediaQuery', () => ({
+  useMediaQuery: jest.fn(),
+}));
 
-// Import after mocking
-const { useMediaQuery } = jest.requireMock('@/hooks/index.ts');
+const mockedUseMediaQuery = useMediaQuery as jest.MockedFunction<typeof useMediaQuery>;
 
 describe('useBreakpoints', () => {
   beforeEach(() => {
@@ -20,8 +16,7 @@ describe('useBreakpoints', () => {
 
   describe('default breakpoints', () => {
     it('should return correct breakpoints for xs screen', () => {
-      // xs: (max-width: 639px)
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return true;
         if (query === '(min-width: 640px) and (max-width: 767px)') return false;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return false;
@@ -42,7 +37,7 @@ describe('useBreakpoints', () => {
     });
 
     it('should return correct breakpoints for sm screen', () => {
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return false;
         if (query === '(min-width: 640px) and (max-width: 767px)') return true;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return false;
@@ -63,7 +58,7 @@ describe('useBreakpoints', () => {
     });
 
     it('should return correct breakpoints for md screen', () => {
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return false;
         if (query === '(min-width: 640px) and (max-width: 767px)') return false;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return true;
@@ -84,7 +79,7 @@ describe('useBreakpoints', () => {
     });
 
     it('should return correct breakpoints for lg screen', () => {
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return false;
         if (query === '(min-width: 640px) and (max-width: 767px)') return false;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return false;
@@ -105,7 +100,7 @@ describe('useBreakpoints', () => {
     });
 
     it('should return correct breakpoints for xl screen', () => {
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return false;
         if (query === '(min-width: 640px) and (max-width: 767px)') return false;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return false;
@@ -130,7 +125,7 @@ describe('useBreakpoints', () => {
     it('should use custom breakpoints when provided', () => {
       const customBreakpoints = { sm: 600, md: 900, lg: 1200, xl: 1600 };
 
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 599px)') return false;
         if (query === '(min-width: 600px) and (max-width: 899px)') return true;
         if (query === '(min-width: 900px) and (max-width: 1199px)') return false;
@@ -153,7 +148,7 @@ describe('useBreakpoints', () => {
     it('should merge custom breakpoints with defaults', () => {
       const customBreakpoints = { md: 800 };
 
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return false;
         if (query === '(min-width: 640px) and (max-width: 799px)') return false;
         if (query === '(min-width: 800px) and (max-width: 1023px)') return true;
@@ -176,7 +171,7 @@ describe('useBreakpoints', () => {
     it('should handle partial custom breakpoints', () => {
       const customBreakpoints = { xs: 0, sm: 480 };
 
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 479px)') return true;
         if (query === '(min-width: 480px) and (max-width: 767px)') return false;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return false;
@@ -193,7 +188,7 @@ describe('useBreakpoints', () => {
 
   describe('edge cases', () => {
     it('should handle all breakpoints being false', () => {
-      useMediaQuery.mockReturnValue(false);
+      mockedUseMediaQuery.mockReturnValue(false);
 
       const { result } = renderHook(() => useBreakpoints());
 
@@ -208,7 +203,7 @@ describe('useBreakpoints', () => {
 
     it('should handle multiple breakpoints edge case', () => {
       // This shouldn't happen in practice, but test the behavior
-      useMediaQuery.mockReturnValue(true);
+      mockedUseMediaQuery.mockReturnValue(true);
 
       const { result } = renderHook(() => useBreakpoints());
 
@@ -219,11 +214,11 @@ describe('useBreakpoints', () => {
 
   describe('breakpoint definitions', () => {
     it('should call useMediaQuery with correct queries for each breakpoint', () => {
-      useMediaQuery.mockReturnValue(false);
+      mockedUseMediaQuery.mockReturnValue(false);
 
       renderHook(() => useBreakpoints());
 
-      const calls = useMediaQuery.mock.calls;
+      const calls = mockedUseMediaQuery.mock.calls;
       
       expect(calls.some(call => call[0].includes('max-width: 639px'))).toBe(true); // xs
       expect(calls.some(call => call[0].includes('min-width: 640px') && call[0].includes('max-width: 767px'))).toBe(true); // sm
@@ -233,24 +228,24 @@ describe('useBreakpoints', () => {
     });
 
     it('should use correct breakpoint boundaries', () => {
-      useMediaQuery.mockReturnValue(false);
+      mockedUseMediaQuery.mockReturnValue(false);
 
       renderHook(() => useBreakpoints());
 
       // Check that queries are using correct boundaries
-      const xsQuery = useMediaQuery.mock.calls.find(call => 
+      const xsQuery = mockedUseMediaQuery.mock.calls.find(call => 
         call[0].includes('max-width: 639px')
       );
-      const smQuery = useMediaQuery.mock.calls.find(call => 
+      const smQuery = mockedUseMediaQuery.mock.calls.find(call => 
         call[0].includes('min-width: 640px')
       );
-      const mdQuery = useMediaQuery.mock.calls.find(call => 
+      const mdQuery = mockedUseMediaQuery.mock.calls.find(call => 
         call[0].includes('min-width: 768px')
       );
-      const lgQuery = useMediaQuery.mock.calls.find(call => 
+      const lgQuery = mockedUseMediaQuery.mock.calls.find(call => 
         call[0].includes('min-width: 1024px')
       );
-      const xlQuery = useMediaQuery.mock.calls.find(call => 
+      const xlQuery = mockedUseMediaQuery.mock.calls.find(call => 
         call[0].includes('min-width: 1280px')
       );
 
@@ -266,7 +261,7 @@ describe('useBreakpoints', () => {
     it('should update when screen size changes', () => {
       let isMobile = true;
 
-      useMediaQuery.mockImplementation((query: string) => {
+      mockedUseMediaQuery.mockImplementation((query: string) => {
         if (query === '(max-width: 639px)') return isMobile;
         if (query === '(min-width: 640px) and (max-width: 767px)') return !isMobile;
         if (query === '(min-width: 768px) and (max-width: 1023px)') return false;
@@ -285,13 +280,13 @@ describe('useBreakpoints', () => {
       rerender();
 
       // After rerender, the hook will call useMediaQuery again with new values
-      expect(useMediaQuery).toHaveBeenCalledTimes(10);
+      expect(mockedUseMediaQuery).toHaveBeenCalledTimes(10);
     });
   });
 
   describe('memoization', () => {
     it('should not recalculate breakpoints unnecessarily', () => {
-      useMediaQuery.mockReturnValue(false);
+      mockedUseMediaQuery.mockReturnValue(false);
 
       const { rerender } = renderHook(() => useBreakpoints());
 
@@ -299,11 +294,11 @@ describe('useBreakpoints', () => {
       rerender();
 
       // useMediaQuery is called 5 times per render for the 5 breakpoints
-      expect(useMediaQuery).toHaveBeenCalledTimes(15);
+      expect(mockedUseMediaQuery).toHaveBeenCalledTimes(15);
     });
 
     it('should update when custom breakpoints change', () => {
-      useMediaQuery.mockReturnValue(false);
+      mockedUseMediaQuery.mockReturnValue(false);
 
       const { rerender } = renderHook(
         ({ breakpoints }) => useBreakpoints(breakpoints),
@@ -313,7 +308,7 @@ describe('useBreakpoints', () => {
       rerender({ breakpoints: { sm: 700 } });
 
       // Should have been called with new breakpoint values
-      const smQueryCalls = useMediaQuery.mock.calls.filter(call => 
+      const smQueryCalls = mockedUseMediaQuery.mock.calls.filter(call => 
         call[0].includes('min-width: 700px') || call[0].includes('max-width: 699px')
       );
       expect(smQueryCalls.length).toBeGreaterThan(0);
