@@ -61,12 +61,10 @@ describe('StatusBreakdown', () => {
   });
 
   it('shows loading state when isLoading is true', () => {
-    render(<StatusBreakdown data={mockData} isLoading={true} />);
+    const { container } = render(<StatusBreakdown data={mockData} isLoading={true} />);
     
-    // Loading state should have animate-pulse class
-    const loadingContainer = screen.getByText(/Quote Status Breakdown/i).closest('[class*="animate-pulse"]');
-    // In loading state the component renders differently
-    expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
+    // Loading state has animate-pulse class
+    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
   it('displays total quotes count', () => {
@@ -126,7 +124,9 @@ describe('StatusBreakdown', () => {
   it('displays quotes label', () => {
     render(<StatusBreakdown data={mockData} />);
     
-    expect(screen.getByText(/quotes/i)).toBeInTheDocument();
+    // "quotes" label appears near the total count
+    const quotesElements = screen.getAllByText(/quotes/i);
+    expect(quotesElements.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders summary stats section', () => {
@@ -142,7 +142,9 @@ describe('StatusBreakdown', () => {
     render(<StatusBreakdown data={singleData} />);
     
     expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText(/\$1,000|\$1000/)).toBeInTheDocument();
+    // Total value should be $1,000
+    const totalValues = screen.getAllByText(/\$1,000|\$1000/);
+    expect(totalValues.length).toBeGreaterThan(0);
   });
 
   it('handles zero average when no quotes', () => {

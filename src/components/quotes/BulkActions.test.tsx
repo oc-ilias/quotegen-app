@@ -131,10 +131,13 @@ describe('BulkActions', () => {
       />
     );
     
-    const changeStatusButton = screen.getByText(/Change Status/i);
-    fireEvent.click(changeStatusButton);
+    const changeStatusButtons = screen.getAllByText(/Change Status/i);
+    // Click the first Change Status button (the one in the main toolbar)
+    fireEvent.click(changeStatusButtons[0]);
     
-    expect(screen.getByText(/Change Status/i)).toBeInTheDocument();
+    // Modal should be open - look for the modal title or status options
+    expect(screen.getByText(/Draft/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sent/i)).toBeInTheDocument();
   });
 
   it('shows status options in modal', () => {
@@ -258,7 +261,9 @@ describe('BulkActions', () => {
     const deleteButtons = screen.getAllByText(/Delete/i);
     fireEvent.click(deleteButtons[0]);
     
-    expect(screen.getByText(/Delete 2 Quotes/i)).toBeInTheDocument();
+    // "Delete 2 Quotes" appears in both title and button
+    const deleteTexts = screen.getAllByText(/Delete 2 Quotes/i);
+    expect(deleteTexts.length).toBeGreaterThanOrEqual(1);
   });
 
   it('calls onActionComplete after action', async () => {
