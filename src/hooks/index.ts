@@ -349,7 +349,7 @@ export function useKeyPress(
 }
 
 // ============================================================================
-// Hook 9: usePagination - Pagination logic
+// Hook 7: usePagination - Pagination logic
 // ============================================================================
 
 export interface UsePaginationOptions {
@@ -458,7 +458,7 @@ export function usePagination(options: UsePaginationOptions): UsePaginationRetur
 }
 
 // ============================================================================
-// Hook 10: useFormField - Form field state management
+// Hook 8: useFormField - Form field state management
 // ============================================================================
 
 export interface UseFormFieldOptions<T> {
@@ -578,7 +578,7 @@ export function useFormField<T extends string | number | boolean | string[]>(
 }
 
 // ============================================================================
-// Hook 11: useInterval - setInterval hook
+// Hook 9: useInterval - setInterval hook
 // ============================================================================
 
 /**
@@ -616,7 +616,7 @@ export function useInterval(callback: () => void, delay: number | null): void {
 }
 
 // ============================================================================
-// Hook 12: usePrevious - Track previous values
+// Hook 10: usePrevious - Track previous values
 // ============================================================================
 
 /**
@@ -648,7 +648,7 @@ export function usePrevious<T>(value: T): T | undefined {
 }
 
 // ============================================================================
-// Hook 13: useDocumentTitle - Update document title
+// Hook 11: useDocumentTitle - Update document title
 // ============================================================================
 
 /**
