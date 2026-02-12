@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { cn } from '@/lib/utils';
 import type { InputProps } from '@/types';
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, helperText, leftIcon, ...props }, ref) => {
+  ({ className, label, error, helperText, leftIcon, id: providedId, ...props }, ref) => {
+    const generatedId = useId();
+    const id = providedId || generatedId;
+    
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">
+          <label htmlFor={id} className="block text-sm font-medium text-slate-300 mb-1.5">
             {label}
           </label>
         )}
@@ -18,6 +21,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
           <input
+            id={id}
             ref={ref}
             className={cn(
               'w-full px-4 py-2.5 bg-slate-900 border rounded-lg text-slate-100',

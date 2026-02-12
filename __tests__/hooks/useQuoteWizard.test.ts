@@ -282,6 +282,9 @@ describe('useQuoteWizard', () => {
 
       act(() => {
         result.current.updateCustomer({ name: '', email: 'john@example.com' });
+      });
+
+      act(() => {
         result.current.nextStep();
       });
 
@@ -294,6 +297,9 @@ describe('useQuoteWizard', () => {
 
       act(() => {
         result.current.updateCustomer({ name: 'John', email: 'invalid-email' });
+      });
+
+      act(() => {
         result.current.nextStep();
       });
 
@@ -306,8 +312,19 @@ describe('useQuoteWizard', () => {
       // Navigate to line-items step
       act(() => {
         result.current.updateCustomer({ name: 'John', email: 'john@example.com' });
+      });
+
+      act(() => {
         result.current.nextStep();
+      });
+
+      act(() => {
         result.current.nextStep();
+      });
+
+      // Clear any line items that might exist and try to proceed
+      act(() => {
+        result.current.updateFormData({ line_items: [] });
       });
 
       act(() => {
