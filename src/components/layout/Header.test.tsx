@@ -539,9 +539,10 @@ describe('Header', () => {
     it('hides user name on mobile', () => {
       render(<Header userName="John Doe" />);
       
-      // User name should have hidden class on mobile
+      // User name should be inside a container with hidden md:block classes
       const userName = screen.getByText('John Doe');
-      expect(userName).toHaveClass('hidden', 'md:block');
+      const container = userName.closest('.hidden.md\\:block');
+      expect(container).toBeInTheDocument();
     });
   });
 });
@@ -581,7 +582,7 @@ describe('Header Integration', () => {
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(document.querySelector('input[type="text"]')).toBeInTheDocument();
     expect(screen.getByLabelText('Notifications')).toBeInTheDocument();
-    expect(screen.getByText('10')).toBeInTheDocument(); // Notification count
+    expect(screen.getByText('9+')).toBeInTheDocument(); // Notification count (capped at 9+)
   });
 
   it('handles notification and user menu interactions', () => {
