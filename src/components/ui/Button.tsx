@@ -40,7 +40,7 @@ import { VisuallyHidden } from '@/components/accessibility/VisuallyHidden';
 /**
  * Button visual variants
  */
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'ghost' | 'link';
+export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost' | 'link';
 
 /**
  * Button size options
@@ -114,6 +114,13 @@ const variantStyles: Record<ButtonVariant, string> = {
     'hover:bg-slate-700 hover:border-slate-600',
     'focus:ring-slate-500/50',
     'disabled:bg-slate-800/50'
+  ),
+  outline: cn(
+    'bg-transparent text-slate-300',
+    'border border-slate-600',
+    'hover:bg-slate-800 hover:text-slate-100',
+    'focus:ring-slate-500/50',
+    'disabled:text-slate-600 disabled:border-slate-700'
   ),
   danger: cn(
     'bg-red-600 text-white',

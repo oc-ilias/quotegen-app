@@ -17,7 +17,7 @@ import {
   ExclamationTriangleIcon,
   ArrowRightIcon,
   CalendarIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   PlusIcon,
   TrashIcon,
   StarIcon,

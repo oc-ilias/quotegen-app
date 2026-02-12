@@ -9,8 +9,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckSquareIcon,
-  SquareIcon,
   TrashIcon,
   DocumentArrowDownIcon,
   EnvelopeIcon,
@@ -382,7 +380,7 @@ export const QuoteBulkActions: React.FC<QuoteBulkActionsProps> = ({
           disabled={quotes.length === 0 || isLoading}
           className="flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors"
         >
-          <SquareIcon className="w-5 h-5" />
+          <div className="w-5 h-5 rounded border-2 border-slate-500" />
           <span className="text-sm">Select all {quotes.length} quotes</span>
         </button>
       </div>
@@ -430,13 +428,15 @@ export const QuoteBulkActions: React.FC<QuoteBulkActionsProps> = ({
           className="flex items-center gap-2 text-indigo-300 hover:text-indigo-200 transition-colors"
         >
           {allSelected ? (
-            <CheckSquareIcon className="w-5 h-5" />
+            <div className="w-5 h-5 rounded border-2 border-indigo-400 bg-indigo-400 flex items-center justify-center">
+              <CheckIcon className="w-3.5 h-3.5 text-slate-900" />
+            </div>
           ) : someSelected ? (
             <div className="w-5 h-5 rounded border-2 border-indigo-400 bg-indigo-400 flex items-center justify-center">
               <div className="w-2.5 h-0.5 bg-slate-900 rounded-full" />
             </div>
           ) : (
-            <SquareIcon className="w-5 h-5" />
+            <div className="w-5 h-5 rounded border-2 border-indigo-400" />
           )}
           <span className="text-sm font-medium">
             {selectedCount} selected
