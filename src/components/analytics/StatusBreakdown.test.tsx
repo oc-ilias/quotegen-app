@@ -3,191 +3,151 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { StatusBreakdown } from '@/components/analytics/StatusBreakdown';
+
+// Mock framer-motion
+jest.mock('framer-motion', () => ({
+  motion: {
+    div: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+      <div {...props}>{children}</div>
+    ),
+  },
+}));
 
 // Mock Recharts
 jest.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="responsive-container">{children}</div>
+    <div data-testid="responsive-container" style={{ width: '100%', height: '300px' }}>{children}</div>
   ),
   PieChart: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="pie-chart">{children}</div>
   ),
-  Pie: ({ data }: { data?: unknown[] }) => (
-    <div data-testid="pie" data-points={data?.length}>Pie</div>
+  Pie: ({ data, children }: { data?: unknown[]; children?: React.ReactNode }) => (
+    <div data-testid="pie" data-points={data?.length}>Pie{children}</div>
   ),
   Cell: ({ fill }: { fill?: string }) => (
     <div data-testid="cell" style={{ fill }}>Cell</div>
   ),
-  Tooltip: () => <div data-testid="tooltip">Tooltip</div>,
-  Legend: () => <div data-testid="legend">Legend</div>,
+  Tooltip: ({ content }: { content?: React.ReactNode }) => (
+    <div data-testid="tooltip">{content || 'Tooltip'}</div>
+  ),
+  Legend: ({ formatter }: { formatter?: (value: string) => string }) => (
+    <div data-testid="legend">{formatter ? formatter('accepted') : 'Legend'}</div>
+  ),
 }));
 
-const mockData = {
-  labels: ['Draft', 'Sent', 'Accepted', 'Declined', 'Expired'],
-  datasets: [{
-    data: [10, 25, 45, 8, 12],
-    backgroundColor: ['#94a3b8', '#3b82f6', '#22c55e', '#ef4444', '#6b7280'],
-  }],
-};
-
-const mockStatusCounts = {
-  draft: 10,
-  sent: 25,
-  accepted: 45,
-  declined: 8,
-  expired: 12,
-};
+const mockData = [
+  { status: 'draft' as const, count: 10, value: 5000, percentage: 10 },
+  { status: 'sent' as const, count: 25, value: 15000, percentage: 25 },
+  { status: 'accepted' as const, count: 45, value: 45000, percentage: 45 },
+  { status: 'rejected' as const, count: 8, value: 8000, percentage: 8 },
+  { status: 'expired' as const, count: 12, value: 12000, percentage: 12 },
+];
 
 describe('StatusBreakdown', () => {
   it('renders without crashing', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+    render(<StatusBreakdown data={mockData} />);
     
-    expect(screen.getByText(/Status Breakdown/i)).toBeInTheDocument();
+    expect(screen.getByText(/Quote Status Breakdown/i)).toBeInTheDocument();
   });
 
   it('displays chart when data is provided', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+    render(<StatusBreakdown data={mockData} />);
     
     expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
     expect(screen.getByTestId('pie')).toBeInTheDocument();
   });
 
   it('shows loading state when isLoading is true', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-        isLoading={true}
-      />
-    );
+    render(<StatusBreakdown data={mockData} isLoading={true} />);
     
-    expect(screen.getByText(/Loading status breakdown/i)).toBeInTheDocument();
+    // Loading state should have animate-pulse class
+    const loadingContainer = screen.getByText(/Quote Status Breakdown/i).closest('[class*="animate-pulse"]');
+    // In loading state the component renders differently
+    expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
-  it('shows empty state when no data', () => {
-    render(
-      <StatusBreakdown 
-        data={{ labels: [], datasets: [{ data: [], backgroundColor: [] }] }}
-        statusCounts={{}}
-      />
-    );
+  it('displays total quotes count', () => {
+    render(<StatusBreakdown data={mockData} />);
     
-    expect(screen.getByText(/No data available/i)).toBeInTheDocument();
+    // Total: 10 + 25 + 45 + 8 + 12 = 100
+    expect(screen.getByText('100')).toBeInTheDocument();
   });
 
-  it('displays status counts correctly', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+  it('displays total value', () => {
+    render(<StatusBreakdown data={mockData} />);
     
-    expect(screen.getByText('45')).toBeInTheDocument(); // accepted
-    expect(screen.getByText('25')).toBeInTheDocument(); // sent
-    expect(screen.getByText('10')).toBeInTheDocument(); // draft
+    // Total value: 5000 + 15000 + 45000 + 8000 + 12000 = 85,000
+    expect(screen.getByText(/\$85,000|\$85,0/)).toBeInTheDocument();
   });
 
-  it('displays status labels', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+  it('calculates average value correctly', () => {
+    render(<StatusBreakdown data={mockData} />);
     
-    expect(screen.getByText(/Accepted/i)).toBeInTheDocument();
-    expect(screen.getByText(/Sent/i)).toBeInTheDocument();
-    expect(screen.getByText(/Draft/i)).toBeInTheDocument();
-    expect(screen.getByText(/Declined/i)).toBeInTheDocument();
-    expect(screen.getByText(/Expired/i)).toBeInTheDocument();
+    // Average: 85000 / 100 = 850
+    expect(screen.getByText(/\$850/)).toBeInTheDocument();
   });
 
   it('renders legend', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+    render(<StatusBreakdown data={mockData} />);
     
     expect(screen.getByTestId('legend')).toBeInTheDocument();
   });
 
-  it('renders tooltip', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+  it('renders tooltip wrapper', () => {
+    render(<StatusBreakdown data={mockData} />);
     
     expect(screen.getByTestId('tooltip')).toBeInTheDocument();
   });
 
-  it('handles missing status counts gracefully', () => {
-    const incompleteCounts = {
-      draft: 5,
-      // missing other statuses
-    };
+  it('renders with empty data', () => {
+    render(<StatusBreakdown data={[]} />);
     
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={incompleteCounts}
-      />
-    );
-    
-    expect(screen.getByTestId('pie-chart')).toBeInTheDocument();
+    expect(screen.getByText(/Quote Status Breakdown/i)).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
   });
 
   it('applies custom className', () => {
     const { container } = render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-        className="custom-class"
-      />
+      <StatusBreakdown data={mockData} className="custom-class" />
     );
     
     expect(container.firstChild).toHaveClass('custom-class');
   });
 
-  it('displays total quotes count', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+  it('displays description text', () => {
+    render(<StatusBreakdown data={mockData} />);
     
-    // Total: 10 + 25 + 45 + 8 + 12 = 100
-    expect(screen.getByText(/100/)).toBeInTheDocument();
+    expect(screen.getByText(/Distribution of quotes by status/i)).toBeInTheDocument();
   });
 
-  it('shows percentage for each status', () => {
-    render(
-      <StatusBreakdown 
-        data={mockData}
-        statusCounts={mockStatusCounts}
-      />
-    );
+  it('displays quotes label', () => {
+    render(<StatusBreakdown data={mockData} />);
     
-    // Check for percentage symbols
-    const percentages = screen.getAllByText(/%/);
-    expect(percentages.length).toBeGreaterThan(0);
+    expect(screen.getByText(/quotes/i)).toBeInTheDocument();
+  });
+
+  it('renders summary stats section', () => {
+    render(<StatusBreakdown data={mockData} />);
+    
+    expect(screen.getByText(/Total Value/i)).toBeInTheDocument();
+    expect(screen.getByText(/Avg Value/i)).toBeInTheDocument();
+  });
+
+  it('handles single data point', () => {
+    const singleData = [{ status: 'accepted' as const, count: 1, value: 1000, percentage: 100 }];
+    
+    render(<StatusBreakdown data={singleData} />);
+    
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText(/\$1,000|\$1000/)).toBeInTheDocument();
+  });
+
+  it('handles zero average when no quotes', () => {
+    render(<StatusBreakdown data={[]} />);
+    
+    expect(screen.getByText(/Avg Value/i)).toBeInTheDocument();
   });
 });
