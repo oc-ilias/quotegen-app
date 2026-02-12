@@ -25,6 +25,9 @@ const originalConsoleError = console.error;
 describe('Analytics Library', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGtag.mockClear();
+    mockConsoleLog.mockClear();
+    mockConsoleError.mockClear();
     
     // Reset console mocks
     console.log = mockConsoleLog;
