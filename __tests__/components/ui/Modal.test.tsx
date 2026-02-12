@@ -83,7 +83,7 @@ describe('Modal', () => {
           <p>Content</p>
         </Modal>
       );
-      expect(screen.getByRole('button', { name: '' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Close modal' })).toBeInTheDocument();
     });
 
     it('hides close button when showCloseButton is false', () => {
@@ -181,7 +181,7 @@ describe('Modal', () => {
           <p>Content</p>
         </Modal>
       );
-      const closeButton = screen.getByRole('button', { name: '' });
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
       fireEvent.click(closeButton);
       expect(mockOnClose).toHaveBeenCalledTimes(1);
     });
@@ -219,7 +219,7 @@ describe('Modal', () => {
         </Modal>
       );
       // The close button is present
-      const closeButton = screen.getByRole('button', { name: '' });
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
       expect(closeButton).toBeInTheDocument();
     });
 
@@ -447,8 +447,16 @@ describe('Modal', () => {
         </Modal>
       );
       
-      const closeButton = screen.getByRole('button', { name: '' });
-      expect(() => fireEvent.click(closeButton)).toThrow('Close error');
+      const closeButton = screen.getByRole('button', { name: 'Close modal' });
+      
+      // Click should not throw - error is caught by Modal component
+      fireEvent.click(closeButton);
+      
+      // onClose should have been called
+      expect(errorOnClose).toHaveBeenCalledTimes(1);
+      
+      // Modal should still be in the document (error was caught)
+      expect(screen.getByText('Content')).toBeInTheDocument();
     });
   });
 
