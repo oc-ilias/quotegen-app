@@ -17,7 +17,7 @@ import {
   ArrowPathIcon,
   HomeIcon,
   BugAntIcon,
-  WifiOffIcon,
+  SignalSlashIcon,
   ShieldExclamationIcon,
   InformationCircleIcon
 } from '@heroicons/react/24/outline';
@@ -41,7 +41,7 @@ function DefaultFallbackUI({ error, reset, showDetails = false }: FallbackUIProp
   const getIcon = () => {
     switch (error.category) {
       case 'network':
-        return <WifiOffIcon className="h-12 w-12 text-orange-500" />;
+        return <SignalSlashIcon className="h-12 w-12 text-orange-500" />;
       case 'validation':
         return <ShieldExclamationIcon className="h-12 w-12 text-yellow-500" />;
       case 'api':

@@ -11,6 +11,7 @@ module.exports = {
     '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '<rootDir>/__tests__/mocks/',
+    '<rootDir>/e2e/',
   ],
   coverageThreshold: {
     global: {
