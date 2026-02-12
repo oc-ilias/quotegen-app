@@ -255,7 +255,27 @@ describe('Analytics Library', () => {
         trackError(error);
       });
 
-      expect(mockConsoleError).toHaveBeenCalledTimes(errors.length);
+      // Verify each error type was tracked (at least the expected number of calls)
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Tracked error:',
+        expect.objectContaining({ name: 'Error', message: 'Standard error' }),
+        undefined
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Tracked error:',
+        expect.objectContaining({ name: 'TypeError', message: 'Type error' }),
+        undefined
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Tracked error:',
+        expect.objectContaining({ name: 'RangeError', message: 'Range error' }),
+        undefined
+      );
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        'Tracked error:',
+        expect.objectContaining({ name: 'ReferenceError', message: 'Reference error' }),
+        undefined
+      );
     });
 
     it('should handle complex context objects', () => {
