@@ -5,6 +5,9 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 
+// Re-export useToast from Toast component
+export { useToast, useToastHelpers } from '@/components/ui/Toast';
+
 // ============================================
 // Async State Management
 // ============================================
