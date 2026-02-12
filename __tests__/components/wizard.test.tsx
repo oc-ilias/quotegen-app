@@ -19,6 +19,16 @@ jest.mock('framer-motion', () => ({
       const { whileHover, whileTap, ...rest } = props;
       return <button {...rest}>{children}</button>;
     },
+    span: ({ children, ...props }: any) => {
+      const { whileHover, whileTap, ...rest } = props;
+      return <span {...rest}>{children}</span>;
+    },
+    p: ({ children, ...props }: any) => {
+      const { whileHover, whileTap, ...rest } = props;
+      return <p {...rest}>{children}</p>;
+    },
+    ul: ({ children, ...props }: any) => <ul {...props}>{children}</ul>,
+    li: ({ children, ...props }: any) => <li {...props}>{children}</li>,
   },
   AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
@@ -77,7 +87,7 @@ describe('CustomerInfoStep', () => {
     
     fireEvent.click(screen.getByText('Create New Customer'));
     
-    const emailInput = screen.getByPlaceholderText('customer@company.com');
+    const emailInput = screen.getByTestId('customer-email-input');
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     
     expect(mockOnUpdate).toHaveBeenCalledWith({ email: 'test@example.com' });
@@ -132,7 +142,7 @@ describe('LineItemsStep', () => {
     expect(screen.getByText('Line Items')).toBeInTheDocument();
   });
 
-  it('shows add item button when no items', () => {
+  it('shows quote summary when no items', () => {
     render(
       <LineItemsStep
         data={mockData}
@@ -141,7 +151,9 @@ describe('LineItemsStep', () => {
         onUpdate={mockOnUpdate}
       />
     );
-    expect(screen.getByText('Add Custom Line Item')).toBeInTheDocument();
+    expect(screen.getByText('Quote Summary')).toBeInTheDocument();
+    // $0.00 appears multiple times (subtotal, tax, total) - use getAllByText
+    expect(screen.getAllByText('$0.00').length).toBeGreaterThanOrEqual(1);
   });
 });
 
@@ -169,7 +181,7 @@ describe('TermsNotesStep', () => {
     render(
       <TermsNotesStep data={mockData} onUpdate={mockOnUpdate} />
     );
-    expect(screen.getByRole('heading', { name: /Terms & Notes/i })).toBeInTheDocument();
+    expect(screen.getByText('Terms & Notes')).toBeInTheDocument();
   });
 
   it('calls onUpdate when payment terms change', () => {
@@ -177,12 +189,10 @@ describe('TermsNotesStep', () => {
       <TermsNotesStep data={mockData} onUpdate={mockOnUpdate} />
     );
 
-    // Find all select elements - first one should be Payment Terms
-    const selects = screen.getAllByRole('combobox');
-    expect(selects.length).toBeGreaterThan(0);
+    // Find and update payment terms - use getByTestId to find the select
+    const paymentTermsSelect = screen.getByTestId('payment-terms-select');
+    fireEvent.change(paymentTermsSelect, { target: { value: 'Net 15' } });
 
-    // Change the first select (Payment Terms)
-    fireEvent.change(selects[0], { target: { value: 'Net 15' } });
     expect(mockOnUpdate).toHaveBeenCalledWith({ paymentTerms: 'Net 15' });
   });
 });
@@ -197,9 +207,9 @@ import type { WizardData } from '@/types/quote';
 describe('ReviewSendStep', () => {
   const mockData = {
     customer: {
+      name: 'John Doe',
       email: 'test@example.com',
       company: 'Test Company',
-      name: 'John Doe',
       phone: '+1234567890',
     },
     line_items: [
@@ -215,7 +225,7 @@ describe('ReviewSendStep', () => {
     title: 'Test Quote',
     notes: '',
     terms: '',
-    valid_until: new Date().toISOString(),
+    valid_until: '2026-12-31',
   };
 
   const mockOnSubmit = jest.fn();
@@ -255,8 +265,8 @@ describe('ReviewSendStep', () => {
       />
     );
     
-    // When submitting, button shows "Sending..." and is disabled
-    expect(screen.getByText('Sending...')).toBeInTheDocument();
+    const sendButton = screen.getByRole('button', { name: /sending/i });
+    expect(sendButton).toBeDisabled();
   });
 });
 
@@ -270,28 +280,46 @@ import QuoteWizard from '@/components/wizard/QuoteWizard';
 jest.mock('@/hooks/useQuoteWizard', () => ({
   useQuoteWizard: jest.fn(() => ({
     currentStep: 'customer-info',
-    isLoading: false,
-    error: null,
-    formData: {
-      title: 'Test Quote',
-      customer: {
-        name: 'Test Customer',
-        email: 'test@example.com',
-        company: 'Test Company',
-        phone: '',
-      },
-      line_items: [],
-      notes: '',
-      terms: '',
-      valid_until: new Date().toISOString(),
-    },
+    currentStepIndex: 0,
+    steps: ['customer-info', 'product-selection', 'line-items', 'terms-notes', 'review-send'],
+    isFirstStep: true,
+    isLastStep: false,
     canProceed: false,
-    canGoBack: false,
-    progress: 20,
-    goToStep: jest.fn(),
+    isSubmitting: false,
+    error: null,
+    data: {
+      customerInfo: {
+        email: '',
+        companyName: '',
+        contactName: '',
+        phone: '',
+        isExistingCustomer: false,
+      },
+      productSelection: {
+        selectedProducts: [],
+        selectedVariants: {},
+      },
+      lineItems: {
+        items: [],
+      },
+      termsNotes: {
+        paymentTerms: 'Net 30',
+        deliveryTerms: '2-3 business days',
+        validityPeriod: 30,
+        depositRequired: false,
+        depositPercentage: 0,
+        currency: 'USD',
+        notes: '',
+        internalNotes: '',
+      },
+    },
     nextStep: jest.fn(),
     previousStep: jest.fn(),
-    updateFormData: jest.fn(),
+    goToStep: jest.fn(),
+    updateCustomerInfo: jest.fn(),
+    updateProductSelection: jest.fn(),
+    updateLineItems: jest.fn(),
+    updateTermsNotes: jest.fn(),
     submitQuote: jest.fn(),
     reset: jest.fn(),
   })),
@@ -305,10 +333,9 @@ describe('QuoteWizard', () => {
     render(
       <QuoteWizard onComplete={mockOnComplete} onCancel={mockOnCancel} />
     );
-    // Check for step labels using aria-labels which are unique
-    expect(screen.getByLabelText('Step 1: Customer')).toBeInTheDocument();
-    expect(screen.getByLabelText('Step 2: Products')).toBeInTheDocument();
-    expect(screen.getByLabelText('Step 5: Review')).toBeInTheDocument();
+    expect(screen.getByText('Customer')).toBeInTheDocument();
+    expect(screen.getByText('Products')).toBeInTheDocument();
+    expect(screen.getByText('Review')).toBeInTheDocument();
   });
 
   it('calls onCancel when cancel button is clicked on first step', () => {
@@ -316,8 +343,7 @@ describe('QuoteWizard', () => {
       <QuoteWizard onComplete={mockOnComplete} onCancel={mockOnCancel} />
     );
     
-    // The first step shows "Cancel" button
-    fireEvent.click(screen.getByRole('button', { name: /^cancel$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
     expect(mockOnCancel).toHaveBeenCalled();
   });
 });

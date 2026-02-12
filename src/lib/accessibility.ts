@@ -1,350 +1,276 @@
 /**
- * Accessibility Utilities
- * Shared utilities for accessibility features across the application
- * @module lib/accessibility
+ * Accessibility utilities for QuoteGen
+ * WCAG 2.1 AA compliant helper functions
  */
-
-import { useEffect, useRef, useCallback, useState } from 'react';
-
-// ============================================================================
-// Focus Management
-// ============================================================================
 
 /**
- * Focusable elements selector for keyboard navigation
+ * CSS selector for focusable elements
+ * Includes: links, buttons, inputs, selects, textareas, details, and elements with tabindex
  */
-export const FOCUSABLE_ELEMENTS = [
-  'button:not([disabled])',
+const FOCUSABLE_SELECTOR = [
   'a[href]',
-  'input:not([disabled])',
+  'button:not([disabled])',
+  'input:not([disabled]):not([type="hidden"])',
   'select:not([disabled])',
   'textarea:not([disabled])',
+  'details:not([disabled])',
+  'summary:not([disabled])',
   '[tabindex]:not([tabindex="-1"])',
-  '[contenteditable]',
-  'audio[controls]',
-  'video[controls]',
-  'summary',
+  '[contenteditable]:not([contenteditable="false"])',
 ].join(', ');
 
 /**
+ * Check if an element is focusable
+ * @param element - The element to check
+ * @returns boolean indicating if the element can receive focus
+ * @example
+ * const button = document.querySelector('button');
+ * if (isFocusable(button)) {
+ *   button.focus();
+ * }
+ */
+export function isFocusable(element: Element | null): boolean {
+  if (!element || !(element instanceof HTMLElement)) {
+    return false;
+  }
+
+  // Check for hidden elements
+  if (element.hidden || element.hasAttribute('aria-hidden')) {
+    return false;
+  }
+
+  // Check computed style for visibility
+  const style = window.getComputedStyle(element);
+  if (style.display === 'none' || style.visibility === 'hidden') {
+    return false;
+  }
+
+  // Check if element matches focusable selector
+  return element.matches(FOCUSABLE_SELECTOR);
+}
+
+/**
  * Get all focusable elements within a container
+ * @param container - The container element to search within (defaults to document.body)
+ * @returns Array of focusable HTMLElements
+ * @example
+ * const modal = document.getElementById('modal');
+ * const focusableElements = getFocusableElements(modal);
+ * // focusableElements contains all interactive elements inside the modal
  */
-export function getFocusableElements(container: HTMLElement): HTMLElement[] {
-  const elements = container.querySelectorAll(FOCUSABLE_ELEMENTS);
-  return Array.from(elements) as HTMLElement[];
-}
+export function getFocusableElements(
+  container: HTMLElement = document.body
+): HTMLElement[] {
+  const elements = Array.from(
+    container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  );
 
-/**
- * Focus the first focusable element in a container
- */
-export function focusFirstElement(container: HTMLElement): void {
-  const elements = getFocusableElements(container);
-  if (elements.length > 0) {
-    elements[0].focus();
-  }
-}
-
-/**
- * Focus the last focusable element in a container
- */
-export function focusLastElement(container: HTMLElement): void {
-  const elements = getFocusableElements(container);
-  if (elements.length > 0) {
-    elements[elements.length - 1].focus();
-  }
-}
-
-// ============================================================================
-// Focus Trap Hook
-// ============================================================================
-
-export interface UseFocusTrapOptions {
-  isActive: boolean;
-  onEscape?: () => void;
-  initialFocus?: boolean;
-  returnFocus?: boolean;
-}
-
-/**
- * Hook to trap focus within a modal/dialog element
- */
-export function useFocusTrap<T extends HTMLElement>(options: UseFocusTrapOptions) {
-  const containerRef = useRef<T>(null);
-  const previousFocusRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    if (options.isActive) {
-      // Store the currently focused element
-      previousFocusRef.current = document.activeElement as HTMLElement;
-
-      // Focus the first element when activated
-      if (options.initialFocus !== false && containerRef.current) {
-        // Small delay to ensure DOM is ready
-        setTimeout(() => focusFirstElement(containerRef.current!), 0);
-      }
+  return elements.filter((element) => {
+    // Double-check each element is actually focusable
+    if (!isFocusable(element)) {
+      return false;
     }
 
-    return () => {
-      if (options.isActive && options.returnFocus !== false && previousFocusRef.current) {
-        previousFocusRef.current.focus();
+    // Check if element is inside a disabled fieldset
+    let parent = element.parentElement;
+    while (parent) {
+      if (
+        parent instanceof HTMLFieldSetElement &&
+        parent.disabled
+      ) {
+        return false;
       }
-    };
-  }, [options.isActive, options.initialFocus, options.returnFocus]);
+      parent = parent.parentElement;
+    }
 
-  // Handle keyboard events for focus trap
-  const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
-    if (!containerRef.current) return;
+    return true;
+  });
+}
 
-    const focusableElements = getFocusableElements(containerRef.current);
+/**
+ * Focus the first focusable element within a container
+ * @param container - The container element to search within
+ * @returns The focused element, or null if no focusable element found
+ * @example
+ * const modal = document.getElementById('modal');
+ * focusFirstFocusable(modal);
+ */
+export function focusFirstFocusable(
+  container: HTMLElement | null
+): HTMLElement | null {
+  if (!container) {
+    return null;
+  }
+
+  const focusableElements = getFocusableElements(container);
+  
+  if (focusableElements.length === 0) {
+    return null;
+  }
+
+  const firstElement = focusableElements[0];
+  firstElement.focus();
+  return firstElement;
+}
+
+/**
+ * Priority levels for screen reader announcements
+ */
+export type AnnouncePriority = 'polite' | 'assertive';
+
+/**
+ * Global announcer element IDs
+ */
+const ANNOUNCER_ID_POLITE = 'live-announcer-polite';
+const ANNOUNCER_ID_ASSERTIVE = 'live-announcer-assertive';
+
+/**
+ * Announce a message to screen readers via ARIA live regions
+ * @param message - The message to announce
+ * @param priority - The priority level ('polite' or 'assertive')
+ * @example
+ * // Non-urgent announcement
+ * announceToScreenReader('Item added to cart', 'polite');
+ * 
+ * // Urgent announcement
+ * announceToScreenReader('Form submission failed', 'assertive');
+ */
+export function announceToScreenReader(
+  message: string,
+  priority: AnnouncePriority = 'polite'
+): void {
+  if (typeof document === 'undefined') {
+    return;
+  }
+
+  const announcerId =
+    priority === 'assertive' ? ANNOUNCER_ID_ASSERTIVE : ANNOUNCER_ID_POLITE;
+
+  let announcer = document.getElementById(announcerId);
+
+  // Create announcer if it doesn't exist
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.id = announcerId;
+    announcer.setAttribute('aria-live', priority);
+    announcer.setAttribute('aria-atomic', 'true');
+    announcer.style.position = 'absolute';
+    announcer.style.width = '1px';
+    announcer.style.height = '1px';
+    announcer.style.padding = '0';
+    announcer.style.margin = '-1px';
+    announcer.style.overflow = 'hidden';
+    announcer.style.clip = 'rect(0, 0, 0, 0)';
+    announcer.style.whiteSpace = 'nowrap';
+    announcer.style.border = '0';
+    document.body.appendChild(announcer);
+  }
+
+  // Clear previous content and set new message
+  // Small delay ensures screen readers detect the change
+  announcer.textContent = '';
+  
+  requestAnimationFrame(() => {
+    announcer!.textContent = message;
+  });
+}
+
+/**
+ * Keyboard key codes/names for handling keyboard events
+ */
+export const KeyboardKeys = {
+  TAB: 'Tab',
+  ENTER: 'Enter',
+  ESCAPE: 'Escape',
+  SPACE: ' ',
+  ARROW_UP: 'ArrowUp',
+  ARROW_DOWN: 'ArrowDown',
+  ARROW_LEFT: 'ArrowLeft',
+  ARROW_RIGHT: 'ArrowRight',
+  HOME: 'Home',
+  END: 'End',
+  PAGE_UP: 'PageUp',
+  PAGE_DOWN: 'PageDown',
+} as const;
+
+/**
+ * Check if an element is within the viewport
+ * @param element - The element to check
+ * @returns boolean indicating if element is visible in viewport
+ */
+export function isInViewport(element: HTMLElement): boolean {
+  const rect = element.getBoundingClientRect();
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}
+
+/**
+ * Scroll element into view with smooth behavior
+ * @param element - The element to scroll to
+ * @param behavior - Scroll behavior ('smooth' or 'auto')
+ */
+export function scrollIntoView(
+  element: HTMLElement,
+  behavior: ScrollBehavior = 'smooth'
+): void {
+  element.scrollIntoView({
+    behavior,
+    block: 'nearest',
+    inline: 'nearest',
+  });
+}
+
+/**
+ * Trap focus within a given element
+ * Returns cleanup function to remove event listeners
+ * @param container - The element to trap focus within
+ * @returns Cleanup function to remove trap
+ * @example
+ * const modal = document.getElementById('modal');
+ * const cleanup = trapFocus(modal);
+ * 
+ * // Later, when closing modal:
+ * cleanup();
+ */
+export function trapFocus(container: HTMLElement): () => void {
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key !== KeyboardKeys.TAB) {
+      return;
+    }
+
+    const focusableElements = getFocusableElements(container);
+    
+    if (focusableElements.length === 0) {
+      event.preventDefault();
+      return;
+    }
+
     const firstElement = focusableElements[0];
     const lastElement = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement as HTMLElement;
 
-    // Handle Tab key
-    if (event.key === 'Tab') {
-      if (event.shiftKey) {
-        // Shift+Tab
-        if (document.activeElement === firstElement) {
-          event.preventDefault();
-          lastElement?.focus();
-        }
-      } else {
-        // Tab
-        if (document.activeElement === lastElement) {
-          event.preventDefault();
-          firstElement?.focus();
-        }
-      }
-    }
-
-    // Handle Escape key
-    if (event.key === 'Escape' && options.onEscape) {
-      event.preventDefault();
-      options.onEscape();
-    }
-  }, [options.onEscape]);
-
-  return { containerRef, handleKeyDown };
-}
-
-// ============================================================================
-// Announcer Hook
-// ============================================================================
-
-export type AnnouncerPriority = 'polite' | 'assertive';
-
-/**
- * Hook to announce messages to screen readers
- */
-export function useAnnouncer() {
-  const announce = useCallback((message: string, priority: AnnouncerPriority = 'polite') => {
-    const regionId = `aria-announcer-${priority}`;
-    let region = document.getElementById(regionId);
-
-    // Create the region if it doesn't exist
-    if (!region) {
-      region = document.createElement('div');
-      region.id = regionId;
-      region.setAttribute('role', 'status');
-      region.setAttribute('aria-live', priority);
-      region.setAttribute('aria-atomic', 'true');
-      region.className = 'sr-only';
-      document.body.appendChild(region);
-    }
-
-    // Clear and set the message
-    region.textContent = '';
-    // Small delay to ensure the screen reader notices the change
-    setTimeout(() => {
-      if (region) {
-        region.textContent = message;
-      }
-    }, 100);
-  }, []);
-
-  return { announce };
-}
-
-// ============================================================================
-// Reduced Motion Hook
-// ============================================================================
-
-/**
- * Hook to detect if user prefers reduced motion
- */
-export function usePrefersReducedMotion(): boolean {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  });
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const handleChange = (event: MediaQueryListEvent) => {
-      setPrefersReducedMotion(event.matches);
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  return prefersReducedMotion;
-}
-
-// ============================================================================
-// Keyboard Navigation Hook
-// ============================================================================
-
-export interface UseKeyboardNavigationOptions {
-  onEnter?: () => void;
-  onSpace?: () => void;
-  onArrowUp?: () => void;
-  onArrowDown?: () => void;
-  onArrowLeft?: () => void;
-  onArrowRight?: () => void;
-  onHome?: () => void;
-  onEnd?: () => void;
-  onEscape?: () => void;
-  preventDefault?: boolean;
-}
-
-/**
- * Hook for keyboard navigation handlers
- */
-export function useKeyboardNavigation(options: UseKeyboardNavigationOptions) {
-  return useCallback((event: React.KeyboardEvent) => {
-    const handlers: Record<string, (() => void) | undefined> = {
-      Enter: options.onEnter,
-      ' ': options.onSpace,
-      ArrowUp: options.onArrowUp,
-      ArrowDown: options.onArrowDown,
-      ArrowLeft: options.onArrowLeft,
-      ArrowRight: options.onArrowRight,
-      Home: options.onHome,
-      End: options.onEnd,
-      Escape: options.onEscape,
-    };
-
-    const handler = handlers[event.key];
-    if (handler) {
-      if (options.preventDefault) {
+    // Shift + Tab: move to previous element
+    if (event.shiftKey) {
+      if (activeElement === firstElement || !container.contains(activeElement)) {
         event.preventDefault();
+        lastElement.focus();
       }
-      handler();
+    } else {
+      // Tab: move to next element
+      if (activeElement === lastElement) {
+        event.preventDefault();
+        firstElement.focus();
+      }
     }
-  }, [options]);
-}
-
-// ============================================================================
-// ARIA ID Generation
-// ============================================================================
-
-let idCounter = 0;
-
-/**
- * Generate unique IDs for ARIA attributes
- */
-export function generateAriaId(prefix: string = 'aria'): string {
-  idCounter += 1;
-  return `${prefix}-${idCounter}-${Math.random().toString(36).substr(2, 9)}`;
-}
-
-// ============================================================================
-// Label Association Helper
-// ============================================================================
-
-export interface LabelAssociation {
-  id: string;
-  labelId: string;
-  describedById?: string;
-  errorId?: string;
-  helpId?: string;
-}
-
-/**
- * Generate IDs for proper label/input association
- */
-export function useLabelAssociation(prefix: string = 'field'): LabelAssociation {
-  const id = useRef(generateAriaId(prefix)).current;
-  const labelId = `${id}-label`;
-  const errorId = `${id}-error`;
-  const helpId = `${id}-help`;
-
-  return {
-    id,
-    labelId,
-    errorId,
-    helpId,
-    get describedById() {
-      const ids: string[] = [];
-      // Note: errorId and helpId are available but should be conditionally included
-      return ids.length > 0 ? ids.join(' ') : undefined;
-    },
-  };
-}
-
-// ============================================================================
-// Skip Link Handler
-// ============================================================================
-
-/**
- * Handle skip link navigation
- */
-export function handleSkipLink(targetId: string): void {
-  const target = document.getElementById(targetId);
-  if (target) {
-    target.tabIndex = -1;
-    target.focus();
-    target.scrollIntoView({ behavior: 'smooth' });
-  }
-}
-
-// ============================================================================
-// Color Contrast Utilities
-// ============================================================================
-
-/**
- * Calculate relative luminance of a color
- */
-export function getLuminance(r: number, g: number, b: number): number {
-  const [rs, gs, bs] = [r, g, b].map((c) => {
-    c = c / 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  });
-  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
-}
-
-/**
- * Calculate contrast ratio between two colors
- */
-export function getContrastRatio(color1: string, color2: string): number {
-  // Parse hex colors
-  const parseColor = (color: string): [number, number, number] => {
-    const hex = color.replace('#', '');
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-    return [r, g, b];
   };
 
-  const [r1, g1, b1] = parseColor(color1);
-  const [r2, g2, b2] = parseColor(color2);
+  container.addEventListener('keydown', handleKeyDown);
 
-  const lum1 = getLuminance(r1, g1, b1);
-  const lum2 = getLuminance(r2, g2, b2);
-
-  const brightest = Math.max(lum1, lum2);
-  const darkest = Math.min(lum1, lum2);
-
-  return (brightest + 0.05) / (darkest + 0.05);
-}
-
-/**
- * Check if color combination meets WCAG AA standard (4.5:1 for normal text)
- */
-export function meetsWCAGAA(color1: string, color2: string, isLargeText: boolean = false): boolean {
-  const ratio = getContrastRatio(color1, color2);
-  const threshold = isLargeText ? 3 : 4.5;
-  return ratio >= threshold;
+  return () => {
+    container.removeEventListener('keydown', handleKeyDown);
+  };
 }

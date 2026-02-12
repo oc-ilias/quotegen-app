@@ -10,8 +10,11 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   PlusIcon,
+  DocumentDuplicateIcon,
+  EnvelopeIcon,
   ArrowDownTrayIcon,
   UserPlusIcon,
+  Cog6ToothIcon,
   SparklesIcon,
   ChartBarIcon,
 } from '@heroicons/react/24/outline';
@@ -145,11 +148,11 @@ const QuickActionCard = ({ action, index }: QuickActionCardProps) => {
       <div className={cn(
         'absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity',
         'bg-gradient-to-br',
-        action.color === 'blue' ? 'from-blue-500/5 to-transparent' : '',
-        action.color === 'green' ? 'from-emerald-500/5 to-transparent' : '',
-        action.color === 'purple' ? 'from-purple-500/5 to-transparent' : '',
-        action.color === 'amber' ? 'from-amber-500/5 to-transparent' : '',
-        action.color === 'indigo' ? 'from-indigo-500/5 to-transparent' : ''
+        action.color === 'blue' && 'from-blue-500/5 to-transparent',
+        action.color === 'green' && 'from-emerald-500/5 to-transparent',
+        action.color === 'purple' && 'from-purple-500/5 to-transparent',
+        action.color === 'amber' && 'from-amber-500/5 to-transparent',
+        action.color === 'indigo' && 'from-indigo-500/5 to-transparent',
       )} />
     </motion.button>
   );

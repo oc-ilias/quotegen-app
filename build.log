@@ -1,0 +1,164 @@
+
+> app@0.1.0 build
+> next build
+
+⚠ `images.domains` is deprecated in favor of `images.remotePatterns`. Please update next.config.ts to protect your application from malicious users.
+▲ Next.js 16.1.6 (Turbopack)
+
+  Creating an optimized production build ...
+
+> Build error occurred
+Error: Turbopack build failed with 5 errors:
+./src/components/wizard/QuoteWizard.tsx:577:11
+Parsing ecmascript source code failed
+[0m [90m 575 |[39m               isClickable[33m=[39m{index [33m<=[39m currentStepIndex}
+ [90m 576 |[39m             [33m/[39m
+[31m[1m>[22m[39m[90m 577 |[39m           ))}
+ [90m     |[39m           [31m[1m^[22m[39m
+ [90m 578 |[39m         [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 579 |[39m       [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+ [90m 580 |[39m[0m
+
+Expected '</', got ')'
+
+Import traces:
+  Client Component Browser:
+    ./src/components/wizard/QuoteWizard.tsx [Client Component Browser]
+    ./src/app/quotes/new/page.tsx [Client Component Browser]
+    ./src/app/quotes/new/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/wizard/QuoteWizard.tsx [Client Component SSR]
+    ./src/app/quotes/new/page.tsx [Client Component SSR]
+    ./src/app/quotes/new/page.tsx [Server Component]
+
+
+./src/components/analytics/AnalyticsDashboard.tsx:17:1
+Export DownloadIcon doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mTopProducts[39m } [36mfrom[39m [32m'./TopProducts'[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mStatCardsGrid[39m[33m,[39m useDashboardStats } [36mfrom[39m [32m'@/components/dashboard/StatCards'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m {
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 18 |[39m   [33mArrowPathIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 19 |[39m   [33mExclamationTriangleIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 20 |[39m   [33mCalendarIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 21 |[39m   [33mChevronDownIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 22 |[39m   [33mDownloadIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 23 |[39m } [36mfrom[39m [32m'@heroicons/react/24/outline'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 24 |[39m [36mimport[39m type {
+ [90m 25 |[39m   [33mConversionDataPoint[39m[33m,[39m
+ [90m 26 |[39m   [33mRevenueDataPoint[39m[33m,[39m[0m
+
+The export DownloadIcon was not found in module [project]/node_modules/@heroicons/react/24/outline/esm/index.js [app-client] (ecmascript).
+Did you mean to import MoonIcon?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/analytics/AnalyticsDashboard.tsx [Client Component Browser]
+    ./src/app/analytics/page.tsx [Client Component Browser]
+    ./src/app/analytics/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/analytics/AnalyticsDashboard.tsx [Client Component SSR]
+    ./src/app/analytics/page.tsx [Client Component SSR]
+    ./src/app/analytics/page.tsx [Server Component]
+
+
+./src/components/analytics/AnalyticsDashboard.tsx:17:1
+Export DownloadIcon doesn't exist in target module
+[0m [90m 15 |[39m [36mimport[39m { [33mTopProducts[39m } [36mfrom[39m [32m'./TopProducts'[39m[33m;[39m
+ [90m 16 |[39m [36mimport[39m { [33mStatCardsGrid[39m[33m,[39m useDashboardStats } [36mfrom[39m [32m'@/components/dashboard/StatCards'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 17 |[39m [36mimport[39m {
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 18 |[39m   [33mArrowPathIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 19 |[39m   [33mExclamationTriangleIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 20 |[39m   [33mCalendarIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 21 |[39m   [33mChevronDownIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 22 |[39m   [33mDownloadIcon[39m[33m,[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+[31m[1m>[22m[39m[90m 23 |[39m } [36mfrom[39m [32m'@heroicons/react/24/outline'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 24 |[39m [36mimport[39m type {
+ [90m 25 |[39m   [33mConversionDataPoint[39m[33m,[39m
+ [90m 26 |[39m   [33mRevenueDataPoint[39m[33m,[39m[0m
+
+The export DownloadIcon was not found in module [project]/node_modules/@heroicons/react/24/outline/esm/index.js [app-ssr] (ecmascript).
+Did you mean to import MoonIcon?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/components/analytics/AnalyticsDashboard.tsx [Client Component Browser]
+    ./src/app/analytics/page.tsx [Client Component Browser]
+    ./src/app/analytics/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/analytics/AnalyticsDashboard.tsx [Client Component SSR]
+    ./src/app/analytics/page.tsx [Client Component SSR]
+    ./src/app/analytics/page.tsx [Server Component]
+
+
+./src/app/dashboard/page.tsx:11:1
+Export StatCards doesn't exist in target module
+[0m [90m  9 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+ [90m 10 |[39m [36mimport[39m { [33mDashboardLayout[39m[33m,[39m [33mPageHeader[39m } [36mfrom[39m [32m'@/components/layout/DashboardLayout'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 11 |[39m [36mimport[39m { [33mStatCards[39m } [36mfrom[39m [32m'@/components/dashboard/StatCards'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 12 |[39m [36mimport[39m { [33mRecentQuotes[39m } [36mfrom[39m [32m'@/components/dashboard/RecentQuotes'[39m[33m;[39m
+ [90m 13 |[39m [36mimport[39m { [33mActivityFeed[39m } [36mfrom[39m [32m'@/components/dashboard/ActivityFeed'[39m[33m;[39m
+ [90m 14 |[39m [36mimport[39m { [33mQuickActions[39m } [36mfrom[39m [32m'@/components/dashboard/QuickActions'[39m[33m;[39m[0m
+
+The export StatCards was not found in module [project]/src/components/dashboard/StatCards.tsx [app-client] (ecmascript).
+Did you mean to import StatCard?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+
+./src/app/dashboard/page.tsx:11:1
+Export StatCards doesn't exist in target module
+[0m [90m  9 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m
+ [90m 10 |[39m [36mimport[39m { [33mDashboardLayout[39m[33m,[39m [33mPageHeader[39m } [36mfrom[39m [32m'@/components/layout/DashboardLayout'[39m[33m;[39m
+[31m[1m>[22m[39m[90m 11 |[39m [36mimport[39m { [33mStatCards[39m } [36mfrom[39m [32m'@/components/dashboard/StatCards'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 12 |[39m [36mimport[39m { [33mRecentQuotes[39m } [36mfrom[39m [32m'@/components/dashboard/RecentQuotes'[39m[33m;[39m
+ [90m 13 |[39m [36mimport[39m { [33mActivityFeed[39m } [36mfrom[39m [32m'@/components/dashboard/ActivityFeed'[39m[33m;[39m
+ [90m 14 |[39m [36mimport[39m { [33mQuickActions[39m } [36mfrom[39m [32m'@/components/dashboard/QuickActions'[39m[33m;[39m[0m
+
+The export StatCards was not found in module [project]/src/components/dashboard/StatCards.tsx [app-ssr] (ecmascript).
+Did you mean to import StatCard?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+
+    at <unknown> (./src/components/wizard/QuoteWizard.tsx:577:11)
+    at <unknown> (./src/components/analytics/AnalyticsDashboard.tsx:17:1)
+    at <unknown> (./src/components/analytics/AnalyticsDashboard.tsx:17:1)
+    at <unknown> (./src/app/dashboard/page.tsx:11:1)
+    at <unknown> (./src/app/dashboard/page.tsx:11:1)

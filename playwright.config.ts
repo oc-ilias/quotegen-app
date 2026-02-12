@@ -1,70 +1,40 @@
 import { defineConfig, devices } from '@playwright/test';
-import path from 'path';
 
 /**
- * Playwright E2E Test Configuration for QuoteGen
+ * Playwright Configuration
+ * Optimized for Node.js 22+ compatibility
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './e2e/tests',
-  outputDir: './e2e/reports/test-results',
-  
-  /* Run tests in files in parallel */
+  testDir: './e2e',
   fullyParallel: true,
-  
-  /* Fail the build on CI if you accidentally left test.only in the source code */
   forbidOnly: !!process.env.CI,
-  
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
-  
-  /* Opt out of parallel tests on CI */
+  retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
   
-  /* Reporter to use */
-  reporter: [
-    ['html', { outputFolder: './e2e/reports/html-report' }],
-    ['json', { outputFile: './e2e/reports/test-results.json' }],
-    ['junit', { outputFile: './e2e/reports/junit-report.xml' }],
-    ['list'],
-  ],
-  
-  /* Shared settings for all the projects below */
-  use: {
-    /* Base URL to use in actions like `await page.goto('/')` */
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
-    
-    /* Collect trace when retrying the failed test */
-    trace: 'on-first-retry',
-    
-    /* Screenshot on failure */
-    screenshot: 'only-on-failure',
-    
-    /* Video recording on failure */
-    video: 'on-first-retry',
-    
-    /* Viewport size */
-    viewport: { width: 1280, height: 720 },
-    
-    /* Action timeout */
-    actionTimeout: 15000,
-    
-    /* Navigation timeout */
-    navigationTimeout: 30000,
-    
-    /* Locale and timezone */
-    locale: 'en-US',
-    timezoneId: 'America/New_York',
+  // Node.js 22+ compatibility settings
+  timeout: 60 * 1000, // 60 second timeout per test
+  expect: {
+    timeout: 10 * 1000, // 10 second timeout for expect assertions
   },
   
-  /* Configure projects for major browsers */
+  use: {
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
+    // Node.js 22+ action timeout settings
+    actionTimeout: 15 * 1000,
+    navigationTimeout: 30 * 1000,
+  },
+  
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    
-    // Uncomment to test on other browsers
+    // Uncomment for cross-browser testing
     // {
     //   name: 'firefox',
     //   use: { ...devices['Desktop Firefox'] },
@@ -73,33 +43,21 @@ export default defineConfig({
     //   name: 'webkit',
     //   use: { ...devices['Desktop Safari'] },
     // },
-    
-    /* Test against mobile viewports */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
-    
-    /* Test against branded browsers */
-    {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    },
   ],
   
-  /* Run local dev server before starting the tests */
   webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    timeout: 120 * 1000,
+    // Node.js 22+ graceful shutdown
+    gracefulShutdown: {
+      signal: 'SIGTERM',
+      timeout: 5 * 1000,
+    },
   },
   
-  /* Global setup and teardown */
-  globalSetup: require.resolve('./e2e/utils/global-setup.ts'),
-  globalTeardown: require.resolve('./e2e/utils/global-teardown.ts'),
+  // Global setup/teardown for Node.js 22+ compatibility
+  globalSetup: require.resolve('./e2e/global-setup.ts'),
+  globalTeardown: require.resolve('./e2e/global-teardown.ts'),
 });

@@ -18,8 +18,7 @@ import {
   UserCircleIcon,
   BuildingOfficeIcon,
 } from '@heroicons/react/24/outline';
-import type { Quote, QuoteStatus } from '@/types/quote';
-import { QuoteStatusLabels, QuoteStatusColors } from '@/types/quote';
+import { QuoteStatusLabels, QuoteStatusColors, QuoteStatus } from '@/types/quote';
 
 // ============================================================================
 // Types
@@ -56,17 +55,17 @@ interface StatusBadgeProps {
 const StatusBadge = ({ status }: StatusBadgeProps) => {
   const getStatusIcon = (s: QuoteStatus) => {
     switch (s) {
-      case 'draft':
+      case QuoteStatus.DRAFT:
         return DocumentTextIcon;
-      case 'sent':
+      case QuoteStatus.SENT:
         return ArrowRightIcon;
-      case 'viewed':
+      case QuoteStatus.VIEWED:
         return EyeIcon;
-      case 'accepted':
+      case QuoteStatus.ACCEPTED:
         return CheckCircleIcon;
-      case 'rejected':
+      case QuoteStatus.REJECTED:
         return XCircleIcon;
-      case 'expired':
+      case QuoteStatus.EXPIRED:
         return ClockIcon;
       default:
         return DocumentTextIcon;

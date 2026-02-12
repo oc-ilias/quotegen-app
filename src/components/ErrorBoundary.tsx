@@ -1,17 +1,7 @@
-/**
- * Legacy Error Boundary Compatibility Wrapper
- * 
- * This file maintains backward compatibility with existing code
- * while delegating to the new comprehensive error boundary system.
- */
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { ErrorBoundary as NewErrorBoundary, CompactFallbackUI } from './error';
-import * as Sentry from '@sentry/nextjs';
 
-// Legacy props interface for backward compatibility
 interface ErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ReactNode;
@@ -22,10 +12,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/**
- * Legacy ErrorBoundary - now uses new comprehensive error boundary internally
- * @deprecated Use ErrorBoundary from '@/components/error' instead
- */
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
@@ -37,49 +23,60 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log to Sentry
-    Sentry.captureException(error, {
-      extra: { componentStack: errorInfo.componentStack },
-      tags: { source: 'legacy_error_boundary' },
-    });
-    
-    // Also log to console for debugging
+    // Log to error tracking service
     console.error('Error caught by boundary:', error, errorInfo);
+    
+    // TODO: Send to Sentry or similar
+    // Sentry.captureException(error, { extra: errorInfo });
   }
 
-  resetError = () => {
-    this.setState({ hasError: false, error: null });
-  };
-
   render() {
-    // Use the new comprehensive error boundary
-    return (
-      <NewErrorBoundary
-        componentName="LegacyErrorBoundary"
-        fallback={this.props.fallback || ((error, reset) => (
-          <CompactFallbackUI 
-            error={error} 
-            reset={reset}
-          />
-        ))}
-      >
-        {this.props.children}
-      </NewErrorBoundary>
-    );
+    if (this.state.hasError) {
+      return (
+        this.props.fallback || (
+          <div className="min-h-screen flex items-center justify-center bg-gray-50">
+            <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+              <div className="text-6xl mb-4">😵</div>
+              <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+              <p className="text-gray-600 mb-2">
+                We're sorry, but something unexpected happened. Please try refreshing the page.
+              </p>
+              {this.state.error?.message && (
+                <p className="text-red-500 text-sm mb-6 px-4 py-2 bg-red-50 rounded" data-testid="error-message">
+                  {this.state.error.message}
+                </p>
+              )}
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+              >
+                Refresh Page
+              </button>
+              <button
+                onClick={() => this.setState({ hasError: false, error: null })}
+                className="ml-4 px-6 py-3 text-gray-600 hover:text-gray-800 transition"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )
+      );
+    }
+
+    return this.props.children;
   }
 }
 
-// Hook for async error handling - enhanced with Sentry
+// Hook for async error handling
 export function useAsyncError() {
   const [error, setError] = useState<Error | null>(null);
   
   useEffect(() => {
     if (error) {
-      // Log to Sentry
-      Sentry.captureException(error, {
-        tags: { source: 'useAsyncError' },
-      });
+      // Log to error tracking
       console.error('Async error:', error);
+      // Sentry.captureException(error);
     }
   }, [error]);
   
@@ -87,7 +84,7 @@ export function useAsyncError() {
 }
 
 // Loading spinner component
-export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+export function LoadingSpinner({ size = 'md', className }: { size?: 'sm' | 'md' | 'lg'; className?: string }) {
   const sizeClasses = {
     sm: 'w-4 h-4',
     md: 'w-8 h-8',
@@ -95,11 +92,11 @@ export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
   };
   
   return (
-    <div className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-200 border-t-blue-600`} />
+    <div className={`${sizeClasses[size]} animate-spin rounded-full border-4 border-gray-200 border-t-blue-600 ${className || ''}`} ></div>
   );
 }
 
-// Toast notification system with error tracking
+// Toast notification system
 interface Toast {
   id: string;
   message: string;
@@ -112,15 +109,6 @@ export function useToast() {
   const addToast = (message: string, type: Toast['type'] = 'info') => {
     const id = Math.random().toString(36).substring(7);
     setToasts((prev) => [...prev, { id, message, type }]);
-    
-    // Track error toasts in Sentry
-    if (type === 'error') {
-      Sentry.addBreadcrumb({
-        category: 'toast',
-        message,
-        level: 'error',
-      });
-    }
     
     // Auto-remove after 5 seconds
     setTimeout(() => {

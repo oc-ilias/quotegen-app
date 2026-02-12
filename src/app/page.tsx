@@ -1,12 +1,6 @@
-import { Suspense, lazy } from 'react';
-import { QuoteButton } from '@/components/QuoteButton';
+import { QuotesDashboard } from '@/components/QuotesDashboard';
 import { SettingsForm } from '@/components/SettingsForm';
-import { LoadingFallback, CardLoadingFallback } from '@/components/lazy';
-
-// Lazy load heavy dashboard component
-const QuotesDashboard = lazy(() => 
-  import('@/components/QuotesDashboard').then(mod => ({ default: mod.QuotesDashboard }))
-);
+import { QuoteButton } from '@/components/QuoteButton';
 
 // This would come from Shopify authentication in production
 const MOCK_SHOP_ID = 'demo-shop-123';
@@ -18,25 +12,6 @@ const MOCK_SETTINGS = {
   require_quantity: true,
   require_phone: false,
 };
-
-// Loading skeleton for dashboard
-function DashboardSkeleton() {
-  return (
-    <div className="p-6">
-      <CardLoadingFallback count={4} />
-      <div className="mt-8 flex gap-2">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-10 w-20 bg-gray-200 rounded-lg animate-pulse" />
-        ))}
-      </div>
-      <div className="mt-6 space-y-2">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export default function Home() {
   return (
@@ -78,9 +53,7 @@ export default function Home() {
           <div className="p-6 border-b">
             <h2 className="text-xl font-bold">Quote Requests</h2>
           </div>
-          <Suspense fallback={<DashboardSkeleton />}>
-            <QuotesDashboard shopId={MOCK_SHOP_ID} />
-          </Suspense>
+          <QuotesDashboard shopId={MOCK_SHOP_ID} />
         </section>
 
         {/* Settings Section */}
@@ -105,7 +78,7 @@ export default function Home() {
             <li>Manage all quote requests in the dashboard above</li>
           </ol>
 
-          <div className="mt-4 p-4 bg-white rounded text-sm font-mono overflow-x-auto">
+          <div className="mt-4 p-4 bg-white rounded text-sm font-mono">
             {'{% comment %} Quote Button Code {% endcomment %}'}
             <br />
             {'<div id="quotegen-button"></div>'}

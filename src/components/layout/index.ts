@@ -1,11 +1,30 @@
-// Layout Components Index
-// Comprehensive exports for all layout-related components
+/**
+ * Layout Components Index
+ * Exports all layout-related components
+ * @module components/layout
+ */
 
-export { DashboardLayout } from './DashboardLayout';
-export { DashboardLayoutEnhanced } from './DashboardLayoutEnhanced';
-export { Header } from './Header';
+// DashboardLayout exports
+export {
+  DashboardLayout,
+  PageHeader,
+  ContentGrid,
+  ContentSection,
+  ContentCard,
+  NestedLayout,
+  useBreadcrumbs,
+  type DashboardLayoutProps,
+  type BreadcrumbItem,
+  type PageHeaderProps,
+  type ContentGridProps,
+  type ContentSectionProps,
+  type ContentCardProps,
+  type NestedLayoutProps,
+} from './DashboardLayout';
 
-// Re-export types
-export type { DashboardLayoutProps } from './DashboardLayout';
-export type { DashboardLayoutEnhancedProps } from './DashboardLayoutEnhanced';
-export type { HeaderProps } from './Header';
+// Header exports
+export {
+  Header,
+  type Notification,
+  type HeaderProps,
+} from './Header';

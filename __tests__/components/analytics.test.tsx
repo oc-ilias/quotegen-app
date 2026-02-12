@@ -23,31 +23,32 @@ jest.mock('recharts', () => ({
   CartesianGrid: () => <div data-testid="cartesian-grid" />,
   Tooltip: () => <div data-testid="tooltip" />,
   Legend: () => <div data-testid="legend" />,
+  ReferenceLine: () => <div data-testid="reference-line" />,
+  // SVG elements that might be used by recharts
+  linearGradient: 'linearGradient',
+  stop: 'stop',
+  defs: 'defs',
 }));
 
 // Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => {
-      const { initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
-      return <div {...rest}>{children}</div>;
-    },
-    button: ({ children, ...props }: any) => {
-      const { whileHover, whileTap, ...rest } = props;
-      return <button {...rest}>{children}</button>;
-    },
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-}));
+const createMotionComponent = (tag: string) => {
+  return ({ children, ...props }: any) => {
+    const { initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
+    return React.createElement(tag, rest, children);
+  };
+};
 
-// Mock StatCardsGrid
-jest.mock('@/components/dashboard/StatCards', () => ({
-  StatCardsGrid: ({ isLoading }: { isLoading?: boolean }) => (
-    <div data-testid="stat-cards-grid">
-      {isLoading ? <div data-testid="stat-loading">Loading...</div> : <div>Stats</div>}
-    </div>
-  ),
-  useDashboardStats: jest.fn(() => []),
+jest.mock('framer-motion', () => ({
+  motion: new Proxy({} as any, {
+    get: (_target, prop: string) => {
+      if (prop === 'div') return createMotionComponent('div');
+      if (prop === 'button') return createMotionComponent('button');
+      if (prop === 'h3') return createMotionComponent('h3');
+      if (prop === 'p') return createMotionComponent('p');
+      return createMotionComponent(prop);
+    },
+  }),
+  AnimatePresence: ({ children }: any) => <>{children}</>,
 }));
 
 // ============================================================================
@@ -58,9 +59,9 @@ import { RevenueChart } from '@/components/analytics/RevenueChart';
 
 describe('RevenueChart', () => {
   const mockData = [
-    { month: 'Jan', revenue: 12500, quotes: 12, avgValue: 1042 },
-    { month: 'Feb', revenue: 18200, quotes: 18, avgValue: 1011 },
-    { month: 'Mar', revenue: 15600, quotes: 15, avgValue: 1040 },
+    { date: 'Jan', revenue: 12500, quotes: 12, avgValue: 1042 },
+    { date: 'Feb', revenue: 18200, quotes: 18, avgValue: 1011 },
+    { date: 'Mar', revenue: 15600, quotes: 15, avgValue: 1040 },
   ];
 
   it('renders chart title', () => {
@@ -112,15 +113,17 @@ describe('ConversionChart', () => {
   });
 
   it('shows positive trend indicator', () => {
-    // Test with positive trend data
+    // Test with positive trend data (Feb rate > Jan rate)
     const positiveTrendData = [
       { date: 'Jan', sent: 45, viewed: 38, accepted: 12, conversionRate: 26.7 },
       { date: 'Feb', sent: 52, viewed: 44, accepted: 18, conversionRate: 34.6 },
     ];
-
-    const { rerender } = render(<ConversionChart data={positiveTrendData} />);
-    // Check for the heading specifically
-    expect(screen.getByRole('heading', { name: 'Quote Conversion Rate' })).toBeInTheDocument();
+    
+    render(<ConversionChart data={positiveTrendData} />);
+    // The trend should be positive: 34.6 - 26.7 = +7.9%
+    expect(screen.getByText(/Quote Conversion Rate/i)).toBeInTheDocument();
+    // Check for the positive trend indicator (green arrow and positive value)
+    expect(screen.getByText('+7.9%')).toBeInTheDocument();
   });
 
   it('shows loading skeleton when isLoading is true', () => {
@@ -157,15 +160,15 @@ describe('StatusBreakdown', () => {
   it('displays total count', () => {
     render(<StatusBreakdown data={mockData} />);
     const totalCount = mockData.reduce((sum, item) => sum + item.count, 0);
-    // The count and "quotes" text are in separate elements
-    expect(screen.getByText(String(totalCount))).toBeInTheDocument();
+    // "100 quotes" is split across elements, check for parts
+    expect(screen.getByText(totalCount.toString())).toBeInTheDocument();
     expect(screen.getByText('quotes')).toBeInTheDocument();
   });
 
   it('renders status legend items', () => {
     render(<StatusBreakdown data={mockData} />);
-    // Check for the chart title instead of legend items since Recharts Legend is mocked
-    expect(screen.getByRole('heading', { name: 'Quote Status Breakdown' })).toBeInTheDocument();
+    // The legend is mocked, but we can verify the component renders
+    expect(screen.getByText('Quote Status Breakdown')).toBeInTheDocument();
   });
 
   it('shows loading skeleton when isLoading is true', () => {
@@ -199,11 +202,12 @@ describe('TopProducts', () => {
     expect(screen.getByText('Product C')).toBeInTheDocument();
   });
 
-  it('displays product information', () => {
+  it('displays quantity and revenue for each product', () => {
     render(<TopProducts data={mockData} />);
-    // Check that products are rendered
-    expect(screen.getByText('Product A')).toBeInTheDocument();
-    expect(screen.getByText('Product B')).toBeInTheDocument();
+    // Check for quantity text as part of "100 quoted"
+    expect(screen.getByText((content) => content.includes('100'))).toBeInTheDocument();
+    // Revenue is split across elements ($ 10,000)
+    expect(screen.getByText((content) => content.includes('10,000'))).toBeInTheDocument();
   });
 
   it('shows loading skeleton when isLoading is true', () => {
@@ -244,15 +248,15 @@ describe('AnalyticsDashboard', () => {
 
   it('renders analytics dashboard title', () => {
     render(<AnalyticsDashboard data={mockData} />);
-    expect(screen.getByText('Analytics Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Analytics')).toBeInTheDocument();
   });
 
   it('renders all chart sections', () => {
     render(<AnalyticsDashboard data={mockData} />);
-    expect(screen.getAllByText('Revenue by Month')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('Quote Conversion Rate')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('Quote Status Breakdown')[0]).toBeInTheDocument();
-    expect(screen.getAllByText('Top Quoted Products')[0]).toBeInTheDocument();
+    expect(screen.getByText('Revenue by Month')).toBeInTheDocument();
+    expect(screen.getByText('Quote Conversion Rate')).toBeInTheDocument();
+    expect(screen.getByText('Quote Status Breakdown')).toBeInTheDocument();
+    expect(screen.getByText('Top Quoted Products')).toBeInTheDocument();
   });
 
   it('shows loading state when isLoading is true', () => {

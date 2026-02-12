@@ -1,15 +1,14 @@
 /**
- * Toast Notification System (Accessibility Enhanced)
- * Global toast notifications with screen reader announcements
+ * Toast Notification System
+ * Global toast notifications with auto-dismiss and animations
  * @module components/ui/Toast
  */
 
 'use client';
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useLiveAnnouncer } from '@/components/accessibility/LiveAnnouncer';
 import {
   CheckCircleIcon,
   ExclamationCircleIcon,
@@ -17,15 +16,15 @@ import {
   ExclamationTriangleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
-import type { Toast as ToastType } from '@/types/quote';
+import type { Toast } from '@/types/quote';
 
 // ============================================================================
 // Toast Context Types
 // ============================================================================
 
 interface ToastContextType {
-  toasts: ToastType[];
-  addToast: (toast: Omit<ToastType, 'id'>) => void;
+  toasts: Toast[];
+  addToast: (toast: Omit<Toast, 'id'>) => void;
   removeToast: (id: string) => void;
   clearToasts: () => void;
 }
@@ -41,11 +40,11 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 // ============================================================================
 
 type ToastAction =
-  | { type: 'ADD_TOAST'; payload: ToastType }
+  | { type: 'ADD_TOAST'; payload: Toast }
   | { type: 'REMOVE_TOAST'; payload: string }
   | { type: 'CLEAR_TOASTS' };
 
-const toastReducer = (state: ToastType[], action: ToastAction): ToastType[] => {
+const toastReducer = (state: Toast[], action: ToastAction): Toast[] => {
   switch (action.type) {
     case 'ADD_TOAST':
       return [...state, action.payload];
@@ -64,23 +63,11 @@ const toastReducer = (state: ToastType[], action: ToastAction): ToastType[] => {
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, dispatch] = useReducer(toastReducer, []);
-  const { announce } = useLiveAnnouncer();
 
-  const addToast = useCallback(
-    (toast: Omit<ToastType, 'id'>) => {
-      const id = Math.random().toString(36).substring(2, 9);
-      const newToast = { ...toast, id };
-      dispatch({ type: 'ADD_TOAST', payload: newToast });
-
-      // Announce to screen readers
-      const message = toast.message
-        ? `${toast.title}: ${toast.message}`
-        : toast.title;
-      const priority = toast.type === 'error' ? 'assertive' : 'polite';
-      announce(message, priority);
-    },
-    [announce]
-  );
+  const addToast = useCallback((toast: Omit<Toast, 'id'>) => {
+    const id = Math.random().toString(36).substring(2, 9);
+    dispatch({ type: 'ADD_TOAST', payload: { ...toast, id } });
+  }, []);
 
   const removeToast = useCallback((id: string) => {
     dispatch({ type: 'REMOVE_TOAST', payload: id });
@@ -161,7 +148,6 @@ const toastConfig = {
       icon: 'text-emerald-500',
       progress: 'bg-emerald-500',
     },
-    ariaLabel: 'Success notification',
   },
   error: {
     icon: ExclamationCircleIcon,
@@ -171,7 +157,6 @@ const toastConfig = {
       icon: 'text-red-500',
       progress: 'bg-red-500',
     },
-    ariaLabel: 'Error notification',
   },
   warning: {
     icon: ExclamationTriangleIcon,
@@ -181,7 +166,6 @@ const toastConfig = {
       icon: 'text-amber-500',
       progress: 'bg-amber-500',
     },
-    ariaLabel: 'Warning notification',
   },
   info: {
     icon: InformationCircleIcon,
@@ -191,7 +175,6 @@ const toastConfig = {
       icon: 'text-blue-500',
       progress: 'bg-blue-500',
     },
-    ariaLabel: 'Information notification',
   },
 };
 
@@ -200,7 +183,7 @@ const toastConfig = {
 // ============================================================================
 
 interface ToastItemProps {
-  toast: ToastType;
+  toast: Toast;
   onRemove: (id: string) => void;
 }
 
@@ -208,8 +191,6 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
   const config = toastConfig[toast.type];
   const Icon = config.icon;
   const duration = toast.duration || 5000;
-  const toastRef = useRef<HTMLDivElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -219,66 +200,30 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
     return () => clearTimeout(timer);
   }, [toast.id, duration, onRemove]);
 
-  // Pause on hover/focus
-  const handleMouseEnter = useCallback(() => {
-    if (progressRef.current) {
-      progressRef.current.style.animationPlayState = 'paused';
-    }
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    if (progressRef.current) {
-      progressRef.current.style.animationPlayState = 'running';
-    }
-  }, []);
-
   return (
     <motion.div
-      ref={toastRef}
       initial={{ opacity: 0, y: -20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, x: 100, scale: 0.95 }}
       transition={{ duration: 0.2, ease: 'easeOut' }}
-      role="alert"
-      aria-label={config.ariaLabel}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       className={cn(
         'relative w-full max-w-sm overflow-hidden rounded-xl border backdrop-blur-sm',
         'bg-slate-900/95 shadow-xl',
         config.colors.bg,
-        config.colors.border,
-        'focus-within:ring-2 focus-within:ring-indigo-500'
+        config.colors.border
       )}
-      tabIndex={0}
     >
       {/* Progress Bar */}
-      <div
-        ref={progressRef}
+      <motion.div
+        initial={{ width: '100%' }}
+        animate={{ width: '0%' }}
+        transition={{ duration: duration / 1000, ease: 'linear' }}
         className={cn('absolute bottom-0 left-0 h-0.5', config.colors.progress)}
-        style={{
-          width: '100%',
-          animation: `shrink ${duration}ms linear forwards`,
-        }}
       />
-
-      <style jsx>{`
-        @keyframes shrink {
-          from {
-            width: 100%;
-          }
-          to {
-            width: 0%;
-          }
-        }
-      `}</style>
 
       <div className="flex items-start gap-3 p-4">
         {/* Icon */}
-        <div
-          className={cn('flex-shrink-0', config.colors.icon)}
-          aria-hidden="true"
-        >
+        <div className={cn('flex-shrink-0', config.colors.icon)}>
           <Icon className="w-5 h-5" />
         </div>
 
@@ -293,15 +238,10 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
         {/* Close Button */}
         <button
           onClick={() => onRemove(toast.id)}
-          className={cn(
-            'flex-shrink-0 text-slate-500 hover:text-slate-300',
-            'transition-colors rounded p-1',
-            'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900'
-          )}
-          aria-label={`Dismiss ${toast.type} notification`}
-          type="button"
+          className="flex-shrink-0 text-slate-500 hover:text-slate-300 transition-colors"
+          aria-label="Dismiss notification"
         >
-          <XMarkIcon className="w-5 h-5" aria-hidden="true" />
+          <XMarkIcon className="w-5 h-5" />
         </button>
       </div>
     </motion.div>
@@ -313,17 +253,13 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onRemove }) => {
 // ============================================================================
 
 interface ToastContainerProps {
-  toasts: ToastType[];
+  toasts: Toast[];
   onRemove: (id: string) => void;
 }
 
 const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemove }) => {
   return (
-    <div
-      className="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none"
-      aria-label="Notifications"
-      role="region"
-    >
+    <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 pointer-events-none">
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => (
           <div key={toast.id} className="pointer-events-auto">

@@ -1,67 +1,85 @@
+import React from 'react';
+import './SkipNavigation.css';
+
 /**
- * Skip Navigation Component
- * Allows keyboard users to skip to main content
- * @module components/accessibility/SkipNavigation
+ * Props for the SkipNavigation component
  */
-
-'use client';
-
-import React, { useCallback } from 'react';
-import { cn } from '@/lib/utils';
-import { handleSkipLink } from '@/lib/accessibility';
-
-export interface SkipLink {
-  id: string;
-  label: string;
-}
-
-interface SkipNavigationProps {
-  links?: SkipLink[];
+export interface SkipNavigationProps {
+  /** The ID of the main content element to skip to */
+  targetId?: string;
+  /** Custom text for the skip link */
+  linkText?: string;
+  /** Additional CSS class names */
   className?: string;
 }
 
-const defaultLinks: SkipLink[] = [
-  { id: 'main-content', label: 'Skip to main content' },
-  { id: 'navigation', label: 'Skip to navigation' },
-];
-
-export function SkipNavigation({ links = defaultLinks, className }: SkipNavigationProps) {
-  const handleClick = useCallback((id: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    handleSkipLink(id);
-  }, []);
+/**
+ * SkipNavigation Component
+ * 
+ * Provides a "skip to main content" link for keyboard users.
+ * Hidden visually but accessible to screen readers and keyboard navigation.
+ * Becomes visible when focused.
+ * 
+ * WCAG 2.1 AA Compliance:
+ * - 2.4.1 Bypass Blocks (Level A)
+ * 
+ * @example
+ * ```tsx
+ * // In your App or Layout component:
+ * <SkipNavigation targetId="main-content" />
+ * 
+ * // Later in the page:
+ * <main id="main-content">
+ *   <!-- Main content here -->
+ * </main>
+ * ```
+ */
+export const SkipNavigation: React.FC<SkipNavigationProps> = ({
+  targetId = 'main-content',
+  linkText = 'Skip to main content',
+  className = '',
+}) => {
+  /**
+   * Handle click event to ensure smooth scrolling
+   * and set focus to the target element
+   */
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    
+    const target = document.getElementById(targetId);
+    
+    if (target) {
+      // Set tabindex to make element focusable
+      if (!target.hasAttribute('tabindex')) {
+        target.setAttribute('tabindex', '-1');
+      }
+      
+      // Focus and scroll to the element
+      target.focus();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // Remove tabindex after blur (optional cleanup)
+      const handleBlur = () => {
+        target.removeAttribute('tabindex');
+        target.removeEventListener('blur', handleBlur);
+      };
+      target.addEventListener('blur', handleBlur);
+    }
+  };
 
   return (
-    <nav
-      aria-label="Skip links"
-      className={cn(
-        // Hidden by default, visible on focus
-        'fixed top-0 left-0 z-[100] w-full',
-        'bg-indigo-600 text-white',
-        'transform -translate-y-full transition-transform duration-200',
-        'focus-within:translate-y-0',
-        className
-      )}
+    <a
+      href={`#${targetId}`}
+      className={`skip-navigation ${className}`.trim()}
+      onClick={handleClick}
+      data-testid="skip-navigation"
     >
-      <ul className="flex items-center gap-6 px-6 py-3">
-        {links.map((link) => (
-          <li key={link.id}>
-            <a
-              href={`#${link.id}`}
-              onClick={handleClick(link.id)}
-              className={cn(
-                'font-medium text-white',
-                'focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600',
-                'rounded px-2 py-1'
-              )}
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+      {linkText}
+    </a>
   );
-}
+};
 
+/**
+ * Default export for convenient importing
+ */
 export default SkipNavigation;

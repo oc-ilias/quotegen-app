@@ -1,0 +1,31 @@
+
+> app@0.1.0 build
+> next build --webpack
+
+▲ Next.js 16.1.6 (webpack)
+- Experiments (use with caution):
+  ✓ optimizeCss
+  · optimizePackageImports
+  ✓ scrollRestoration
+  ✓ webpackBuildWorker
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 9.4s
+  Running TypeScript ...
+  Collecting page data using 1 worker ...
+Error: supabaseUrl is required.
+    at <unknown> (dist/server/chunks/218.js:37:46859)
+    at new co (dist/server/chunks/218.js:37:47110)
+    at cp (dist/server/chunks/218.js:37:51052)
+    at 52438 (dist/server/app/api/customers/[id]/quotes/route.js:1:1016)
+    at g (dist/server/webpack-runtime.js:1:151)
+    at <unknown> (dist/server/app/api/customers/[id]/quotes/route.js:1:8773)
+    at g.X (dist/server/webpack-runtime.js:1:1268)
+    at <unknown> (dist/server/app/api/customers/[id]/quotes/route.js:1:8751)
+    at Object.<anonymous> (dist/server/app/api/customers/[id]/quotes/route.js:1:8805)
+
+> Build error occurred
+Error: Failed to collect page data for /api/customers/[id]/quotes
+    at ignore-listed frames {
+  type: 'Error'
+}

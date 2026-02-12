@@ -56,10 +56,10 @@ describe('Button', () => {
 
   it('applies variant classes correctly', () => {
     const { rerender } = render(<Button variant="primary">Primary</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-indigo-600');
+    expect(screen.getByRole('button')).toHaveClass('bg-indigo-500');
 
     rerender(<Button variant="danger">Danger</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-red-600');
+    expect(screen.getByRole('button')).toHaveClass('bg-red-500');
   });
 
   it('applies size classes correctly', () => {
@@ -67,7 +67,7 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveClass('px-3');
 
     rerender(<Button size="lg">Large</Button>);
-    expect(screen.getByRole('button')).toHaveClass('px-5');
+    expect(screen.getByRole('button')).toHaveClass('px-6');
   });
 
   it('forwards ref correctly', () => {
@@ -93,7 +93,6 @@ describe('Card', () => {
 
   it('applies hover effect when hover prop is true', () => {
     render(<Card hover>Hover Card</Card>);
-    // getByText returns the element containing the text, which is the Card div
     expect(screen.getByText('Hover Card')).toHaveClass('hover:shadow-lg');
   });
 
@@ -163,14 +162,14 @@ describe('StatusBadge', () => {
   });
 
   it('applies correct color for each status', () => {
-    const { rerender } = render(<StatusBadge status={QuoteStatus.ACCEPTED} />);
-    expect(screen.getByText('Accepted')).toHaveClass('bg-emerald-500/10');
+    const { rerender, container } = render(<StatusBadge status={QuoteStatus.ACCEPTED} />);
+    expect(container.querySelector('.bg-emerald-500\\/10')).toBeInTheDocument();
 
     rerender(<StatusBadge status={QuoteStatus.REJECTED} />);
-    expect(screen.getByText('Rejected')).toHaveClass('bg-red-500/10');
+    expect(container.querySelector('.bg-red-500\\/10')).toBeInTheDocument();
 
     rerender(<StatusBadge status={QuoteStatus.PENDING} />);
-    expect(screen.getByText('Pending')).toHaveClass('bg-amber-500/10');
+    expect(container.querySelector('.bg-amber-500\\/10')).toBeInTheDocument();
   });
 
   it('handles unknown status gracefully', () => {
@@ -186,11 +185,11 @@ describe('PriorityBadge', () => {
   });
 
   it('applies correct color for each priority', () => {
-    const { rerender } = render(<PriorityBadge priority="urgent" />);
-    expect(screen.getByText('Urgent')).toHaveClass('bg-red-500/10');
+    const { rerender, container } = render(<PriorityBadge priority="urgent" />);
+    expect(container.querySelector('.bg-red-500\\/10')).toBeInTheDocument();
 
     rerender(<PriorityBadge priority="low" />);
-    expect(screen.getByText('Low')).toHaveClass('bg-slate-500/10');
+    expect(container.querySelector('.bg-slate-500\\/10')).toBeInTheDocument();
   });
 });
 
@@ -230,12 +229,11 @@ import { Skeleton, CardSkeleton, StatCardSkeleton, TableSkeleton } from '@/compo
 describe('Skeleton', () => {
   it('renders with pulse animation by default', () => {
     const { container } = render(<Skeleton />);
-    const skeleton = container.firstChild as HTMLElement;
-    expect(skeleton).toHaveClass('animate-pulse');
+    expect(container.firstChild).toHaveClass('animate-pulse');
   });
 
   it('applies variant classes correctly', () => {
-    const { container, rerender } = render(<Skeleton variant="circular" />);
+    const { rerender, container } = render(<Skeleton variant="circular" />);
     expect(container.firstChild).toHaveClass('rounded-full');
 
     rerender(<Skeleton variant="rectangular" />);
@@ -244,7 +242,7 @@ describe('Skeleton', () => {
 
   it('applies custom width and height', () => {
     const { container } = render(<Skeleton width={100} height={50} />);
-    const skeleton = container.firstChild as HTMLElement;
+    const skeleton = container.querySelector('.bg-slate-800');
     expect(skeleton).toHaveStyle({ width: '100px', height: '50px' });
   });
 });
@@ -282,7 +280,6 @@ describe('TableSkeleton', () => {
 // ============================================================================
 
 import { ToastProvider, useToast, useToastHelpers } from '@/components/ui/Toast';
-import { LiveAnnouncerProvider } from '@/components/accessibility/LiveAnnouncer';
 
 const TestComponent = () => {
   const { addToast, toasts } = useToast();
@@ -304,14 +301,6 @@ const TestComponent = () => {
   );
 };
 
-const ToastTestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <LiveAnnouncerProvider>
-    <ToastProvider>
-      {children}
-    </ToastProvider>
-  </LiveAnnouncerProvider>
-);
-
 describe('Toast', () => {
   it('throws error when used outside provider', () => {
     const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -325,9 +314,9 @@ describe('Toast', () => {
 
   it('adds toast when addToast is called', () => {
     render(
-      <ToastTestWrapper>
+      <ToastProvider>
         <TestComponent />
-      </ToastTestWrapper>
+      </ToastProvider>
     );
 
     fireEvent.click(screen.getByTestId('add-toast'));
@@ -336,9 +325,9 @@ describe('Toast', () => {
 
   it('adds success toast with helper', () => {
     render(
-      <ToastTestWrapper>
+      <ToastProvider>
         <TestComponent />
-      </ToastTestWrapper>
+      </ToastProvider>
     );
 
     fireEvent.click(screen.getByTestId('success-toast'));

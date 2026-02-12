@@ -1,0 +1,44 @@
+.skip-navigation {
+  /* Position off-screen by default */
+  position: absolute;
+  top: -40px;
+  left: 0;
+  
+  /* Styling for when it becomes visible */
+  padding: 8px 16px;
+  background-color: #0066cc;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 10000;
+  
+  /* Smooth transition when appearing */
+  transition: top 0.2s ease-in-out;
+  
+  /* Ensure sufficient color contrast (WCAG 4.5:1) */
+  border-radius: 0 0 4px 0;
+}
+
+/* Make visible on focus */
+.skip-navigation:focus {
+  top: 0;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .skip-navigation {
+    background-color: CanvasText;
+    color: Canvas;
+    border: 2px solid CanvasText;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .skip-navigation {
+    transition: none;
+  }
+}

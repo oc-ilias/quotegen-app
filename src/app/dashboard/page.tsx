@@ -1,270 +1,340 @@
 /**
  * Dashboard Page
- * Main dashboard with overview stats, recent quotes, and activity feed
- * @module app/dashboard/page
+ * Main dashboard view with stats, recent quotes, and activity feed
  */
 
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { StatCardsGrid, useDashboardStats } from '@/components/dashboard/StatCards';
+import { DashboardLayout, PageHeader } from '@/components/layout/DashboardLayout';
+import { StatCardsGrid } from '@/components/dashboard/StatCards';
 import { RecentQuotes } from '@/components/dashboard/RecentQuotes';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { QuickActions } from '@/components/dashboard/QuickActions';
-import { useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { QuoteStatus, ActivityType, type ActivityItem, type Quote } from '@/types/quote';
-import type { RecentQuoteItem } from '@/components/dashboard/RecentQuotes';
+import { StatCardSkeleton, QuoteListSkeleton, ActivityFeedSkeleton } from '@/components/ui/Skeleton';
+import type { QuoteStats, Quote, Activity } from '@/types/quote';
+import { CustomerStatus, QuoteStatus, QuotePriority, ActivityType } from '@/types/quote';
 
-// ============================================================================
-// Types
-// ============================================================================
-
-interface DashboardData {
-  stats: {
-    totalQuotes: number;
-    pendingQuotes: number;
-    sentQuotes: number;
-    acceptedQuotes: number;
-    totalRevenue: number;
-    conversionRate: number;
-    averageQuoteValue: number;
-    quoteChange: number;
-    revenueChange: number;
-    conversionChange: number;
-  };
-  recentQuotes: RecentQuoteItem[];
-  activities: ActivityItem[];
-}
-
-// ============================================================================
-// Mock Data (for demo)
-// ============================================================================
-
-const mockQuotes: RecentQuoteItem[] = [
-  {
-    id: '1',
-    quoteNumber: 'QT-2024-001',
-    customerName: 'John Smith',
-    customerEmail: 'john@acme.com',
-    company: 'Acme Corp',
-    title: 'Industrial Equipment Quote',
-    total: 15000,
-    status: QuoteStatus.ACCEPTED,
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-  },
-  {
-    id: '2',
-    quoteNumber: 'QT-2024-002',
-    customerName: 'Sarah Johnson',
-    customerEmail: 'sarah@techflow.io',
-    company: 'TechFlow Solutions',
-    title: 'Software Licensing Quote',
-    total: 8500,
-    status: QuoteStatus.SENT,
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-  },
-  {
-    id: '3',
-    quoteNumber: 'QT-2024-003',
-    customerName: 'Mike Chen',
-    customerEmail: 'mike@buildcraft.com',
-    company: 'BuildCraft Inc',
-    title: 'Construction Materials',
-    total: 23000,
-    status: QuoteStatus.PENDING,
-    createdAt: new Date(Date.now() - 259200000).toISOString(),
-  },
-  {
-    id: '4',
-    quoteNumber: 'QT-2024-004',
-    customerName: 'Emily Davis',
-    customerEmail: 'emily@stellar.design',
-    company: 'Stellar Design',
-    title: 'Design Services Package',
-    total: 5200,
-    status: QuoteStatus.VIEWED,
-    createdAt: new Date(Date.now() - 345600000).toISOString(),
-  },
-];
-
-const mockActivities: ActivityItem[] = [
-  {
-    id: 'a1',
-    type: ActivityType.QUOTE_ACCEPTED,
-    quote_id: '1',
-    quote_number: 'QT-2024-001',
-    customer_name: 'John Smith',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-  },
-  {
-    id: 'a2',
-    type: ActivityType.QUOTE_SENT,
-    quote_id: '2',
-    quote_number: 'QT-2024-002',
-    customer_name: 'Sarah Johnson',
-    timestamp: new Date(Date.now() - 7200000).toISOString(),
-  },
-  {
-    id: 'a3',
-    type: ActivityType.QUOTE_CREATED,
-    quote_id: '3',
-    quote_number: 'QT-2024-003',
-    customer_name: 'Mike Chen',
-    timestamp: new Date(Date.now() - 10800000).toISOString(),
-  },
-  {
-    id: 'a4',
-    type: ActivityType.QUOTE_VIEWED,
-    quote_id: '2',
-    quote_number: 'QT-2024-002',
-    customer_name: 'Sarah Johnson',
-    timestamp: new Date(Date.now() - 14400000).toISOString(),
-  },
-  {
-    id: 'a5',
-    type: ActivityType.QUOTE_REMINDER_SENT,
-    quote_id: '4',
-    quote_number: 'QT-2024-004',
-    customer_name: 'Emily Davis',
-    timestamp: new Date(Date.now() - 18000000).toISOString(),
-  },
-];
-
-const mockStats = {
+// Mock data for demo
+const mockStats: QuoteStats = {
   totalQuotes: 156,
   pendingQuotes: 23,
-  sentQuotes: 45,
-  acceptedQuotes: 88,
-  totalRevenue: 485000,
-  conversionRate: 56.4,
-  averageQuoteValue: 3100,
-  quoteChange: 12.5,
-  revenueChange: 18.2,
-  conversionChange: 3.1,
+  acceptedQuotes: 89,
+  conversionRate: 57.1,
+  totalRevenue: 124500,
+  avgQuoteValue: 1596,
+  avgResponseTime: 48,
+  periodChange: {
+    totalQuotes: 12,
+    conversionRate: 3.2,
+    totalRevenue: 15400,
+    avgQuoteValue: -2.1,
+  },
 };
 
-// ============================================================================
-// Main Component
-// ============================================================================
+const mockQuotes: Quote[] = [
+  {
+    id: 'qt_001',
+    quoteNumber: 'QT-2026-001',
+    customerId: 'cust_1',
+    customer: {
+      id: 'cust_1',
+      email: 'john@acme.com',
+      companyName: 'Acme Corporation',
+      contactName: 'John Smith',
+      phone: '+1 (555) 123-4567',
+      customerSince: new Date('2023-01-15'),
+      tags: ['enterprise', 'priority'],
+      createdAt: new Date('2023-01-15'),
+      updatedAt: new Date('2026-02-03'),
+      status: CustomerStatus.ACTIVE,
+    },
+    title: 'Industrial Equipment Quote',
+    status: QuoteStatus.SENT,
+    priority: QuotePriority.HIGH,
+    lineItems: [],
+    subtotal: 15000,
+    discountTotal: 1500,
+    taxTotal: 1350,
+    shippingTotal: 500,
+    total: 15350,
+    terms: {
+      paymentTerms: 'Net 30',
+      deliveryTerms: '2-3 business days',
+      validityPeriod: 30,
+      depositRequired: true,
+      depositPercentage: 50,
+      currency: 'USD',
+    },
+    metadata: {
+      createdBy: 'user_1',
+      createdByName: 'Jane Doe',
+      source: 'web',
+    },
+    sentAt: new Date('2026-02-03'),
+    createdAt: new Date('2026-02-03'),
+    updatedAt: new Date('2026-02-03'),
+  },
+  {
+    id: 'qt_002',
+    quoteNumber: 'QT-2026-002',
+    customerId: 'cust_2',
+    customer: {
+      id: 'cust_2',
+      email: 'sarah@globex.com',
+      companyName: 'Globex Industries',
+      contactName: 'Sarah Johnson',
+      phone: '+1 (555) 987-6543',
+      customerSince: new Date('2023-03-20'),
+      tags: ['mid-market'],
+      createdAt: new Date('2023-03-20'),
+      updatedAt: new Date('2026-02-02'),
+      status: CustomerStatus.ACTIVE,
+    },
+    title: 'Office Furniture Package',
+    status: QuoteStatus.ACCEPTED,
+    priority: QuotePriority.MEDIUM,
+    lineItems: [],
+    subtotal: 8500,
+    discountTotal: 0,
+    taxTotal: 765,
+    shippingTotal: 350,
+    total: 9615,
+    terms: {
+      paymentTerms: 'Net 15',
+      deliveryTerms: 'Standard (5-7 days)',
+      validityPeriod: 30,
+      depositRequired: false,
+      currency: 'USD',
+    },
+    metadata: {
+      createdBy: 'user_1',
+      createdByName: 'Jane Doe',
+      source: 'web',
+    },
+    sentAt: new Date('2026-02-01'),
+    acceptedAt: new Date('2026-02-02'),
+    createdAt: new Date('2026-02-01'),
+    updatedAt: new Date('2026-02-02'),
+  },
+  {
+    id: 'qt_003',
+    quoteNumber: 'QT-2026-003',
+    customerId: 'cust_3',
+    customer: {
+      id: 'cust_3',
+      email: 'mike@initech.com',
+      companyName: 'Initech LLC',
+      contactName: 'Michael Brown',
+      phone: '+1 (555) 456-7890',
+      customerSince: new Date('2023-06-10'),
+      tags: ['startup'],
+      createdAt: new Date('2023-06-10'),
+      updatedAt: new Date('2026-02-03'),
+      status: CustomerStatus.ACTIVE,
+    },
+    title: 'IT Services Quote',
+    status: QuoteStatus.VIEWED,
+    priority: QuotePriority.LOW,
+    lineItems: [],
+    subtotal: 5000,
+    discountTotal: 500,
+    taxTotal: 450,
+    shippingTotal: 0,
+    total: 4950,
+    terms: {
+      paymentTerms: 'Due on Receipt',
+      deliveryTerms: 'Custom Delivery Terms',
+      validityPeriod: 15,
+      depositRequired: false,
+      currency: 'USD',
+    },
+    metadata: {
+      createdBy: 'user_1',
+      createdByName: 'Jane Doe',
+      source: 'web',
+    },
+    sentAt: new Date('2026-02-02'),
+    viewedAt: new Date('2026-02-03'),
+    createdAt: new Date('2026-02-02'),
+    updatedAt: new Date('2026-02-03'),
+  },
+];
+
+const mockActivities: Activity[] = [
+  {
+    id: 'act_1',
+    type: ActivityType.QUOTE_SENT,
+    quoteId: 'qt_001',
+    quoteNumber: 'QT-2026-001',
+    customerId: 'cust_1',
+    customerName: 'Acme Corporation',
+    userId: 'user_1',
+    userName: 'Jane Doe',
+    description: 'Quote sent to customer',
+    createdAt: new Date('2026-02-03T14:30:00'),
+  },
+  {
+    id: 'act_2',
+    type: ActivityType.QUOTE_ACCEPTED,
+    quoteId: 'qt_002',
+    quoteNumber: 'QT-2026-002',
+    customerId: 'cust_2',
+    customerName: 'Globex Industries',
+    userId: 'system',
+    userName: 'System',
+    description: 'Quote accepted by customer',
+    createdAt: new Date('2026-02-02T10:15:00'),
+  },
+  {
+    id: 'act_3',
+    type: ActivityType.QUOTE_VIEWED,
+    quoteId: 'qt_003',
+    quoteNumber: 'QT-2026-003',
+    customerId: 'cust_3',
+    customerName: 'Initech LLC',
+    description: 'Quote viewed by customer',
+    createdAt: new Date('2026-02-03T09:45:00'),
+  },
+  {
+    id: 'act_4',
+    type: ActivityType.QUOTE_CREATED,
+    quoteId: 'qt_001',
+    quoteNumber: 'QT-2026-001',
+    customerId: 'cust_1',
+    customerName: 'Acme Corporation',
+    userId: 'user_1',
+    userName: 'Jane Doe',
+    description: 'Quote created',
+    createdAt: new Date('2026-02-03T14:00:00'),
+  },
+  {
+    id: 'act_5',
+    type: ActivityType.CUSTOMER_ADDED,
+    customerId: 'cust_4',
+    customerName: 'New Customer Inc',
+    userId: 'user_1',
+    userName: 'Jane Doe',
+    description: 'New customer added',
+    createdAt: new Date('2026-02-01T11:30:00'),
+  },
+];
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  const [data, setData] = useState<DashboardData>({
-    stats: mockStats,
-    recentQuotes: mockQuotes,
-    activities: mockActivities,
-  });
+  const [stats, setStats] = useState<QuoteStats | null>(null);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [activities, setActivities] = useState<Activity[]>([]);
 
-  const stats = useDashboardStats(data.stats);
-
-  // Simulate data fetching
   useEffect(() => {
+    // Simulate loading
     const timer = setTimeout(() => {
+      setStats(mockStats);
+      setQuotes(mockQuotes);
+      setActivities(mockActivities);
       setIsLoading(false);
-    }, 1000);
+    }, 1500);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const handleCreateQuote = () => {
-    router.push('/dashboard/quotes/new');
+  const handleQuickAction = (action: string) => {
+    console.log('Quick action:', action);
+    // Navigate to appropriate page or open modal
   };
 
-  const handleViewQuote = (id: string) => {
-    router.push(`/dashboard/quotes/${id}`);
+  const handleViewQuote = (quoteId: string) => {
+    console.log('View quote:', quoteId);
+    // Navigate to quote detail
   };
 
-  const handleViewAllQuotes = () => {
-    router.push('/dashboard/quotes');
-  };
-
-  const handleViewAnalytics = () => {
-    router.push('/dashboard/analytics');
-  };
-
-  const handleCreateTemplate = () => {
-    router.push('/dashboard/templates/new');
+  const handleAction = (quoteId: string, action: string) => {
+    console.log('Quote action:', quoteId, action);
+    // Handle quote actions (send, edit, etc.)
   };
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-      >
-        <div>
-          <h1 className="text-2xl font-bold text-slate-100">Dashboard</h1>
-          <p className="text-slate-400 mt-1">
-            Welcome back! Here&apos;s what&apos;s happening with your quotes.
-          </p>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleCreateQuote}
-          className="flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-medium transition-colors shadow-lg shadow-indigo-500/25"
-        >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create Quote
-        </motion.button>
-      </motion.div>
+    <DashboardLayout activeNavItem="dashboard">
+      <PageHeader
+        title="Dashboard"
+        subtitle="Welcome back! Here's what's happening with your quotes."
+      />
 
       {/* Stats Grid */}
-      <section>
-        <StatCardsGrid stats={stats} isLoading={isLoading} />
-      </section>
-
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Recent Quotes */}
-        <motion.section
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <StatCardSkeleton color="blue" />
+          <StatCardSkeleton color="green" />
+          <StatCardSkeleton color="purple" />
+          <StatCardSkeleton color="indigo" />
+        </div>
+      ) : stats ? (
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="lg:col-span-2"
+          className="mb-8"
         >
-          <RecentQuotes
-            quotes={data.recentQuotes}
-            isLoading={isLoading}
-            onViewQuote={handleViewQuote}
-            onViewAll={handleViewAllQuotes}
-          />
-        </motion.section>
-
-        {/* Activity Feed */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <ActivityFeed
-            activities={data.activities}
-            isLoading={isLoading}
-            maxItems={5}
-          />
-        </motion.section>
-      </div>
+          <StatCardsGrid stats={[
+            { title: 'Total Quotes', value: stats.totalQuotes, change: stats.periodChange?.totalQuotes, icon: 'quotes', color: 'blue', format: 'number' },
+            { title: 'Total Revenue', value: stats.totalRevenue, change: stats.periodChange?.totalRevenue, icon: 'revenue', color: 'green', format: 'currency' },
+            { title: 'Conversion Rate', value: stats.conversionRate, change: stats.periodChange?.conversionRate, icon: 'conversion', color: 'purple', format: 'percent' },
+            { title: 'Pending Quotes', value: stats.pendingQuotes, icon: 'pending', color: 'indigo', format: 'number' },
+          ]} />
+        </motion.div>
+      ) : null}
 
       {/* Quick Actions */}
-      <motion.section
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.1 }}
+        className="mb-8"
       >
-        <QuickActions
-          onCreateQuote={handleCreateQuote}
-          onCreateTemplate={handleCreateTemplate}
-          onViewAnalytics={handleViewAnalytics}
-        />
-      </motion.section>
-    </div>
+        <QuickActions onCreateQuote={() => handleQuickAction('create-quote')} onViewAnalytics={() => handleQuickAction('view-analytics')} />
+      </motion.div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        {/* Recent Quotes */}
+        <div className="xl:col-span-2">
+          {isLoading ? (
+            <QuoteListSkeleton />
+          ) : (
+            <RecentQuotes
+              quotes={quotes.map(q => ({
+                id: q.id,
+                quoteNumber: q.quoteNumber,
+                customerName: q.customer?.contactName || q.customer?.companyName || 'Unknown',
+                customerEmail: q.customer?.email || '',
+                company: q.customer?.companyName,
+                title: q.title,
+                total: q.total,
+                status: q.status,
+                createdAt: q.createdAt.toISOString(),
+              }))}
+              onViewQuote={handleViewQuote}
+            />
+          )}
+        </div>
+
+        {/* Activity Feed */}
+        <div>
+          {isLoading ? (
+            <ActivityFeedSkeleton />
+          ) : (
+            <ActivityFeed activities={activities.map(a => ({
+              id: a.id,
+              type: a.type,
+              quote_id: a.quoteId || '',
+              quote_number: a.quoteNumber || '',
+              customer_name: a.customerName || '',
+              timestamp: a.createdAt.toISOString(),
+              metadata: { description: a.description },
+            }))} />
+          )}
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }

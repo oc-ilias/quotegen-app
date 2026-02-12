@@ -1,1049 +1,636 @@
 /**
- * Accessibility Library Tests
- * Tests for focus management, keyboard helpers, announceToScreenReader
- * @module lib/__tests__/accessibility.test.ts
+ * Unit Tests for Accessibility Utilities
+ * @module lib/__tests__/accessibility.test
  */
 
-import React, { useRef } from 'react';
-import { renderHook, act } from '@testing-library/react';
 import {
-  FOCUSABLE_ELEMENTS,
+  isFocusable,
   getFocusableElements,
-  focusFirstElement,
-  focusLastElement,
-  useFocusTrap,
-  useAnnouncer,
-  usePrefersReducedMotion,
-  useKeyboardNavigation,
-  generateAriaId,
-  useLabelAssociation,
-  handleSkipLink,
-  getLuminance,
-  getContrastRatio,
-  meetsWCAGAA,
+  focusFirstFocusable,
+  announceToScreenReader,
+  KeyboardKeys,
+  isInViewport,
+  scrollIntoView,
+  trapFocus,
 } from '@/lib/accessibility';
 
-// ============================================================================
-// getFocusableElements
-// ============================================================================
-
-describe('getFocusableElements', () => {
-  let container: HTMLElement;
-
+describe('Accessibility Utilities', () => {
   beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
+    jest.clearAllMocks();
+    document.body.innerHTML = '';
   });
 
-  afterEach(() => {
-    document.body.removeChild(container);
-  });
-
-  it('should return empty array for empty container', () => {
-    const elements = getFocusableElements(container);
-    expect(elements).toEqual([]);
-  });
-
-  it('should find button elements', () => {
-    container.innerHTML = `
-      <button>Button 1</button>
-      <button>Button 2</button>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(2);
-    expect(elements[0].tagName).toBe('BUTTON');
-  });
-
-  it('should find input elements', () => {
-    container.innerHTML = `
-      <input type="text" />
-      <input type="checkbox" />
-      <input type="radio" />
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(3);
-  });
-
-  it('should find anchor elements with href', () => {
-    container.innerHTML = `
-      <a href="/page1">Link 1</a>
-      <a href="/page2">Link 2</a>
-      <a>No href</a>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(2);
-  });
-
-  it('should find select elements', () => {
-    container.innerHTML = `
-      <select><option>1</option></select>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(1);
-  });
-
-  it('should find textarea elements', () => {
-    container.innerHTML = `
-      <textarea></textarea>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(1);
-  });
-
-  it('should find elements with positive tabindex', () => {
-    container.innerHTML = `
-      <div tabindex="0">Tabbable</div>
-      <div tabindex="1">Tabbable 2</div>
-      <div tabindex="-1">Not tabbable</div>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(2);
-  });
-
-  it('should find contenteditable elements', () => {
-    container.innerHTML = `
-      <div contenteditable="true">Editable</div>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(1);
-  });
-
-  it('should find audio and video controls', () => {
-    container.innerHTML = `
-      <audio controls></audio>
-      <video controls></video>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(2);
-  });
-
-  it('should find summary elements', () => {
-    container.innerHTML = `
-      <details>
-        <summary>Click me</summary>
-        <p>Content</p>
-      </details>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(1);
-  });
-
-  it('should exclude disabled elements', () => {
-    container.innerHTML = `
-      <button>Enabled</button>
-      <button disabled>Disabled</button>
-      <input disabled />
-      <select disabled></select>
-      <textarea disabled></textarea>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(1);
-  });
-
-  it('should return elements in DOM order', () => {
-    container.innerHTML = `
-      <button id="btn1">First</button>
-      <input id="inp1" />
-      <a href="/" id="link1">Link</a>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements[0].id).toBe('btn1');
-    expect(elements[1].id).toBe('inp1');
-    expect(elements[2].id).toBe('link1');
-  });
-
-  it('should handle mixed focusable elements', () => {
-    container.innerHTML = `
-      <button>Button</button>
-      <a href="/">Link</a>
-      <input />
-      <select></select>
-      <textarea></textarea>
-    `;
-
-    const elements = getFocusableElements(container);
-    expect(elements).toHaveLength(5);
-  });
-});
-
-// ============================================================================
-// focusFirstElement
-// ============================================================================
-
-describe('focusFirstElement', () => {
-  let container: HTMLElement;
-
-  beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-  });
-
-  afterEach(() => {
-    document.body.removeChild(container);
-  });
-
-  it('should focus the first focusable element', () => {
-    container.innerHTML = `
-      <button id="btn1">First</button>
-      <button id="btn2">Second</button>
-    `;
-
-    focusFirstElement(container);
-
-    expect(document.activeElement?.id).toBe('btn1');
-  });
-
-  it('should do nothing if no focusable elements', () => {
-    container.innerHTML = `<div>No buttons here</div>`;
-    const previouslyFocused = document.activeElement;
-
-    focusFirstElement(container);
-
-    expect(document.activeElement).toBe(previouslyFocused);
-  });
-
-  it('should skip disabled elements', () => {
-    container.innerHTML = `
-      <button disabled id="btn1">Disabled</button>
-      <button id="btn2">Enabled</button>
-    `;
-
-    focusFirstElement(container);
-
-    expect(document.activeElement?.id).toBe('btn2');
-  });
-});
-
-// ============================================================================
-// focusLastElement
-// ============================================================================
-
-describe('focusLastElement', () => {
-  let container: HTMLElement;
-
-  beforeEach(() => {
-    container = document.createElement('div');
-    document.body.appendChild(container);
-  });
-
-  afterEach(() => {
-    document.body.removeChild(container);
-  });
-
-  it('should focus the last focusable element', () => {
-    container.innerHTML = `
-      <button id="btn1">First</button>
-      <button id="btn2">Last</button>
-    `;
-
-    focusLastElement(container);
-
-    expect(document.activeElement?.id).toBe('btn2');
-  });
-
-  it('should do nothing if no focusable elements', () => {
-    container.innerHTML = `<div>No buttons here</div>`;
-    const previouslyFocused = document.activeElement;
-
-    focusLastElement(container);
-
-    expect(document.activeElement).toBe(previouslyFocused);
-  });
-
-  it('should focus single element', () => {
-    container.innerHTML = `<button id="only">Only</button>`;
-
-    focusLastElement(container);
-
-    expect(document.activeElement?.id).toBe('only');
-  });
-});
-
-// ============================================================================
-// useFocusTrap
-// ============================================================================
-
-describe('useFocusTrap', () => {
-  it('should return containerRef and handleKeyDown', () => {
-    const { result } = renderHook(() =>
-      useFocusTrap({ isActive: true })
-    );
-
-    expect(result.current.containerRef).toBeDefined();
-    expect(typeof result.current.handleKeyDown).toBe('function');
-  });
-
-  it('should handle Tab key navigation', () => {
-    const onEscape = jest.fn();
-    const { result } = renderHook(() =>
-      useFocusTrap({ isActive: true, onEscape })
-    );
-
-    const mockEvent = {
-      key: 'Tab',
-      shiftKey: false,
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current.handleKeyDown(mockEvent);
+  describe('isFocusable', () => {
+    it('should return false for null element', () => {
+      expect(isFocusable(null)).toBe(false);
     });
 
-    // Since no container is attached, it should not throw
-    expect(result.current.handleKeyDown).toBeDefined();
-  });
-
-  it('should handle Shift+Tab key navigation', () => {
-    const { result } = renderHook(() =>
-      useFocusTrap({ isActive: true })
-    );
-
-    const mockEvent = {
-      key: 'Tab',
-      shiftKey: true,
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current.handleKeyDown(mockEvent);
+    it('should return false for non-HTMLElement', () => {
+      const textNode = document.createTextNode('text');
+      expect(isFocusable(textNode as any)).toBe(false);
     });
 
-    expect(result.current.handleKeyDown).toBeDefined();
-  });
-
-  it('should call onEscape when Escape key pressed', () => {
-    const onEscape = jest.fn();
-    const { result } = renderHook(() =>
-      useFocusTrap({ isActive: true, onEscape })
-    );
-
-    const mockEvent = {
-      key: 'Escape',
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current.handleKeyDown(mockEvent);
+    it('should return false for hidden element', () => {
+      document.body.innerHTML = '<button hidden>Hidden Button</button>';
+      const button = document.querySelector('button');
+      expect(isFocusable(button)).toBe(false);
     });
 
-    expect(onEscape).toHaveBeenCalled();
-  });
-
-  it('should not call onEscape when not provided', () => {
-    const { result } = renderHook(() =>
-      useFocusTrap({ isActive: true })
-    );
-
-    const mockEvent = {
-      key: 'Escape',
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current.handleKeyDown(mockEvent);
+    it('should return false for aria-hidden element', () => {
+      document.body.innerHTML = '<button aria-hidden="true">Hidden Button</button>';
+      const button = document.querySelector('button');
+      expect(isFocusable(button)).toBe(false);
     });
 
-    // Should not throw
-    expect(result.current.handleKeyDown).toBeDefined();
+    it('should return false for display:none element', () => {
+      document.body.innerHTML = '<button style="display:none">Hidden Button</button>';
+      const button = document.querySelector('button');
+      expect(isFocusable(button)).toBe(false);
+    });
+
+    it('should return false for visibility:hidden element', () => {
+      document.body.innerHTML = '<button style="visibility:hidden">Hidden Button</button>';
+      const button = document.querySelector('button');
+      expect(isFocusable(button)).toBe(false);
+    });
+
+    it('should return true for visible button', () => {
+      document.body.innerHTML = '<button>Visible Button</button>';
+      const button = document.querySelector('button');
+      expect(isFocusable(button)).toBe(true);
+    });
+
+    it('should return true for visible link with href', () => {
+      document.body.innerHTML = '<a href="/test">Link</a>';
+      const link = document.querySelector('a');
+      expect(isFocusable(link)).toBe(true);
+    });
+
+    it('should return false for link without href', () => {
+      document.body.innerHTML = '<a>Link without href</a>';
+      const link = document.querySelector('a');
+      expect(isFocusable(link)).toBe(false);
+    });
+
+    it('should return true for visible input', () => {
+      document.body.innerHTML = '<input type="text" />';
+      const input = document.querySelector('input');
+      expect(isFocusable(input)).toBe(true);
+    });
+
+    it('should return false for disabled input', () => {
+      document.body.innerHTML = '<input type="text" disabled />';
+      const input = document.querySelector('input');
+      expect(isFocusable(input)).toBe(false);
+    });
+
+    it('should return false for hidden input', () => {
+      document.body.innerHTML = '<input type="hidden" />';
+      const input = document.querySelector('input');
+      expect(isFocusable(input)).toBe(false);
+    });
+
+    it('should return true for visible select', () => {
+      document.body.innerHTML = '<select><option>1</option></select>';
+      const select = document.querySelector('select');
+      expect(isFocusable(select)).toBe(true);
+    });
+
+    it('should return false for disabled select', () => {
+      document.body.innerHTML = '<select disabled><option>1</option></select>';
+      const select = document.querySelector('select');
+      expect(isFocusable(select)).toBe(false);
+    });
+
+    it('should return true for visible textarea', () => {
+      document.body.innerHTML = '<textarea></textarea>';
+      const textarea = document.querySelector('textarea');
+      expect(isFocusable(textarea)).toBe(true);
+    });
+
+    it('should return true for element with tabindex', () => {
+      document.body.innerHTML = '<div tabindex="0">Focusable Div</div>';
+      const div = document.querySelector('div');
+      expect(isFocusable(div)).toBe(true);
+    });
+
+    it('should return false for element with tabindex="-1"', () => {
+      document.body.innerHTML = '<div tabindex="-1">Not Focusable</div>';
+      const div = document.querySelector('div');
+      expect(isFocusable(div)).toBe(false);
+    });
+
+    it('should return true for contenteditable element', () => {
+      document.body.innerHTML = '<div contenteditable="true">Editable</div>';
+      const div = document.querySelector('div');
+      expect(isFocusable(div)).toBe(true);
+    });
+
+    it('should return false for contenteditable="false"', () => {
+      document.body.innerHTML = '<div contenteditable="false">Not Editable</div>';
+      const div = document.querySelector('div');
+      expect(isFocusable(div)).toBe(false);
+    });
+
+    it('should return true for details element', () => {
+      document.body.innerHTML = '<details><summary>Summary</summary></details>';
+      const details = document.querySelector('details');
+      expect(isFocusable(details)).toBe(true);
+    });
   });
 
-  it('should ignore other keys', () => {
-    const onEscape = jest.fn();
-    const { result } = renderHook(() =>
-      useFocusTrap({ isActive: true, onEscape })
-    );
+  describe('getFocusableElements', () => {
+    it('should return empty array when no focusable elements exist', () => {
+      document.body.innerHTML = '<div>No focusable elements</div>';
+      const result = getFocusableElements();
+      expect(result).toEqual([]);
+    });
 
-    const keys = ['Enter', 'ArrowDown', 'ArrowUp', 'a', '1'];
+    it('should return focusable buttons', () => {
+      document.body.innerHTML = `
+        <button>Button 1</button>
+        <button>Button 2</button>
+      `;
+      const result = getFocusableElements();
+      expect(result).toHaveLength(2);
+      expect(result[0].tagName).toBe('BUTTON');
+    });
 
-    keys.forEach((key) => {
-      const mockEvent = {
-        key,
-        preventDefault: jest.fn(),
-      } as unknown as React.KeyboardEvent;
+    it('should return focusable links', () => {
+      document.body.innerHTML = `
+        <a href="/link1">Link 1</a>
+        <a href="/link2">Link 2</a>
+      `;
+      const result = getFocusableElements();
+      expect(result).toHaveLength(2);
+    });
 
-      act(() => {
-        result.current.handleKeyDown(mockEvent);
+    it('should return focusable inputs', () => {
+      document.body.innerHTML = `
+        <input type="text" />
+        <input type="checkbox" />
+        <input type="radio" />
+      `;
+      const result = getFocusableElements();
+      expect(result).toHaveLength(3);
+    });
+
+    it('should exclude disabled elements', () => {
+      document.body.innerHTML = `
+        <button>Enabled</button>
+        <button disabled>Disabled</button>
+      `;
+      const result = getFocusableElements();
+      expect(result).toHaveLength(1);
+    });
+
+    it('should exclude hidden elements', () => {
+      document.body.innerHTML = `
+        <button>Visible</button>
+        <button hidden>Hidden</button>
+      `;
+      const result = getFocusableElements();
+      expect(result).toHaveLength(1);
+    });
+
+    it('should exclude elements in disabled fieldset', () => {
+      document.body.innerHTML = `
+        <fieldset disabled>
+          <button>In Disabled Fieldset</button>
+          <input type="text" />
+        </fieldset>
+        <button>Outside Fieldset</button>
+      `;
+      const result = getFocusableElements();
+      expect(result).toHaveLength(1);
+      expect(result[0].textContent).toBe('Outside Fieldset');
+    });
+
+    it('should filter by custom container', () => {
+      document.body.innerHTML = `
+        <div id="container1">
+          <button>Button 1</button>
+        </div>
+        <div id="container2">
+          <button>Button 2</button>
+        </div>
+      `;
+      const container = document.getElementById('container1');
+      const result = getFocusableElements(container!);
+      expect(result).toHaveLength(1);
+      expect(result[0].textContent).toBe('Button 1');
+    });
+
+    it('should default to document.body when no container provided', () => {
+      document.body.innerHTML = '<button>Body Button</button>';
+      const result = getFocusableElements();
+      expect(result).toHaveLength(1);
+    });
+
+    it('should return elements in DOM order', () => {
+      document.body.innerHTML = `
+        <button>First</button>
+        <input type="text" />
+        <a href="/">Third</a>
+      `;
+      const result = getFocusableElements();
+      expect(result[0].tagName).toBe('BUTTON');
+      expect(result[1].tagName).toBe('INPUT');
+      expect(result[2].tagName).toBe('A');
+    });
+  });
+
+  describe('focusFirstFocusable', () => {
+    it('should return null for null container', () => {
+      const result = focusFirstFocusable(null);
+      expect(result).toBeNull();
+    });
+
+    it('should return null when no focusable elements exist', () => {
+      document.body.innerHTML = '<div id="container"><p>No buttons</p></div>';
+      const container = document.getElementById('container');
+      const result = focusFirstFocusable(container!);
+      expect(result).toBeNull();
+    });
+
+    it('should focus first focusable element', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <p>Text</p>
+          <button id="first">First Button</button>
+          <button>Second Button</button>
+        </div>
+      `;
+      const container = document.getElementById('modal');
+      const firstButton = document.getElementById('first');
+      const focusSpy = jest.spyOn(firstButton!, 'focus');
+
+      const result = focusFirstFocusable(container!);
+
+      expect(focusSpy).toHaveBeenCalled();
+      expect(result).toBe(firstButton);
+    });
+
+    it('should skip non-focusable elements', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <p>Text</p>
+          <div>Div</div>
+          <a href="/">Link</a>
+        </div>
+      `;
+      const container = document.getElementById('modal');
+      const result = focusFirstFocusable(container!);
+
+      expect(result?.tagName).toBe('A');
+    });
+  });
+
+  describe('announceToScreenReader', () => {
+    it('should create announcer element if not exists', () => {
+      announceToScreenReader('Test message');
+
+      const announcer = document.getElementById('live-announcer-polite');
+      expect(announcer).toBeTruthy();
+      expect(announcer?.getAttribute('aria-live')).toBe('polite');
+      expect(announcer?.getAttribute('aria-atomic')).toBe('true');
+    });
+
+    it('should use existing announcer if already created', () => {
+      announceToScreenReader('First message');
+      const firstAnnouncer = document.getElementById('live-announcer-polite');
+
+      announceToScreenReader('Second message');
+      const secondAnnouncer = document.getElementById('live-announcer-polite');
+
+      expect(firstAnnouncer).toBe(secondAnnouncer);
+    });
+
+    it('should create assertive announcer for assertive priority', () => {
+      announceToScreenReader('Urgent message', 'assertive');
+
+      const announcer = document.getElementById('live-announcer-assertive');
+      expect(announcer).toBeTruthy();
+      expect(announcer?.getAttribute('aria-live')).toBe('assertive');
+    });
+
+    it('should have proper screen reader only styles', () => {
+      announceToScreenReader('Test');
+
+      const announcer = document.getElementById('live-announcer-polite');
+      const styles = window.getComputedStyle(announcer!);
+      expect(announcer?.style.position).toBe('absolute');
+      expect(announcer?.style.width).toBe('1px');
+      expect(announcer?.style.height).toBe('1px');
+      expect(announcer?.style.overflow).toBe('hidden');
+    });
+
+    it('should handle empty message', () => {
+      announceToScreenReader('');
+
+      const announcer = document.getElementById('live-announcer-polite');
+      expect(announcer).toBeTruthy();
+    });
+
+    it('should return early when document is undefined', () => {
+      const originalDocument = global.document;
+      // @ts-ignore
+      global.document = undefined;
+
+      expect(() => announceToScreenReader('Test')).not.toThrow();
+
+      global.document = originalDocument;
+    });
+  });
+
+  describe('KeyboardKeys', () => {
+    it('should have correct key values', () => {
+      expect(KeyboardKeys.TAB).toBe('Tab');
+      expect(KeyboardKeys.ENTER).toBe('Enter');
+      expect(KeyboardKeys.ESCAPE).toBe('Escape');
+      expect(KeyboardKeys.SPACE).toBe(' ');
+      expect(KeyboardKeys.ARROW_UP).toBe('ArrowUp');
+      expect(KeyboardKeys.ARROW_DOWN).toBe('ArrowDown');
+      expect(KeyboardKeys.ARROW_LEFT).toBe('ArrowLeft');
+      expect(KeyboardKeys.ARROW_RIGHT).toBe('ArrowRight');
+      expect(KeyboardKeys.HOME).toBe('Home');
+      expect(KeyboardKeys.END).toBe('End');
+      expect(KeyboardKeys.PAGE_UP).toBe('PageUp');
+      expect(KeyboardKeys.PAGE_DOWN).toBe('PageDown');
+    });
+  });
+
+  describe('isInViewport', () => {
+    it('should return true for element in viewport', () => {
+      const mockElement = {
+        getBoundingClientRect: () => ({
+          top: 100,
+          left: 100,
+          bottom: 200,
+          right: 200,
+        }),
+      } as HTMLElement;
+
+      Object.defineProperty(window, 'innerHeight', { value: 600, writable: true });
+      Object.defineProperty(window, 'innerWidth', { value: 800, writable: true });
+
+      expect(isInViewport(mockElement)).toBe(true);
+    });
+
+    it('should return false for element above viewport', () => {
+      const mockElement = {
+        getBoundingClientRect: () => ({
+          top: -100,
+          left: 100,
+          bottom: -50,
+          right: 200,
+        }),
+      } as HTMLElement;
+
+      expect(isInViewport(mockElement)).toBe(false);
+    });
+
+    it('should return false for element below viewport', () => {
+      Object.defineProperty(window, 'innerHeight', { value: 600, writable: true });
+
+      const mockElement = {
+        getBoundingClientRect: () => ({
+          top: 700,
+          left: 100,
+          bottom: 800,
+          right: 200,
+        }),
+      } as HTMLElement;
+
+      expect(isInViewport(mockElement)).toBe(false);
+    });
+
+    it('should return false for element left of viewport', () => {
+      const mockElement = {
+        getBoundingClientRect: () => ({
+          top: 100,
+          left: -100,
+          bottom: 200,
+          right: -50,
+        }),
+      } as HTMLElement;
+
+      expect(isInViewport(mockElement)).toBe(false);
+    });
+
+    it('should return false for element right of viewport', () => {
+      Object.defineProperty(window, 'innerWidth', { value: 800, writable: true });
+
+      const mockElement = {
+        getBoundingClientRect: () => ({
+          top: 100,
+          left: 900,
+          bottom: 200,
+          right: 1000,
+        }),
+      } as HTMLElement;
+
+      expect(isInViewport(mockElement)).toBe(false);
+    });
+
+    it('should handle element at edge of viewport', () => {
+      Object.defineProperty(window, 'innerHeight', { value: 600, writable: true });
+      Object.defineProperty(window, 'innerWidth', { value: 800, writable: true });
+
+      const mockElement = {
+        getBoundingClientRect: () => ({
+          top: 0,
+          left: 0,
+          bottom: 100,
+          right: 100,
+        }),
+      } as HTMLElement;
+
+      expect(isInViewport(mockElement)).toBe(true);
+    });
+  });
+
+  describe('scrollIntoView', () => {
+    it('should scroll element into view with smooth behavior', () => {
+      const mockScrollIntoView = jest.fn();
+      const mockElement = {
+        scrollIntoView: mockScrollIntoView,
+      } as unknown as HTMLElement;
+
+      scrollIntoView(mockElement, 'smooth');
+
+      expect(mockScrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
       });
     });
 
-    expect(onEscape).not.toHaveBeenCalled();
-  });
-});
+    it('should scroll element into view with auto behavior', () => {
+      const mockScrollIntoView = jest.fn();
+      const mockElement = {
+        scrollIntoView: mockScrollIntoView,
+      } as unknown as HTMLElement;
 
-// ============================================================================
-// useAnnouncer
-// ============================================================================
+      scrollIntoView(mockElement, 'auto');
 
-describe('useAnnouncer', () => {
-  beforeEach(() => {
-    // Clean up any existing announcer elements
-    document.querySelectorAll('[id^="aria-announcer"]').forEach((el) => el.remove());
-    jest.useFakeTimers();
-  });
-
-  afterEach(() => {
-    jest.useRealTimers();
-  });
-
-  it('should create polite announcer region', () => {
-    const { result } = renderHook(() => useAnnouncer());
-
-    act(() => {
-      result.current.announce('Test message');
+      expect(mockScrollIntoView).toHaveBeenCalledWith({
+        behavior: 'auto',
+        block: 'nearest',
+        inline: 'nearest',
+      });
     });
 
-    jest.advanceTimersByTime(100);
+    it('should default to smooth behavior', () => {
+      const mockScrollIntoView = jest.fn();
+      const mockElement = {
+        scrollIntoView: mockScrollIntoView,
+      } as unknown as HTMLElement;
 
-    const region = document.getElementById('aria-announcer-polite');
-    expect(region).toBeTruthy();
-    expect(region?.getAttribute('role')).toBe('status');
-    expect(region?.getAttribute('aria-live')).toBe('polite');
-    expect(region?.getAttribute('aria-atomic')).toBe('true');
-  });
+      scrollIntoView(mockElement);
 
-  it('should create assertive announcer region', () => {
-    const { result } = renderHook(() => useAnnouncer());
-
-    act(() => {
-      result.current.announce('Urgent message', 'assertive');
-    });
-
-    jest.advanceTimersByTime(100);
-
-    const region = document.getElementById('aria-announcer-assertive');
-    expect(region).toBeTruthy();
-    expect(region?.getAttribute('aria-live')).toBe('assertive');
-  });
-
-  it('should announce message with delay', () => {
-    const { result } = renderHook(() => useAnnouncer());
-
-    act(() => {
-      result.current.announce('Hello world');
-    });
-
-    // Initially empty
-    const region = document.getElementById('aria-announcer-polite');
-    expect(region?.textContent).toBe('');
-
-    // After delay
-    act(() => {
-      jest.advanceTimersByTime(100);
-    });
-
-    expect(region?.textContent).toBe('Hello world');
-  });
-
-  it('should reuse existing region', () => {
-    const { result } = renderHook(() => useAnnouncer());
-
-    act(() => {
-      result.current.announce('First message');
-    });
-
-    act(() => {
-      result.current.announce('Second message');
-    });
-
-    jest.advanceTimersByTime(100);
-
-    const regions = document.querySelectorAll('#aria-announcer-polite');
-    expect(regions).toHaveLength(1);
-  });
-
-  it('should update message content', () => {
-    const { result } = renderHook(() => useAnnouncer());
-
-    act(() => {
-      result.current.announce('First');
-    });
-
-    jest.advanceTimersByTime(100);
-
-    act(() => {
-      result.current.announce('Second');
-    });
-
-    jest.advanceTimersByTime(100);
-
-    const region = document.getElementById('aria-announcer-polite');
-    expect(region?.textContent).toBe('Second');
-  });
-});
-
-// ============================================================================
-// usePrefersReducedMotion
-// ============================================================================
-
-describe('usePrefersReducedMotion', () => {
-  const mockMatchMedia = jest.fn();
-
-  beforeEach(() => {
-    Object.defineProperty(window, 'matchMedia', {
-      writable: true,
-      value: mockMatchMedia,
+      expect(mockScrollIntoView).toHaveBeenCalledWith({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
     });
   });
 
-  it('should return false by default', () => {
-    mockMatchMedia.mockReturnValue({
-      matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
+  describe('trapFocus', () => {
+    it('should return cleanup function', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <button>Button 1</button>
+          <button>Button 2</button>
+        </div>
+      `;
+      const container = document.getElementById('modal')!;
+
+      const cleanup = trapFocus(container);
+
+      expect(typeof cleanup).toBe('function');
     });
 
-    const { result } = renderHook(() => usePrefersReducedMotion());
+    it('should handle Tab key press', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <button id="first">Button 1</button>
+          <button id="last">Button 2</button>
+        </div>
+      `;
+      const container = document.getElementById('modal')!;
+      const firstButton = document.getElementById('first')!;
+      const lastButton = document.getElementById('last')!;
 
-    expect(result.current).toBe(false);
-  });
+      trapFocus(container);
 
-  it('should return true when user prefers reduced motion', () => {
-    mockMatchMedia.mockReturnValue({
-      matches: true,
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    });
-
-    const { result } = renderHook(() => usePrefersReducedMotion());
-
-    expect(result.current).toBe(true);
-  });
-
-  it('should update when preference changes', () => {
-    let changeCallback: ((event: { matches: boolean }) => void) | null = null;
-
-    mockMatchMedia.mockReturnValue({
-      matches: false,
-      addEventListener: jest.fn((event, callback) => {
-        if (event === 'change') {
-          changeCallback = callback;
-        }
-      }),
-      removeEventListener: jest.fn(),
-    });
-
-    const { result } = renderHook(() => usePrefersReducedMotion());
-
-    expect(result.current).toBe(false);
-
-    // Simulate preference change
-    act(() => {
-      if (changeCallback) {
-        changeCallback({ matches: true });
-      }
-    });
-
-    expect(result.current).toBe(true);
-  });
-
-  it('should handle window undefined', () => {
-    const originalWindow = global.window;
-    // @ts-expect-error - Testing undefined window
-    delete global.window;
-
-    const { result } = renderHook(() => usePrefersReducedMotion());
-
-    expect(result.current).toBe(false);
-
-    global.window = originalWindow;
-  });
-
-  it('should clean up event listener on unmount', () => {
-    const removeEventListener = jest.fn();
-
-    mockMatchMedia.mockReturnValue({
-      matches: false,
-      addEventListener: jest.fn(),
-      removeEventListener,
-    });
-
-    const { unmount } = renderHook(() => usePrefersReducedMotion());
-
-    unmount();
-
-    expect(removeEventListener).toHaveBeenCalled();
-  });
-});
-
-// ============================================================================
-// useKeyboardNavigation
-// ============================================================================
-
-describe('useKeyboardNavigation', () => {
-  it('should call onEnter when Enter key pressed', () => {
-    const onEnter = jest.fn();
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onEnter })
-    );
-
-    const mockEvent = {
-      key: 'Enter',
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current(mockEvent);
-    });
-
-    expect(onEnter).toHaveBeenCalled();
-  });
-
-  it('should call onSpace when Space key pressed', () => {
-    const onSpace = jest.fn();
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onSpace })
-    );
-
-    const mockEvent = {
-      key: ' ',
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current(mockEvent);
-    });
-
-    expect(onSpace).toHaveBeenCalled();
-  });
-
-  it('should call arrow key handlers', () => {
-    const handlers = {
-      onArrowUp: jest.fn(),
-      onArrowDown: jest.fn(),
-      onArrowLeft: jest.fn(),
-      onArrowRight: jest.fn(),
-    };
-
-    const { result } = renderHook(() => useKeyboardNavigation(handlers));
-
-    Object.entries(handlers).forEach(([key, handler]) => {
-      const eventKey = key.replace('onArrow', 'Arrow');
-      const mockEvent = {
-        key: eventKey,
-        preventDefault: jest.fn(),
-      } as unknown as React.KeyboardEvent;
-
-      act(() => {
-        result.current(mockEvent);
+      // Simulate Tab on last element
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
+      Object.defineProperty(document, 'activeElement', {
+        value: lastButton,
+        writable: true,
       });
 
-      expect(handler).toHaveBeenCalled();
-    });
-  });
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      container.dispatchEvent(event);
 
-  it('should call onHome and onEnd handlers', () => {
-    const onHome = jest.fn();
-    const onEnd = jest.fn();
-
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onHome, onEnd })
-    );
-
-    act(() => {
-      result.current({ key: 'Home', preventDefault: jest.fn() } as React.KeyboardEvent);
-    });
-    expect(onHome).toHaveBeenCalled();
-
-    act(() => {
-      result.current({ key: 'End', preventDefault: jest.fn() } as React.KeyboardEvent);
-    });
-    expect(onEnd).toHaveBeenCalled();
-  });
-
-  it('should call onEscape handler', () => {
-    const onEscape = jest.fn();
-
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onEscape })
-    );
-
-    act(() => {
-      result.current({ key: 'Escape', preventDefault: jest.fn() } as React.KeyboardEvent);
+      expect(preventDefaultSpy).toHaveBeenCalled();
     });
 
-    expect(onEscape).toHaveBeenCalled();
-  });
+    it('should handle Shift+Tab key press', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <button id="first">Button 1</button>
+          <button id="last">Button 2</button>
+        </div>
+      `;
+      const container = document.getElementById('modal')!;
+      const firstButton = document.getElementById('first')!;
 
-  it('should prevent default when preventDefault option is true', () => {
-    const onEnter = jest.fn();
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onEnter, preventDefault: true })
-    );
+      trapFocus(container);
 
-    const preventDefault = jest.fn();
-    const mockEvent = {
-      key: 'Enter',
-      preventDefault,
-    } as unknown as React.KeyboardEvent;
+      // Simulate Shift+Tab on first element
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true });
+      Object.defineProperty(document, 'activeElement', {
+        value: firstButton,
+        writable: true,
+      });
 
-    act(() => {
-      result.current(mockEvent);
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      container.dispatchEvent(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
     });
 
-    expect(preventDefault).toHaveBeenCalled();
-  });
+    it('should not handle non-Tab keys', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <button>Button</button>
+        </div>
+      `;
+      const container = document.getElementById('modal')!;
 
-  it('should not prevent default when preventDefault is false', () => {
-    const onEnter = jest.fn();
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onEnter, preventDefault: false })
-    );
+      trapFocus(container);
 
-    const preventDefault = jest.fn();
-    const mockEvent = {
-      key: 'Enter',
-      preventDefault,
-    } as unknown as React.KeyboardEvent;
+      const event = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      container.dispatchEvent(event);
 
-    act(() => {
-      result.current(mockEvent);
+      expect(preventDefaultSpy).not.toHaveBeenCalled();
     });
 
-    expect(preventDefault).not.toHaveBeenCalled();
-  });
+    it('should cleanup event listeners when called', () => {
+      document.body.innerHTML = `
+        <div id="modal">
+          <button>Button</button>
+        </div>
+      `;
+      const container = document.getElementById('modal')!;
+      const removeEventListenerSpy = jest.spyOn(container, 'removeEventListener');
 
-  it('should ignore unmapped keys', () => {
-    const onEnter = jest.fn();
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onEnter })
-    );
+      const cleanup = trapFocus(container);
+      cleanup();
 
-    const mockEvent = {
-      key: 'a',
-      preventDefault: jest.fn(),
-    } as unknown as React.KeyboardEvent;
-
-    act(() => {
-      result.current(mockEvent);
+      expect(removeEventListenerSpy).toHaveBeenCalledWith('keydown', expect.any(Function));
     });
 
-    expect(onEnter).not.toHaveBeenCalled();
-  });
+    it('should handle empty container', () => {
+      document.body.innerHTML = '<div id="modal"></div>';
+      const container = document.getElementById('modal')!;
 
-  it('should handle multiple handlers', () => {
-    const onEnter = jest.fn();
-    const onEscape = jest.fn();
+      const cleanup = trapFocus(container);
 
-    const { result } = renderHook(() =>
-      useKeyboardNavigation({ onEnter, onEscape })
-    );
+      const event = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true });
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      container.dispatchEvent(event);
 
-    act(() => {
-      result.current({ key: 'Enter', preventDefault: jest.fn() } as React.KeyboardEvent);
+      expect(preventDefaultSpy).toHaveBeenCalled();
+      expect(typeof cleanup).toBe('function');
     });
-    expect(onEnter).toHaveBeenCalledTimes(1);
 
-    act(() => {
-      result.current({ key: 'Escape', preventDefault: jest.fn() } as React.KeyboardEvent);
+    it('should handle focus outside container', () => {
+      document.body.innerHTML = `
+        <button id="outside">Outside</button>
+        <div id="modal">
+          <button id="inside">Inside</button>
+        </div>
+      `;
+      const container = document.getElementById('modal')!;
+      const outsideButton = document.getElementById('outside')!;
+
+      trapFocus(container);
+
+      const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true });
+      Object.defineProperty(document, 'activeElement', {
+        value: outsideButton,
+        writable: true,
+      });
+
+      const preventDefaultSpy = jest.spyOn(event, 'preventDefault');
+      container.dispatchEvent(event);
+
+      expect(preventDefaultSpy).toHaveBeenCalled();
     });
-    expect(onEscape).toHaveBeenCalledTimes(1);
-  });
-});
-
-// ============================================================================
-// generateAriaId
-// ============================================================================
-
-describe('generateAriaId', () => {
-  it('should generate unique IDs', () => {
-    const id1 = generateAriaId();
-    const id2 = generateAriaId();
-
-    expect(id1).not.toBe(id2);
-  });
-
-  it('should include prefix in generated ID', () => {
-    const id = generateAriaId('test');
-
-    expect(id.startsWith('test-')).toBe(true);
-  });
-
-  it('should use default prefix when not specified', () => {
-    const id = generateAriaId();
-
-    expect(id.startsWith('aria-')).toBe(true);
-  });
-
-  it('should generate IDs with random component', () => {
-    const id = generateAriaId('prefix');
-    const parts = id.split('-');
-
-    expect(parts.length).toBeGreaterThanOrEqual(2);
-    expect(parts[0]).toBe('prefix');
-  });
-
-  it('should generate sequential IDs', () => {
-    const ids = Array.from({ length: 5 }, () => generateAriaId('seq'));
-
-    // All IDs should be unique
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-});
-
-// ============================================================================
-// useLabelAssociation
-// ============================================================================
-
-describe('useLabelAssociation', () => {
-  it('should return id, labelId, errorId, and helpId', () => {
-    const { result } = renderHook(() => useLabelAssociation('field'));
-
-    expect(result.current.id).toBeDefined();
-    expect(result.current.labelId).toBe(`${result.current.id}-label`);
-    expect(result.current.errorId).toBe(`${result.current.id}-error`);
-    expect(result.current.helpId).toBe(`${result.current.id}-help`);
-  });
-
-  it('should use default prefix', () => {
-    const { result } = renderHook(() => useLabelAssociation());
-
-    expect(result.current.id.startsWith('field-')).toBe(true);
-  });
-
-  it('should use custom prefix', () => {
-    const { result } = renderHook(() => useLabelAssociation('custom'));
-
-    expect(result.current.id.startsWith('custom-')).toBe(true);
-  });
-
-  it('should return describedById as undefined initially', () => {
-    const { result } = renderHook(() => useLabelAssociation());
-
-    expect(result.current.describedById).toBeUndefined();
-  });
-
-  it('should maintain consistent IDs across renders', () => {
-    const { result, rerender } = renderHook(() => useLabelAssociation('test'));
-
-    const firstId = result.current.id;
-    rerender();
-    const secondId = result.current.id;
-
-    expect(firstId).toBe(secondId);
-  });
-
-  it('should generate unique IDs for different instances', () => {
-    const { result: result1 } = renderHook(() => useLabelAssociation());
-    const { result: result2 } = renderHook(() => useLabelAssociation());
-
-    expect(result1.current.id).not.toBe(result2.current.id);
-  });
-});
-
-// ============================================================================
-// handleSkipLink
-// ============================================================================
-
-describe('handleSkipLink', () => {
-  beforeEach(() => {
-    // Mock scrollIntoView
-    Element.prototype.scrollIntoView = jest.fn();
-  });
-
-  it('should focus and scroll to target element', () => {
-    const target = document.createElement('div');
-    target.id = 'main-content';
-    document.body.appendChild(target);
-
-    handleSkipLink('main-content');
-
-    expect(target.tabIndex).toBe(-1);
-    expect(document.activeElement).toBe(target);
-    expect(target.scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
-
-    document.body.removeChild(target);
-  });
-
-  it('should handle non-existent target gracefully', () => {
-    expect(() => handleSkipLink('non-existent')).not.toThrow();
-  });
-
-  it('should handle multiple calls to same target', () => {
-    const target = document.createElement('div');
-    target.id = 'repeat-target';
-    document.body.appendChild(target);
-
-    handleSkipLink('repeat-target');
-    handleSkipLink('repeat-target');
-
-    expect(target.tabIndex).toBe(-1);
-
-    document.body.removeChild(target);
-  });
-
-  it('should work with different element types', () => {
-    const main = document.createElement('main');
-    main.id = 'content';
-    document.body.appendChild(main);
-
-    handleSkipLink('content');
-
-    expect(main.tabIndex).toBe(-1);
-
-    document.body.removeChild(main);
-  });
-});
-
-// ============================================================================
-// getLuminance
-// ============================================================================
-
-describe('getLuminance', () => {
-  it('should return 0 for black', () => {
-    expect(getLuminance(0, 0, 0)).toBe(0);
-  });
-
-  it('should return 1 for white', () => {
-    expect(getLuminance(255, 255, 255)).toBe(1);
-  });
-
-  it('should calculate luminance for red', () => {
-    const lum = getLuminance(255, 0, 0);
-    expect(lum).toBeGreaterThan(0);
-    expect(lum).toBeLessThan(1);
-  });
-
-  it('should calculate luminance for gray', () => {
-    const lum = getLuminance(128, 128, 128);
-    expect(lum).toBeGreaterThan(0);
-    expect(lum).toBeLessThan(1);
-  });
-
-  it('should handle mid-range colors', () => {
-    const lum = getLuminance(100, 150, 200);
-    expect(lum).toBeGreaterThan(0);
-    expect(lum).toBeLessThan(1);
-  });
-});
-
-// ============================================================================
-// getContrastRatio
-// ============================================================================
-
-describe('getContrastRatio', () => {
-  it('should return 21 for black and white', () => {
-    const ratio = getContrastRatio('#000000', '#ffffff');
-    expect(ratio).toBeCloseTo(21, 1);
-  });
-
-  it('should return 1 for same colors', () => {
-    const ratio = getContrastRatio('#ff0000', '#ff0000');
-    expect(ratio).toBe(1);
-  });
-
-  it('should calculate ratio for different colors', () => {
-    const ratio = getContrastRatio('#000000', '#ff0000');
-    expect(ratio).toBeGreaterThan(1);
-    expect(ratio).toBeLessThan(21);
-  });
-
-  it('should be symmetric', () => {
-    const ratio1 = getContrastRatio('#000000', '#ffffff');
-    const ratio2 = getContrastRatio('#ffffff', '#000000');
-    expect(ratio1).toBe(ratio2);
-  });
-
-  it('should handle colors without hash prefix', () => {
-    const ratio1 = getContrastRatio('#000000', '#ffffff');
-    const ratio2 = getContrastRatio('000000', 'ffffff');
-    expect(ratio1).toBe(ratio2);
-  });
-
-  it('should handle gray colors', () => {
-    const ratio = getContrastRatio('#808080', '#ffffff');
-    expect(ratio).toBeGreaterThan(1);
-    expect(ratio).toBeLessThan(21);
-  });
-});
-
-// ============================================================================
-// meetsWCAGAA
-// ============================================================================
-
-describe('meetsWCAGAA', () => {
-  it('should return true for black on white (normal text)', () => {
-    expect(meetsWCAGAA('#000000', '#ffffff')).toBe(true);
-  });
-
-  it('should return true for white on black (normal text)', () => {
-    expect(meetsWCAGAA('#ffffff', '#000000')).toBe(true);
-  });
-
-  it('should return true for high contrast colors', () => {
-    expect(meetsWCAGAA('#000000', '#ffff00')).toBe(true);
-  });
-
-  it('should return false for low contrast colors', () => {
-    expect(meetsWCAGAA('#777777', '#888888')).toBe(false);
-  });
-
-  it('should use lower threshold for large text', () => {
-    // Same colors, different thresholds
-    const normalResult = meetsWCAGAA('#777777', '#ffffff', false);
-    const largeResult = meetsWCAGAA('#777777', '#ffffff', true);
-
-    expect(largeResult).toBe(true);
-    expect(normalResult).toBe(false);
-  });
-
-  it('should return false for very low contrast', () => {
-    expect(meetsWCAGAA('#eeeeee', '#ffffff')).toBe(false);
-  });
-
-  it('should handle edge case at exactly 4.5:1', () => {
-    // Colors that produce approximately 4.5:1 ratio
-    const result = meetsWCAGAA('#767676', '#ffffff');
-    expect(typeof result).toBe('boolean');
-  });
-
-  it('should handle edge case at exactly 3:1 for large text', () => {
-    const result = meetsWCAGAA('#949494', '#ffffff', true);
-    expect(typeof result).toBe('boolean');
-  });
-});
-
-// ============================================================================
-// FOCUSABLE_ELEMENTS constant
-// ============================================================================
-
-describe('FOCUSABLE_ELEMENTS', () => {
-  it('should be defined', () => {
-    expect(FOCUSABLE_ELEMENTS).toBeDefined();
-    expect(typeof FOCUSABLE_ELEMENTS).toBe('string');
-  });
-
-  it('should include button selector', () => {
-    expect(FOCUSABLE_ELEMENTS).toContain('button:not([disabled])');
-  });
-
-  it('should include anchor selector', () => {
-    expect(FOCUSABLE_ELEMENTS).toContain('a[href]');
-  });
-
-  it('should include input selector', () => {
-    expect(FOCUSABLE_ELEMENTS).toContain('input:not([disabled])');
-  });
-
-  it('should include select selector', () => {
-    expect(FOCUSABLE_ELEMENTS).toContain('select:not([disabled])');
-  });
-
-  it('should include textarea selector', () => {
-    expect(FOCUSABLE_ELEMENTS).toContain('textarea:not([disabled])');
-  });
-
-  it('should include tabindex selector', () => {
-    expect(FOCUSABLE_ELEMENTS).toContain('[tabindex]:not([tabindex="-1"])');
   });
 });

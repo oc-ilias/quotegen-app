@@ -1,3 +1,12 @@
-// Email Components Export
-export { EmailHistory } from './EmailHistory';
-export type { EmailHistoryItem } from './EmailHistory';
+/**
+ * Email Components Index
+ * Exports all email-related components
+ * @module components/email
+ */
+
+export {
+  EmailTemplateSelector,
+  EmailTemplateSelectorSkeleton,
+  extractVariables,
+  processTemplate,
+} from './EmailTemplateSelector';

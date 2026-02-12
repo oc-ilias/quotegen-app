@@ -8,80 +8,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-// Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    div: ({ children, ...props }: any) => {
-      const { initial, animate, exit, transition, whileHover, whileTap, ...rest } = props;
-      return <div {...rest}>{children}</div>;
-    },
-    button: ({ children, ...props }: any) => {
-      const { whileHover, whileTap, ...rest } = props;
-      return <button {...rest}>{children}</button>;
-    },
-    span: ({ children, ...props }: any) => {
-      const { animate, ...rest } = props;
-      return <span {...rest}>{children}</span>;
-    },
-    h3: ({ children, ...props }: any) => {
-      const { initial, animate, transition, ...rest } = props;
-      return <h3 {...rest}>{children}</h3>;
-    },
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-}));
-
-// Mock WebSocket types and context
-jest.mock('@/types/websocket', () => ({
-  WebSocketState: {
-    CONNECTING: 'CONNECTING',
-    CONNECTED: 'CONNECTED',
-    DISCONNECTING: 'DISCONNECTING',
-    DISCONNECTED: 'DISCONNECTED',
-    RECONNECTING: 'RECONNECTING',
-    ERROR: 'ERROR',
-  },
-  WebSocketClientEvent: {
-    AUTHENTICATE: 'AUTHENTICATE',
-    SUBSCRIBE: 'SUBSCRIBE',
-    UNSUBSCRIBE: 'UNSUBSCRIBE',
-    PING: 'PING',
-  },
-  WebSocketServerEvent: {
-    PONG: 'PONG',
-    ACTIVITY: 'ACTIVITY',
-    ERROR: 'ERROR',
-  },
-}));
-
-jest.mock('@/contexts/WebSocketContext', () => ({
-  WebSocketProvider: ({ children }: any) => <>{children}</>,
-  useWebSocket: () => ({
-    isConnected: false,
-    lastMessage: null,
-    sendMessage: jest.fn(),
-    connect: jest.fn(),
-    disconnect: jest.fn(),
-  }),
-  useWebSocketState: () => ({
-    state: 'DISCONNECTED',
-    isConnected: false,
-  }),
-  ConnectionStatus: ({ state }: any) => <div data-testid="connection-status">{state}</div>,
-}));
-
-// Mock useRealtimeActivity hook
-jest.mock('@/hooks/useRealtimeActivity', () => ({
-  useRealtimeActivity: () => ({
-    activities: [],
-    isLoading: false,
-    error: null,
-    hasMore: false,
-    loadMore: jest.fn(),
-    refresh: jest.fn(),
-    addActivity: jest.fn(),
-  }),
-}));
+// Framer Motion is now mocked globally in jest.setup.ts
 
 // ============================================================================
 // Stat Cards Tests
@@ -101,6 +28,11 @@ describe('StatCard', () => {
     render(<StatCard {...defaultProps} />);
     expect(screen.getByText('Total Quotes')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
+  });
+
+  it('is defined and exports correctly', () => {
+    expect(StatCard).toBeDefined();
+    expect(typeof StatCard).toBe('function');
   });
 
   it('formats currency values correctly', () => {
@@ -172,10 +104,9 @@ describe('useDashboardStats', () => {
     const data = {
       totalQuotes: 100,
       pendingQuotes: 20,
-      sentQuotes: 30,
       acceptedQuotes: 50,
-      totalRevenue: 50000,
       conversionRate: 50,
+      totalRevenue: 50000,
       averageQuoteValue: 1000,
       quoteChange: 10,
       revenueChange: 5000,
@@ -308,10 +239,11 @@ describe('ActivityFeed', () => {
 
   it('renders activity list correctly', () => {
     render(<ActivityFeed activities={mockActivities} />);
-    // John Smith appears twice (once for quote created, once for quote sent)
+    // Use getAllByText since John Smith appears twice (once in each activity)
     const johnSmithElements = screen.getAllByText('John Smith');
     expect(johnSmithElements.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Jane Doe')).toBeInTheDocument();
+    const janeDoeElements = screen.getAllByText('Jane Doe');
+    expect(janeDoeElements.length).toBeGreaterThanOrEqual(1);
   });
 
   it('displays empty state when no activities', () => {

@@ -1,9 +1,29 @@
-// Navigation Components Index
-// Comprehensive exports for all navigation-related components
+/**
+ * Navigation Components Index
+ * Exports all navigation-related components
+ * @module components/navigation
+ */
 
-export { Sidebar } from './Sidebar';
-export { SidebarEnhanced } from './SidebarEnhanced';
+// Main Sidebar Component
+export {
+  Sidebar,
+  SidebarWithErrorBoundary,
+  SidebarSkeleton,
+  SidebarError,
+  NavBadge,
+  SidebarErrorBoundary,
+} from './Sidebar';
 
-// Re-export types
-export type { SidebarProps } from './Sidebar';
-export type { SidebarEnhancedProps } from './SidebarEnhanced';
+// Types
+export type {
+  NavItemId,
+  BadgeColor,
+  SidebarVariant,
+  IconComponent,
+  NavItem,
+  CreateMenuItem,
+  TooltipConfig,
+  KeyboardShortcuts,
+  SidebarProps,
+  SidebarHandle,
+} from './Sidebar';

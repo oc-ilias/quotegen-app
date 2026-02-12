@@ -1,0 +1,14 @@
+
+> app@0.1.0 build
+> next build --webpack
+
+▲ Next.js 16.1.6 (webpack)
+- Experiments (use with caution):
+  ✓ optimizeCss
+  · optimizePackageImports
+  ✓ scrollRestoration
+  ✓ webpackBuildWorker
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 15.4s
+  Running TypeScript ...

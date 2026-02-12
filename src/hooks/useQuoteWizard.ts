@@ -1,11 +1,12 @@
 /**
  * Quote Wizard Hook
  * Manages state and logic for the multi-step quote creation wizard
+ * @module hooks/useQuoteWizard
  */
 
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type {
   WizardStep,
   QuoteFormData,
@@ -13,16 +14,112 @@ import type {
   Address,
   Quote,
   Customer,
+  CustomerInfoData,
+  ProductSelectionData,
+  LineItemsData,
+  TermsNotesData,
+  QuoteCalculations,
 } from '@/types/quote';
-import { WIZARD_STEPS } from '@/types/quote';
+import { WIZARD_STEPS, QuoteStatus, CustomerStatus } from '@/types/quote';
 
 // ============================================================================
-// Validation Functions
+// Types
 // ============================================================================
 
 interface ValidationErrors {
   [key: string]: string[];
 }
+
+interface UseQuoteWizardOptions {
+  /** Shop ID for draft storage */
+  shopId?: string;
+  /** Initial data for editing */
+  initialData?: Partial<QuoteFormData>;
+  /** Callback on completion */
+  onComplete?: (quote: QuoteFormData) => void | Promise<void>;
+}
+
+interface UseQuoteWizardReturn {
+  // State
+  currentStep: WizardStep;
+  completedSteps: WizardStep[];
+  isLoading: boolean;
+  error: string | null;
+  validationErrors: ValidationErrors;
+  formData: QuoteFormData;
+  
+  // Component compatibility properties
+  currentStepIndex: number;
+  steps: typeof WIZARD_STEPS;
+  isFirstStep: boolean;
+  isLastStep: boolean;
+  isSubmitting: boolean;
+  data: {
+    customerInfo: CustomerInfoData;
+    productSelection: ProductSelectionData;
+    lineItems: LineItemsData;
+    termsNotes: TermsNotesData;
+  };
+  
+  // Calculated values
+  calculations: QuoteCalculations;
+  isStepValid: boolean;
+  canProceed: boolean;
+  canGoBack: boolean;
+  progress: number;
+  
+  // Actions
+  goToStep: (step: WizardStep) => void;
+  nextStep: () => void;
+  previousStep: () => void;
+  updateFormData: (updates: Partial<QuoteFormData>) => void;
+  updateCustomer: (updates: Partial<QuoteFormData['customer']>) => void;
+  addLineItem: (item?: Partial<LineItemInput>) => void;
+  updateLineItem: (index: number, updates: Partial<LineItemInput>) => void;
+  removeLineItem: (index: number) => void;
+  clearError: () => void;
+  submitQuote: () => Promise<void>;
+  reset: () => void;
+  
+  // Component compatibility actions
+  updateCustomerInfo: (data: Partial<CustomerInfoData>) => void;
+  updateProductSelection: (data: Partial<ProductSelectionData>) => void;
+  updateLineItems: (data: Partial<LineItemsData>) => void;
+  updateTermsNotes: (data: Partial<TermsNotesData>) => void;
+  saveDraft: () => Promise<void>;
+}
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const INITIAL_FORM_DATA: QuoteFormData = {
+  customer: {
+    name: '',
+    email: '',
+    phone: '',
+    company: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
+      country: '',
+    },
+  },
+  line_items: [],
+  title: 'New Quote',
+  description: '',
+  notes: '',
+  terms: '',
+  valid_until: '',
+  discount_total: 0,
+  tax_rate: 0,
+};
+
+// ============================================================================
+// Validation Functions
+// ============================================================================
 
 function validateCustomerInfo(data: QuoteFormData['customer']): ValidationErrors {
   const errors: ValidationErrors = {};
@@ -75,13 +172,6 @@ function validateLineItems(items: LineItemInput[]): ValidationErrors {
 // Calculation Functions
 // ============================================================================
 
-export interface QuoteCalculations {
-  subtotal: number;
-  discountTotal: number;
-  taxTotal: number;
-  total: number;
-}
-
 export function calculateQuoteTotals(
   lineItems: LineItemInput[],
   discountTotal: number = 0,
@@ -106,73 +196,15 @@ export function calculateQuoteTotals(
 }
 
 // ============================================================================
-// Hook Definition
+// Hook
 // ============================================================================
 
-interface UseQuoteWizardOptions {
-  shopId: string;
-  initialData?: Partial<QuoteFormData>;
-  onComplete?: (quote: QuoteFormData) => Promise<void>;
-}
-
-interface UseQuoteWizardReturn {
-  // State
-  currentStep: WizardStep;
-  completedSteps: WizardStep[];
-  isLoading: boolean;
-  error: string | null;
-  validationErrors: ValidationErrors;
-  formData: QuoteFormData;
-  
-  // Calculated values
-  calculations: QuoteCalculations;
-  isStepValid: boolean;
-  canProceed: boolean;
-  canGoBack: boolean;
-  progress: number;
-  
-  // Actions
-  goToStep: (step: WizardStep) => void;
-  nextStep: () => void;
-  previousStep: () => void;
-  updateFormData: (updates: Partial<QuoteFormData>) => void;
-  updateCustomer: (updates: Partial<QuoteFormData['customer']>) => void;
-  addLineItem: (item?: Partial<LineItemInput>) => void;
-  updateLineItem: (index: number, updates: Partial<LineItemInput>) => void;
-  removeLineItem: (index: number) => void;
-  clearError: () => void;
-  submitQuote: () => Promise<void>;
-  reset: () => void;
-}
-
-const INITIAL_FORM_DATA: QuoteFormData = {
-  customer: {
-    name: '',
-    email: '',
-    phone: '',
-    company: '',
-    address: {
-      street: '',
-      city: '',
-      state: '',
-      zip: '',
-      country: '',
-    },
-  },
-  line_items: [],
-  title: 'New Quote',
-  description: '',
-  notes: '',
-  terms: '',
-  valid_until: '',
-  discount_total: 0,
-  tax_rate: 0,
-};
-
-export function useQuoteWizard(options: UseQuoteWizardOptions): UseQuoteWizardReturn {
+export function useQuoteWizard(options: UseQuoteWizardOptions = {}): UseQuoteWizardReturn {
   const { shopId, initialData, onComplete } = options;
   
-  // Core state
+  // ============================================================================
+  // State
+  // ============================================================================
   const [currentStep, setCurrentStep] = useState<WizardStep>('customer-info');
   const [completedSteps, setCompletedSteps] = useState<WizardStep[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -183,7 +215,9 @@ export function useQuoteWizard(options: UseQuoteWizardOptions): UseQuoteWizardRe
     ...initialData,
   });
 
-  // Calculate totals
+  // ============================================================================
+  // Computed Values
+  // ============================================================================
   const calculations = useMemo(() => {
     return calculateQuoteTotals(
       formData.line_items,
@@ -192,7 +226,6 @@ export function useQuoteWizard(options: UseQuoteWizardOptions): UseQuoteWizardRe
     );
   }, [formData.line_items, formData.discount_total, formData.tax_rate]);
 
-  // Validation for current step
   const isStepValid = useMemo(() => {
     switch (currentStep) {
       case 'customer-info': {
@@ -204,35 +237,37 @@ export function useQuoteWizard(options: UseQuoteWizardOptions): UseQuoteWizardRe
         return Object.keys(errors).length === 0;
       }
       case 'product-selection':
-        // Optional step - always valid
-        return true;
       case 'terms-notes':
-        // Optional step - always valid
         return true;
-      case 'review-send':
-        // Must have passed all previous validations
+      case 'review-send': {
         const customerErrors = validateCustomerInfo(formData.customer);
         const lineItemErrors = validateLineItems(formData.line_items);
         return Object.keys(customerErrors).length === 0 && Object.keys(lineItemErrors).length === 0;
+      }
       default:
         return true;
     }
   }, [currentStep, formData]);
 
-  // Navigation guards
   const canProceed = isStepValid && !isLoading;
   const canGoBack = currentStep !== 'customer-info' && !isLoading;
 
-  // Progress percentage
   const progress = useMemo(() => {
     const stepIndex = WIZARD_STEPS.findIndex(s => s.id === currentStep);
     return ((stepIndex + 1) / WIZARD_STEPS.length) * 100;
   }, [currentStep]);
 
+  const currentStepIndex = useMemo(() => {
+    return WIZARD_STEPS.findIndex(s => s.id === currentStep);
+  }, [currentStep]);
+
+  const isFirstStep = currentStepIndex === 0;
+  const isLastStep = currentStepIndex === WIZARD_STEPS.length - 1;
+  const isSubmitting = isLoading;
+
   // ============================================================================
   // Actions
   // ============================================================================
-
   const validateCurrentStep = useCallback((): boolean => {
     let errors: ValidationErrors = {};
     
@@ -388,6 +423,129 @@ export function useQuoteWizard(options: UseQuoteWizardOptions): UseQuoteWizardRe
     setFormData({ ...INITIAL_FORM_DATA, ...initialData });
   }, [initialData]);
 
+  // ============================================================================
+  // Component Compatibility - Data Transformation
+  // ============================================================================
+  const data = useMemo(() => ({
+    customerInfo: {
+      customer: formData.customer.email ? {
+        id: '',
+        email: formData.customer.email,
+        companyName: formData.customer.company,
+        contactName: formData.customer.name,
+        phone: formData.customer.phone,
+        customerSince: new Date(),
+        tags: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        status: CustomerStatus.ACTIVE,
+      } : undefined,
+      email: formData.customer.email,
+      companyName: formData.customer.company,
+      contactName: formData.customer.name,
+      phone: formData.customer.phone,
+      isExistingCustomer: false,
+    } as CustomerInfoData,
+    productSelection: {
+      selectedProducts: [],
+      selectedVariants: {},
+      searchQuery: '',
+      categoryFilter: null,
+    } as ProductSelectionData,
+    lineItems: {
+      items: formData.line_items.map((item, index) => ({
+        id: `item_${index}_${Date.now()}`,
+        productId: item.product_id || '',
+        title: item.name,
+        variantId: undefined,
+        variantTitle: item.description,
+        sku: item.sku || '',
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        originalPrice: item.unit_price,
+        discountAmount: (item.unit_price * item.quantity * (item.discount_percent || 0)) / 100,
+        discountPercentage: item.discount_percent,
+        taxRate: item.tax_rate || 0,
+        taxAmount: (item.unit_price * item.quantity * (1 - (item.discount_percent || 0) / 100) * (item.tax_rate || 0)) / 100,
+        subtotal: item.unit_price * item.quantity,
+        total: item.unit_price * item.quantity * (1 - (item.discount_percent || 0) / 100) * (1 + (item.tax_rate || 0) / 100),
+        imageUrl: undefined,
+        notes: item.description,
+        customFields: undefined,
+      })),
+      currency: 'USD',
+    } as LineItemsData,
+    termsNotes: {
+      paymentTerms: formData.terms || 'Net 30',
+      deliveryTerms: '',
+      validityPeriod: 30,
+      depositRequired: false,
+      depositPercentage: 0,
+      currency: 'USD',
+      notes: formData.notes,
+      internalNotes: '',
+    } as TermsNotesData,
+  }), [formData]);
+
+  // ============================================================================
+  // Component Compatibility - Actions
+  // ============================================================================
+  const updateCustomerInfo = useCallback((infoData: Partial<CustomerInfoData>) => {
+    updateFormData({
+      customer: {
+        name: infoData.contactName ?? formData.customer.name,
+        email: infoData.email ?? formData.customer.email,
+        phone: infoData.phone ?? formData.customer.phone,
+        company: infoData.companyName ?? formData.customer.company,
+        address: formData.customer.address,
+      },
+    });
+  }, [updateFormData, formData.customer]);
+
+  const updateProductSelection = useCallback((_productData: Partial<ProductSelectionData>) => {
+    // Products are handled separately - this is a placeholder
+    // In a real implementation, this would update the formData with selected products
+  }, []);
+
+  const updateLineItems = useCallback((lineData: Partial<LineItemsData>) => {
+    if (lineData.items) {
+      updateFormData({
+        line_items: lineData.items.map(item => ({
+          name: item.title,
+          description: item.notes,
+          quantity: item.quantity,
+          unit_price: item.unitPrice,
+          product_id: item.productId,
+          sku: item.sku,
+          discount_percent: item.discountPercentage,
+          tax_rate: item.taxRate,
+        })),
+      });
+    }
+  }, [updateFormData]);
+
+  const updateTermsNotes = useCallback((termsData: Partial<TermsNotesData>) => {
+    updateFormData({
+      terms: termsData.paymentTerms || '',
+      notes: termsData.notes || '',
+      valid_until: termsData.validityPeriod 
+        ? new Date(Date.now() + termsData.validityPeriod * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        : '',
+    });
+  }, [updateFormData]);
+
+  const saveDraft = useCallback(async () => {
+    // Draft saving logic - can be implemented with API call
+    // For now, just log the draft data
+    console.log('Saving draft:', formData);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+  }, [formData]);
+
+  // ============================================================================
+  // Return
+  // ============================================================================
   return {
     currentStep,
     completedSteps,
@@ -411,6 +569,18 @@ export function useQuoteWizard(options: UseQuoteWizardOptions): UseQuoteWizardRe
     clearError,
     submitQuote,
     reset,
+    // Component compatibility properties
+    currentStepIndex,
+    steps: WIZARD_STEPS,
+    isFirstStep,
+    isLastStep,
+    isSubmitting,
+    data,
+    updateCustomerInfo,
+    updateProductSelection,
+    updateLineItems,
+    updateTermsNotes,
+    saveDraft,
   };
 }
 

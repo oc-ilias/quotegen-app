@@ -1,10 +1,10 @@
-// Quotes Components Index
-// Comprehensive exports for all quote-related components
+/**
+ * Quote Components Index
+ * Exports all quote-related components
+ * @module components/quotes
+ */
 
-// Quote Management Components
-export { QuoteBulkActions } from './QuoteBulkActions';
-export { QuoteSearchFilter } from './QuoteSearchFilter';
-
-// Re-export types
-export type { QuoteBulkActionsProps } from './QuoteBulkActions';
-export type { QuoteSearchFilterProps, FilterState } from './QuoteSearchFilter';
+export { QuoteActions } from './QuoteActions';
+export { QuoteFilters } from './QuoteFilters';
+export { BulkActions } from './BulkActions';
+export { StatusHistory, CompactStatusHistory, StatusBadge } from './StatusHistory';

@@ -1,67 +1,72 @@
 /**
- * Enhanced Supabase API Integration Hooks
- * Comprehensive data fetching with caching, error handling, and real-time updates
+ * Enhanced Supabase Data Hooks
+ * Comprehensive data fetching with caching, real-time updates, and mutations
  * @module hooks/useSupabaseData
  */
 
+'use client';
+
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
-import { 
-  type Quote, 
-  type Customer, 
-  type QuoteStatus, 
-  type QuoteFilters,
-  type ApiResponse,
-  type QuoteStats 
+import type { 
+  Quote, 
+  Customer, 
+  QuoteStatus, 
+  QuoteFilters,
+  QuoteWithCustomer,
+  CustomerWithStats,
+  CreateCustomerInput,
+  UpdateCustomerInput,
+  QuoteStats,
+  Activity,
+  LineItemInput,
+  QuoteTerms,
+  QuotePriority
 } from '@/types/quote';
+
+// Input types for creating and updating quotes
+interface CreateQuoteInput {
+  customerId: string;
+  title: string;
+  status?: QuoteStatus;
+  priority?: QuotePriority;
+  lineItems?: LineItemInput[];
+  subtotal?: number;
+  discountTotal?: number;
+  taxTotal?: number;
+  shippingTotal?: number;
+  total?: number;
+  terms?: Partial<QuoteTerms>;
+  expiresAt?: string;
+  notes?: string;
+}
+
+interface UpdateQuoteInput extends Partial<Omit<CreateQuoteInput, 'customerId'>> {}
 
 // ============================================================================
 // Types
 // ============================================================================
 
-interface UseDataOptions<T> {
-  enabled?: boolean;
-  refetchInterval?: number;
-  refetchOnWindowFocus?: boolean;
+interface QueryOptions {
   staleTime?: number;
   cacheTime?: number;
-  onSuccess?: (data: T) => void;
-  onError?: (error: Error) => void;
+  refetchOnWindowFocus?: boolean;
+  refetchInterval?: number | false;
+  retryCount?: number;
+  retryDelay?: number;
 }
 
-interface UseDataReturn<T> {
+interface QueryState<T> {
   data: T | null;
   isLoading: boolean;
   isFetching: boolean;
   isError: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
-  invalidate: () => void;
 }
 
-interface UsePaginatedDataReturn<T> extends UseDataReturn<T[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-  setPage: (page: number) => void;
-  setLimit: (limit: number) => void;
-  nextPage: () => void;
-  prevPage: () => void;
-}
-
-interface UseMutationOptions<TData, TVariables> {
-  onSuccess?: (data: TData, variables: TVariables) => void;
-  onError?: (error: Error, variables: TVariables) => void;
-  onSettled?: (data: TData | null, error: Error | null, variables: TVariables) => void;
-}
-
-interface UseMutationReturn<TData, TVariables> {
-  mutate: (variables: TVariables) => Promise<TData>;
+interface MutationState<TData, TVariables> {
+  mutate: (variables: TVariables) => Promise<void>;
   mutateAsync: (variables: TVariables) => Promise<TData>;
   isLoading: boolean;
   isError: boolean;
@@ -70,180 +75,137 @@ interface UseMutationReturn<TData, TVariables> {
   reset: () => void;
 }
 
+interface PaginationOptions {
+  page?: number;
+  pageSize?: number;
+}
+
+interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 // ============================================================================
-// Cache Management
+// Cache Implementation
 // ============================================================================
 
 class QueryCache {
-  private cache: Map<string, { data: unknown; timestamp: number }> = new Map();
-  private subscribers: Map<string, Set<() => void>> = new Map();
-
+  private cache = new Map<string, { data: unknown; timestamp: number }>();
+  
   get<T>(key: string): T | null {
     const entry = this.cache.get(key);
     if (!entry) return null;
     return entry.data as T;
   }
-
+  
   set<T>(key: string, data: T): void {
     this.cache.set(key, { data, timestamp: Date.now() });
-    this.notify(key);
   }
-
-  invalidate(key: string): void {
-    this.cache.delete(key);
-    this.notify(key);
-  }
-
-  invalidatePattern(pattern: RegExp): void {
-    for (const key of this.cache.keys()) {
-      if (pattern.test(key)) {
-        this.invalidate(key);
-      }
-    }
-  }
-
+  
   isStale(key: string, staleTime: number): boolean {
     const entry = this.cache.get(key);
     if (!entry) return true;
     return Date.now() - entry.timestamp > staleTime;
   }
-
-  subscribe(key: string, callback: () => void): () => void {
-    if (!this.subscribers.has(key)) {
-      this.subscribers.set(key, new Set());
+  
+  invalidate(keyPattern: string): void {
+    for (const key of this.cache.keys()) {
+      if (key.includes(keyPattern)) {
+        this.cache.delete(key);
+      }
     }
-    this.subscribers.get(key)!.add(callback);
-    return () => this.subscribers.get(key)?.delete(callback);
   }
-
-  private notify(key: string): void {
-    this.subscribers.get(key)?.forEach(cb => cb());
+  
+  clear(): void {
+    this.cache.clear();
   }
 }
 
-export const queryCache = new QueryCache();
+const globalCache = new QueryCache();
 
 // ============================================================================
-// Base Hook
+// Base Query Hook
 // ============================================================================
 
 function useSupabaseQuery<T>(
   key: string,
   queryFn: () => Promise<T>,
-  options: UseDataOptions<T> = {}
-): UseDataReturn<T> {
+  options: QueryOptions = {}
+): QueryState<T> {
   const {
-    enabled = true,
-    refetchInterval,
-    refetchOnWindowFocus = true,
     staleTime = 5 * 60 * 1000, // 5 minutes
-    onSuccess,
-    onError,
+    refetchOnWindowFocus = true,
+    retryCount = 3,
+    retryDelay = 1000,
   } = options;
 
-  const [data, setData] = useState<T | null>(() => queryCache.get<T>(key));
+  const [data, setData] = useState<T | null>(() => globalCache.get<T>(key));
   const [isLoading, setIsLoading] = useState(!data);
   const [isFetching, setIsFetching] = useState(false);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  
-  const isMounted = useRef(true);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const retryCountRef = useRef(0);
 
-  const fetchData = useCallback(async (isBackground = false) => {
-    if (!isMounted.current) return;
-
-    // Check cache first
-    const cached = queryCache.get<T>(key);
-    if (cached && !queryCache.isStale(key, staleTime) && !isBackground) {
-      setData(cached);
-      setIsLoading(false);
-      return;
-    }
-
-    if (!isBackground) setIsLoading(true);
+  const fetchData = useCallback(async () => {
     setIsFetching(true);
     setIsError(false);
     setError(null);
 
     try {
-      const result = await queryFn();
-      if (isMounted.current) {
-        queryCache.set(key, result);
-        setData(result);
-        onSuccess?.(result);
+      // Check cache first
+      if (!globalCache.isStale(key, staleTime)) {
+        const cached = globalCache.get<T>(key);
+        if (cached) {
+          setData(cached);
+          setIsLoading(false);
+          setIsFetching(false);
+          return;
+        }
       }
+
+      const result = await queryFn();
+      globalCache.set(key, result);
+      setData(result);
+      retryCountRef.current = 0;
     } catch (err) {
-      if (isMounted.current) {
-        const error = err instanceof Error ? err : new Error(String(err));
-        setIsError(true);
-        setError(error);
-        onError?.(error);
+      const error = err instanceof Error ? err : new Error(String(err));
+      setError(error);
+      setIsError(true);
+
+      // Retry logic
+      if (retryCountRef.current < retryCount) {
+        retryCountRef.current++;
+        setTimeout(() => fetchData(), retryDelay * retryCountRef.current);
       }
     } finally {
-      if (isMounted.current) {
-        setIsLoading(false);
-        setIsFetching(false);
-      }
+      setIsLoading(false);
+      setIsFetching(false);
     }
-  }, [key, queryFn, staleTime, onSuccess, onError]);
-
-  const refetch = useCallback(async () => {
-    await fetchData(false);
-  }, [fetchData]);
-
-  const invalidate = useCallback(() => {
-    queryCache.invalidate(key);
-    refetch();
-  }, [key, refetch]);
+  }, [key, queryFn, staleTime, retryCount, retryDelay]);
 
   // Initial fetch
   useEffect(() => {
-    if (enabled) {
-      fetchData();
-    }
-  }, [enabled, fetchData]);
-
-  // Refetch interval
-  useEffect(() => {
-    if (refetchInterval && enabled) {
-      intervalRef.current = setInterval(() => {
-        fetchData(true);
-      }, refetchInterval);
-    }
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [refetchInterval, enabled, fetchData]);
+    fetchData();
+  }, [fetchData]);
 
   // Window focus refetch
   useEffect(() => {
-    if (!refetchOnWindowFocus || !enabled) return;
-    
+    if (!refetchOnWindowFocus) return;
+
     const handleFocus = () => {
-      if (queryCache.isStale(key, staleTime)) {
-        fetchData(true);
+      if (globalCache.isStale(key, staleTime)) {
+        fetchData();
       }
     };
 
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [refetchOnWindowFocus, enabled, key, staleTime, fetchData]);
-
-  // Subscribe to cache updates
-  useEffect(() => {
-    return queryCache.subscribe(key, () => {
-      const cached = queryCache.get<T>(key);
-      if (cached) setData(cached);
-    });
-  }, [key]);
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+  }, [fetchData, key, staleTime, refetchOnWindowFocus]);
 
   return {
     data,
@@ -251,210 +213,197 @@ function useSupabaseQuery<T>(
     isFetching,
     isError,
     error,
-    refetch,
-    invalidate,
+    refetch: fetchData,
   };
 }
 
 // ============================================================================
-// Quotes Hooks
+// Quote Queries
 // ============================================================================
 
 export function useQuotes(
   filters?: QuoteFilters,
-  options?: UseDataOptions<Quote[]>
-): UseDataReturn<Quote[]> {
-  const queryFn = useCallback(async () => {
+  options?: QueryOptions
+): QueryState<QuoteWithCustomer[]> {
+  const queryKey = useMemo(() => {
+    const params = new URLSearchParams();
+    if (filters?.searchQuery) params.set('search', filters.searchQuery);
+    if (filters?.status?.length) params.set('status', filters.status.join(','));
+    if (filters?.dateFrom) params.set('from', filters.dateFrom.toISOString());
+    if (filters?.dateTo) params.set('to', filters.dateTo.toISOString());
+    if (filters?.minValue) params.set('min', filters.minValue.toString());
+    if (filters?.maxValue) params.set('max', filters.maxValue.toString());
+    return `quotes:${params.toString()}`;
+  }, [filters]);
+
+  const queryFn = useCallback(async (): Promise<QuoteWithCustomer[]> => {
     let query = supabase
       .from('quotes')
-      .select('*')
+      .select(`
+        *,
+        customer:customers(*)
+      `)
       .order('created_at', { ascending: false });
+
+    if (filters?.searchQuery) {
+      query = query.or(`
+        quote_number.ilike.%${filters.searchQuery}%,
+        title.ilike.%${filters.searchQuery}%,
+        customer.company_name.ilike.%${filters.searchQuery}%,
+        customer.contact_name.ilike.%${filters.searchQuery}%
+      `);
+    }
 
     if (filters?.status?.length) {
       query = query.in('status', filters.status);
     }
 
-    if (filters?.customerId) {
-      query = query.eq('customer_id', filters.customerId);
-    }
-
     if (filters?.dateFrom) {
-      query = query.gte('created_at', filters.dateFrom.toISOString());
+      query = query.gte('created_at', filters.dateFrom);
     }
 
     if (filters?.dateTo) {
-      query = query.lte('created_at', filters.dateTo.toISOString());
+      query = query.lte('created_at', filters.dateTo);
     }
 
-    if (filters?.minValue !== undefined) {
+    if (filters?.minValue) {
       query = query.gte('total', filters.minValue);
     }
 
-    if (filters?.maxValue !== undefined) {
+    if (filters?.maxValue) {
       query = query.lte('total', filters.maxValue);
-    }
-
-    if (filters?.searchQuery) {
-      query = query.or(`title.ilike.%${filters.searchQuery}%,quote_number.ilike.%${filters.searchQuery}%`);
     }
 
     const { data, error } = await query;
 
-    if (error) throw new Error(error.message);
-    return (data || []) as Quote[];
+    if (error) throw error;
+    return data || [];
   }, [filters]);
 
-  const cacheKey = useMemo(() => {
-    const filterKey = filters ? JSON.stringify(filters) : 'all';
-    return `quotes:${filterKey}`;
-  }, [filters]);
-
-  return useSupabaseQuery(cacheKey, queryFn, options);
+  return useSupabaseQuery(queryKey, queryFn, options);
 }
 
 export function usePaginatedQuotes(
+  pagination: PaginationOptions = {},
   filters?: QuoteFilters,
-  initialPage = 1,
-  initialLimit = 20,
-  options?: UseDataOptions<Quote[]>
-): UsePaginatedDataReturn<Quote> {
+  options?: QueryOptions
+): QueryState<PaginatedResult<QuoteWithCustomer>> & {
+  setPage: (page: number) => void;
+} {
+  const { page: initialPage = 1, pageSize = 20 } = pagination;
   const [page, setPage] = useState(initialPage);
-  const [limit, setLimit] = useState(initialLimit);
 
-  const queryFn = useCallback(async () => {
+  const queryKey = useMemo(() => {
+    const params = new URLSearchParams();
+    params.set('page', page.toString());
+    params.set('pageSize', pageSize.toString());
+    if (filters?.searchQuery) params.set('search', filters.searchQuery);
+    if (filters?.status?.length) params.set('status', filters.status.join(','));
+    return `quotes:paginated:${params.toString()}`;
+  }, [page, pageSize, filters]);
+
+  const queryFn = useCallback(async (): Promise<PaginatedResult<QuoteWithCustomer>> => {
+    const from = (page - 1) * pageSize;
+    const to = from + pageSize - 1;
+
     let query = supabase
       .from('quotes')
-      .select('*', { count: 'exact' });
+      .select(`
+        *,
+        customer:customers(*),
+        count
+      `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(from, to);
+
+    if (filters?.searchQuery) {
+      query = query.or(`
+        quote_number.ilike.%${filters.searchQuery}%,
+        title.ilike.%${filters.searchQuery}%
+      `);
+    }
 
     if (filters?.status?.length) {
       query = query.in('status', filters.status);
     }
 
-    if (filters?.customerId) {
-      query = query.eq('customer_id', filters.customerId);
-    }
-
-    if (filters?.dateFrom) {
-      query = query.gte('created_at', filters.dateFrom.toISOString());
-    }
-
-    if (filters?.dateTo) {
-      query = query.lte('created_at', filters.dateTo.toISOString());
-    }
-
-    if (filters?.minValue !== undefined) {
-      query = query.gte('total', filters.minValue);
-    }
-
-    if (filters?.maxValue !== undefined) {
-      query = query.lte('total', filters.maxValue);
-    }
-
-    if (filters?.searchQuery) {
-      query = query.or(`title.ilike.%${filters.searchQuery}%,quote_number.ilike.%${filters.searchQuery}%`);
-    }
-
-    if (filters?.sortBy) {
-      query = query.order(filters.sortBy, { 
-        ascending: filters.sortOrder === 'asc' 
-      });
-    } else {
-      query = query.order('created_at', { ascending: false });
-    }
-
-    const from = (page - 1) * limit;
-    const to = from + limit - 1;
-    query = query.range(from, to);
-
     const { data, error, count } = await query;
 
-    if (error) throw new Error(error.message);
-    
+    if (error) throw error;
+
+    const total = count || 0;
+    const totalPages = Math.ceil(total / pageSize);
+
     return {
-      data: (data || []) as Quote[],
-      total: count || 0,
-    };
-  }, [filters, page, limit]);
-
-  const cacheKey = useMemo(() => {
-    const filterKey = filters ? JSON.stringify(filters) : 'all';
-    return `quotes:paginated:${filterKey}:${page}:${limit}`;
-  }, [filters, page, limit]);
-
-  const { data: rawData, ...rest } = useSupabaseQuery(cacheKey, queryFn, options);
-  
-  // Type assertion for paginated data structure
-  const data = rawData as { data: Quote[]; total: number } | null;
-
-  const pagination = useMemo(() => {
-    const total = data?.total || 0;
-    const totalPages = Math.ceil(total / limit);
-    return {
-      page,
-      limit,
+      data: data || [],
       total,
+      page,
+      pageSize,
       totalPages,
-      hasNext: page < totalPages,
-      hasPrev: page > 1,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
     };
-  }, [data, page, limit]);
+  }, [page, pageSize, filters]);
 
-  const nextPage = useCallback(() => {
-    if (pagination.hasNext) setPage(p => p + 1);
-  }, [pagination.hasNext]);
-
-  const prevPage = useCallback(() => {
-    if (pagination.hasPrev) setPage(p => p - 1);
-  }, [pagination.hasPrev]);
+  const result = useSupabaseQuery(queryKey, queryFn, options);
 
   return {
-    data: data?.data || null,
-    ...rest,
-    pagination,
+    ...result,
     setPage,
-    setLimit,
-    nextPage,
-    prevPage,
   };
 }
 
-export function useQuote(quoteId: string, options?: UseDataOptions<Quote>): UseDataReturn<Quote> {
-  const queryFn = useCallback(async () => {
+export function useQuote(
+  quoteId: string | null,
+  options?: QueryOptions
+): QueryState<QuoteWithCustomer> {
+  const queryKey = `quote:${quoteId}`;
+
+  const queryFn = useCallback(async (): Promise<QuoteWithCustomer> => {
+    if (!quoteId) throw new Error('Quote ID is required');
+
     const { data, error } = await supabase
       .from('quotes')
-      .select('*')
+      .select(`
+        *,
+        customer:customers(*),
+        line_items:quote_line_items(*)
+      `)
       .eq('id', quoteId)
       .single();
 
-    if (error) throw new Error(error.message);
-    return data as Quote;
+    if (error) throw error;
+    if (!data) throw new Error('Quote not found');
+    return data;
   }, [quoteId]);
 
-  return useSupabaseQuery(`quote:${quoteId}`, queryFn, {
-    enabled: !!quoteId,
+  return useSupabaseQuery(queryKey, queryFn, {
     ...options,
+    staleTime: 2 * 60 * 1000, // 2 minutes for single quote
   });
 }
 
 export function useQuoteStats(
-  dateRange?: { from: Date; to: Date },
-  options?: UseDataOptions<QuoteStats>
-): UseDataReturn<QuoteStats> {
-  const queryFn = useCallback(async () => {
+  period?: '7d' | '30d' | '90d' | '1y',
+  options?: QueryOptions
+): QueryState<QuoteStats> {
+  const queryKey = `quotes:stats:${period || 'all'}`;
+
+  const queryFn = useCallback(async (): Promise<QuoteStats> => {
     let query = supabase.from('quotes').select('*');
 
-    if (dateRange) {
-      query = query
-        .gte('created_at', dateRange.from.toISOString())
-        .lte('created_at', dateRange.to.toISOString());
+    if (period) {
+      const days = { '7d': 7, '30d': 30, '90d': 90, '1y': 365 }[period];
+      const fromDate = new Date();
+      fromDate.setDate(fromDate.getDate() - days);
+      query = query.gte('created_at', fromDate.toISOString());
     }
 
     const { data, error } = await query;
 
-    if (error) throw new Error(error.message);
+    if (error) throw error;
 
-    const quotes = (data || []) as Quote[];
-    
+    const quotes = data || [];
     const totalQuotes = quotes.length;
     const pendingQuotes = quotes.filter(q => q.status === 'pending' || q.status === 'sent').length;
     const acceptedQuotes = quotes.filter(q => q.status === 'accepted').length;
@@ -470,103 +419,153 @@ export function useQuoteStats(
       totalQuotes,
       pendingQuotes,
       acceptedQuotes,
-      conversionRate,
+      conversionRate: Math.round(conversionRate * 10) / 10,
       totalRevenue,
-      avgQuoteValue,
-      avgResponseTime: 48, // Mock - would calculate from actual data
+      avgQuoteValue: Math.round(avgQuoteValue * 100) / 100,
+      avgResponseTime: 0, // TODO: Calculate from status history
       periodChange: {
-        totalQuotes: 12,
-        conversionRate: 5.2,
-        totalRevenue: 15000,
-        avgQuoteValue: 500,
+        totalQuotes: 0,
+        conversionRate: 0,
+        totalRevenue: 0,
+        avgQuoteValue: 0,
       },
-    } as QuoteStats;
-  }, [dateRange]);
+    };
+  }, [period]);
 
-  const cacheKey = dateRange 
-    ? `stats:${dateRange.from.toISOString()}:${dateRange.to.toISOString()}`
-    : 'stats:all';
-
-  return useSupabaseQuery(cacheKey, queryFn, options);
+  return useSupabaseQuery(queryKey, queryFn, options);
 }
 
 // ============================================================================
-// Customers Hooks
+// Customer Queries
 // ============================================================================
 
 export function useCustomers(
-  searchQuery?: string,
-  options?: UseDataOptions<Customer[]>
-): UseDataReturn<Customer[]> {
-  const queryFn = useCallback(async () => {
+  search?: string,
+  options?: QueryOptions
+): QueryState<Customer[]> {
+  const queryKey = `customers:${search || 'all'}`;
+
+  const queryFn = useCallback(async (): Promise<Customer[]> => {
     let query = supabase
       .from('customers')
       .select('*')
       .order('company_name', { ascending: true });
 
-    if (searchQuery) {
-      query = query.or(`company_name.ilike.%${searchQuery}%,contact_name.ilike.%${searchQuery}%,email.ilike.%${searchQuery}%`);
+    if (search) {
+      query = query.or(`
+        company_name.ilike.%${search}%,
+        contact_name.ilike.%${search}%,
+        email.ilike.%${search}%
+      `);
     }
 
     const { data, error } = await query;
 
-    if (error) throw new Error(error.message);
-    return (data || []) as Customer[];
-  }, [searchQuery]);
+    if (error) throw error;
+    return data || [];
+  }, [search]);
 
-  const cacheKey = searchQuery ? `customers:search:${searchQuery}` : 'customers:all';
-
-  return useSupabaseQuery(cacheKey, queryFn, options);
+  return useSupabaseQuery(queryKey, queryFn, options);
 }
 
-export function useCustomer(customerId: string, options?: UseDataOptions<Customer>): UseDataReturn<Customer> {
-  const queryFn = useCallback(async () => {
-    const { data, error } = await supabase
+export function useCustomer(
+  customerId: string | null,
+  options?: QueryOptions
+): QueryState<CustomerWithStats> {
+  const queryKey = `customer:${customerId}`;
+
+  const queryFn = useCallback(async (): Promise<CustomerWithStats> => {
+    if (!customerId) throw new Error('Customer ID is required');
+
+    const { data: customer, error: customerError } = await supabase
       .from('customers')
       .select('*')
       .eq('id', customerId)
       .single();
 
-    if (error) throw new Error(error.message);
-    return data as Customer;
+    if (customerError) throw customerError;
+    if (!customer) throw new Error('Customer not found');
+
+    // Fetch customer stats
+    const { data: quotes, error: quotesError } = await supabase
+      .from('quotes')
+      .select('*')
+      .eq('customer_id', customerId);
+
+    if (quotesError) throw quotesError;
+
+    const quoteList = quotes || [];
+    const totalQuotes = quoteList.length;
+    const acceptedQuotes = quoteList.filter(q => q.status === 'accepted').length;
+    const declinedQuotes = quoteList.filter(q => q.status === 'rejected').length;
+    const pendingQuotes = quoteList.filter(q => q.status === 'pending' || q.status === 'sent').length;
+    const totalRevenue = quoteList
+      .filter(q => q.status === 'accepted')
+      .reduce((sum, q) => sum + (q.total || 0), 0);
+    const conversionRate = totalQuotes > 0 ? (acceptedQuotes / totalQuotes) * 100 : 0;
+
+    return {
+      ...customer,
+      stats: {
+        totalQuotes,
+        totalRevenue,
+        avgQuoteValue: totalQuotes > 0 ? totalRevenue / acceptedQuotes : 0,
+        acceptedQuotes,
+        declinedQuotes,
+        pendingQuotes,
+        conversionRate: Math.round(conversionRate * 10) / 10,
+      },
+    };
   }, [customerId]);
 
-  return useSupabaseQuery(`customer:${customerId}`, queryFn, {
-    enabled: !!customerId,
-    ...options,
-  });
+  return useSupabaseQuery(queryKey, queryFn, options);
 }
 
-export function useCustomerQuotes(customerId: string, options?: UseDataOptions<Quote[]>): UseDataReturn<Quote[]> {
-  const queryFn = useCallback(async () => {
+export function useCustomerQuotes(
+  customerId: string | null,
+  options?: QueryOptions
+): QueryState<Quote[]> {
+  const queryKey = `customer:${customerId}:quotes`;
+
+  const queryFn = useCallback(async (): Promise<Quote[]> => {
+    if (!customerId) throw new Error('Customer ID is required');
+
     const { data, error } = await supabase
       .from('quotes')
       .select('*')
       .eq('customer_id', customerId)
       .order('created_at', { ascending: false });
 
-    if (error) throw new Error(error.message);
-    return (data || []) as Quote[];
+    if (error) throw error;
+    return data || [];
   }, [customerId]);
 
-  return useSupabaseQuery(`customer:${customerId}:quotes`, queryFn, {
-    enabled: !!customerId,
-    ...options,
-  });
+  return useSupabaseQuery(queryKey, queryFn, options);
 }
 
 // ============================================================================
 // Mutation Hooks
 // ============================================================================
 
-function useSupabaseMutation<TData, TVariables>(
+function useMutation<TData, TVariables>(
   mutationFn: (variables: TVariables) => Promise<TData>,
-  options?: UseMutationOptions<TData, TVariables>
-): UseMutationReturn<TData, TVariables> {
+  options?: {
+    onSuccess?: (data: TData, variables: TVariables) => void;
+    onError?: (error: Error, variables: TVariables) => void;
+    invalidateQueries?: string[];
+  }
+): MutationState<TData, TVariables> {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const [data, setData] = useState<TData | null>(null);
+
+  const reset = useCallback(() => {
+    setIsLoading(false);
+    setIsError(false);
+    setError(null);
+    setData(null);
+  }, []);
 
   const mutateAsync = useCallback(async (variables: TVariables): Promise<TData> => {
     setIsLoading(true);
@@ -576,32 +575,34 @@ function useSupabaseMutation<TData, TVariables>(
     try {
       const result = await mutationFn(variables);
       setData(result);
+      
+      // Invalidate cache
+      if (options?.invalidateQueries) {
+        options.invalidateQueries.forEach(pattern => {
+          globalCache.invalidate(pattern);
+        });
+      }
+
       options?.onSuccess?.(result, variables);
       return result;
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
-      setIsError(true);
       setError(error);
+      setIsError(true);
       options?.onError?.(error, variables);
       throw error;
     } finally {
       setIsLoading(false);
-      options?.onSettled?.(data, error, variables);
     }
   }, [mutationFn, options]);
 
-  const mutate = useCallback((variables: TVariables) => {
-    mutateAsync(variables).catch(() => {
-      // Error handled by onError callback
-    });
+  const mutate = useCallback(async (variables: TVariables): Promise<void> => {
+    try {
+      await mutateAsync(variables);
+    } catch {
+      // Error already handled
+    }
   }, [mutateAsync]);
-
-  const reset = useCallback(() => {
-    setIsLoading(false);
-    setIsError(false);
-    setError(null);
-    setData(null);
-  }, []);
 
   return {
     mutate,
@@ -614,177 +615,211 @@ function useSupabaseMutation<TData, TVariables>(
   };
 }
 
-export function useCreateQuote(options?: UseMutationOptions<Quote, Omit<Quote, 'id' | 'createdAt' | 'updatedAt'>>) {
-  return useSupabaseMutation(
-    async (quoteData) => {
+// Quote Mutations
+export function useCreateQuote(options?: {
+  onSuccess?: (data: Quote) => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<Quote, CreateQuoteInput>(
+    async (input) => {
       const { data, error } = await supabase
         .from('quotes')
         .insert({
-          ...quoteData,
+          ...input,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
-      
-      // Invalidate quotes cache
-      queryCache.invalidatePattern(/^quotes:/);
-      
-      return data as Quote;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create quote');
+      return data;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['quotes'],
+    }
   );
 }
 
-export function useUpdateQuote(options?: UseMutationOptions<Quote, { id: string; data: Partial<Quote> }>) {
-  return useSupabaseMutation(
-    async ({ id, data }) => {
-      const { data: result, error } = await supabase
+export function useUpdateQuote(options?: {
+  onSuccess?: (data: Quote) => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<Quote, { id: string } & UpdateQuoteInput>(
+    async ({ id, ...input }) => {
+      const { data, error } = await supabase
         .from('quotes')
         .update({
-          ...data,
+          ...input,
           updated_at: new Date().toISOString(),
         })
         .eq('id', id)
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
-      
-      // Invalidate caches
-      queryCache.invalidate(`quote:${id}`);
-      queryCache.invalidatePattern(/^quotes:/);
-      
-      return result as Quote;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to update quote');
+      return data;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['quotes', `quote:`],
+    }
   );
 }
 
-export function useDeleteQuote(options?: UseMutationOptions<void, string>) {
-  return useSupabaseMutation(
+export function useDeleteQuote(options?: {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<void, string>(
     async (id) => {
       const { error } = await supabase
         .from('quotes')
         .delete()
         .eq('id', id);
 
-      if (error) throw new Error(error.message);
-      
-      // Invalidate caches
-      queryCache.invalidate(`quote:${id}`);
-      queryCache.invalidatePattern(/^quotes:/);
+      if (error) throw error;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['quotes'],
+    }
   );
 }
 
-export function useBulkDeleteQuotes(options?: UseMutationOptions<void, string[]>) {
-  return useSupabaseMutation(
+export function useBulkDeleteQuotes(options?: {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<void, string[]>(
     async (ids) => {
       const { error } = await supabase
         .from('quotes')
         .delete()
         .in('id', ids);
 
-      if (error) throw new Error(error.message);
-      
-      // Invalidate caches
-      ids.forEach(id => queryCache.invalidate(`quote:${id}`));
-      queryCache.invalidatePattern(/^quotes:/);
+      if (error) throw error;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['quotes'],
+    }
   );
 }
 
-export function useUpdateQuoteStatus(options?: UseMutationOptions<Quote, { id: string; status: QuoteStatus }>) {
-  return useSupabaseMutation(
-    async ({ id, status }) => {
+export function useUpdateQuoteStatus(options?: {
+  onSuccess?: (data: Quote) => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<Quote, { id: string; status: QuoteStatus; notes?: string }>(
+    async ({ id, status, notes }) => {
+      const updateData: Record<string, unknown> = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (status === 'sent') {
+        updateData.sent_at = new Date().toISOString();
+      } else if (status === 'accepted') {
+        updateData.accepted_at = new Date().toISOString();
+      } else if (status === 'rejected') {
+        updateData.rejected_at = new Date().toISOString();
+        if (notes) updateData.rejection_reason = notes;
+      }
+
       const { data, error } = await supabase
         .from('quotes')
-        .update({
-          status,
-          updated_at: new Date().toISOString(),
-          ...(status === 'accepted' ? { accepted_at: new Date().toISOString() } : {}),
-          ...(status === 'sent' ? { sent_at: new Date().toISOString() } : {}),
-          ...(status === 'viewed' ? { viewed_at: new Date().toISOString() } : {}),
-          ...(status === 'rejected' ? { rejected_at: new Date().toISOString() } : {}),
-        })
+        .update(updateData)
         .eq('id', id)
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
-      
-      // Invalidate caches
-      queryCache.invalidate(`quote:${id}`);
-      queryCache.invalidatePattern(/^quotes:/);
-      
-      return data as Quote;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to update quote status');
+      return data;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['quotes', `quote:`],
+    }
   );
 }
 
-export function useCreateCustomer(options?: UseMutationOptions<Customer, Omit<Customer, 'id' | 'customerSince'>>) {
-  return useSupabaseMutation(
-    async (customerData) => {
+// Customer Mutations
+export function useCreateCustomer(options?: {
+  onSuccess?: (data: Customer) => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<Customer, CreateCustomerInput>(
+    async (input) => {
       const { data, error } = await supabase
         .from('customers')
         .insert({
-          ...customerData,
-          customer_since: new Date().toISOString(),
+          ...input,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         })
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
-      
-      queryCache.invalidatePattern(/^customers:/);
-      
-      return data as Customer;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create customer');
+      return data;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['customers'],
+    }
   );
 }
 
-export function useUpdateCustomer(options?: UseMutationOptions<Customer, { id: string; data: Partial<Customer> }>) {
-  return useSupabaseMutation(
-    async ({ id, data }) => {
-      const { data: result, error } = await supabase
+export function useUpdateCustomer(options?: {
+  onSuccess?: (data: Customer) => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<Customer, { id: string } & UpdateCustomerInput>(
+    async ({ id, ...input }) => {
+      const { data, error } = await supabase
         .from('customers')
-        .update(data)
+        .update({
+          ...input,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', id)
         .select()
         .single();
 
-      if (error) throw new Error(error.message);
-      
-      queryCache.invalidate(`customer:${id}`);
-      queryCache.invalidatePattern(/^customers:/);
-      
-      return result as Customer;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to update customer');
+      return data;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['customers', `customer:`],
+    }
   );
 }
 
-export function useDeleteCustomer(options?: UseMutationOptions<void, string>) {
-  return useSupabaseMutation(
+export function useDeleteCustomer(options?: {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}) {
+  return useMutation<void, string>(
     async (id) => {
       const { error } = await supabase
         .from('customers')
         .delete()
         .eq('id', id);
 
-      if (error) throw new Error(error.message);
-      
-      queryCache.invalidate(`customer:${id}`);
-      queryCache.invalidatePattern(/^customers:/);
+      if (error) throw error;
     },
-    options
+    {
+      ...options,
+      invalidateQueries: ['customers', 'quotes'],
+    }
   );
 }
 
@@ -792,99 +827,91 @@ export function useDeleteCustomer(options?: UseMutationOptions<void, string>) {
 // Real-time Subscriptions
 // ============================================================================
 
-export function useRealtimeTable<T extends { id: string }>(
-  tableName: string,
-  options?: {
-    filter?: string;
-    onInsert?: (payload: T) => void;
-    onUpdate?: (payload: T) => void;
-    onDelete?: (payload: { id: string }) => void;
-  }
-) {
+export function useRealtimeQuotes(
+  callback?: (payload: { event: string; quote: Quote }) => void
+): { isConnected: boolean; error: Error | null } {
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
   useEffect(() => {
-    const subscription = supabase
-      .channel(`${tableName}-changes`)
+    const channel = supabase
+      .channel('quotes-realtime')
       .on(
         'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: tableName,
-          filter: options?.filter,
-        },
+        { event: '*', schema: 'public', table: 'quotes' },
         (payload) => {
-          switch (payload.eventType) {
-            case 'INSERT':
-              options?.onInsert?.(payload.new as T);
-              break;
-            case 'UPDATE':
-              options?.onUpdate?.(payload.new as T);
-              break;
-            case 'DELETE':
-              options?.onDelete?.(payload.old as { id: string });
-              break;
-          }
+          globalCache.invalidate('quotes');
+          callback?.({
+            event: payload.eventType,
+            quote: payload.new as Quote,
+          });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        setIsConnected(status === 'SUBSCRIBED');
+        if (status === 'CHANNEL_ERROR') {
+          setError(new Error('Failed to connect to real-time updates'));
+        }
+      });
 
     return () => {
-      subscription.unsubscribe();
+      channel.unsubscribe();
     };
-  }, [tableName, options]);
+  }, [callback]);
+
+  return { isConnected, error };
 }
 
-export function useRealtimeQuotesSubscription(
-  onChange?: (type: 'INSERT' | 'UPDATE' | 'DELETE', data: Quote) => void
-) {
-  useRealtimeTable<Quote>('quotes', {
-    onInsert: (quote) => onChange?.('INSERT', quote),
-    onUpdate: (quote) => onChange?.('UPDATE', quote),
-    onDelete: (quote) => onChange?.('DELETE', quote as Quote),
-  });
-}
+export function useRealtimeCustomers(
+  callback?: (payload: { event: string; customer: Customer }) => void
+): { isConnected: boolean; error: Error | null } {
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-// ============================================================================
-// Optimistic Updates
-// ============================================================================
+  useEffect(() => {
+    const channel = supabase
+      .channel('customers-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'customers' },
+        (payload) => {
+          globalCache.invalidate('customers');
+          callback?.({
+            event: payload.eventType,
+            customer: payload.new as Customer,
+          });
+        }
+      )
+      .subscribe((status) => {
+        setIsConnected(status === 'SUBSCRIBED');
+        if (status === 'CHANNEL_ERROR') {
+          setError(new Error('Failed to connect to real-time updates'));
+        }
+      });
 
-export function useOptimisticUpdate<T>(
-  key: string,
-  updateFn: (current: T | null, update: Partial<T>) => T
-) {
-  const applyOptimisticUpdate = useCallback((update: Partial<T>) => {
-    const current = queryCache.get<T>(key);
-    const optimistic = updateFn(current, update);
-    queryCache.set(`${key}:optimistic`, optimistic);
     return () => {
-      queryCache.invalidate(`${key}:optimistic`);
+      channel.unsubscribe();
     };
-  }, [key, updateFn]);
+  }, [callback]);
 
-  return { applyOptimisticUpdate };
+  return { isConnected, error };
 }
 
 // ============================================================================
 // Export
 // ============================================================================
 
-export default {
-  useQuotes,
-  usePaginatedQuotes,
-  useQuote,
-  useQuoteStats,
-  useCustomers,
-  useCustomer,
-  useCustomerQuotes,
-  useCreateQuote,
-  useUpdateQuote,
-  useDeleteQuote,
-  useBulkDeleteQuotes,
-  useUpdateQuoteStatus,
-  useCreateCustomer,
-  useUpdateCustomer,
-  useDeleteCustomer,
-  useRealtimeTable,
-  useRealtimeQuotesSubscription,
-  queryCache,
+export {
+  useSupabaseQuery,
+  globalCache as queryCache,
+};
+
+export type {
+  QueryOptions,
+  QueryState,
+  MutationState,
+  PaginationOptions,
+  PaginatedResult,
+  CreateQuoteInput,
+  UpdateQuoteInput,
 };

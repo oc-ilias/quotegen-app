@@ -1,0 +1,363 @@
+[1A[2K[WebServer] [33m[1m⚠[22m[39m `images.domains` is deprecated in favor of `images.remotePatterns`. Please update next.config.ts to protect your application from malicious users.
+
+
+Running 15 tests using 1 worker
+
+[1A[2K[1/15] [chromium] › e2e/dashboard.spec.ts:14:7 › Dashboard › should display dashboard stats
+[1A[2K  1) [chromium] › e2e/dashboard.spec.ts:14:7 › Dashboard › should display dashboard stats ──────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/total quotes/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/total quotes/i)[22m
+
+
+      14 |   test('should display dashboard stats', async ({ page }) => {
+      15 |     // Verify stats cards are visible
+    > 16 |     await expect(page.getByText(/total quotes/i)).toBeVisible();
+         |                                                   ^
+      17 |     await expect(page.getByText(/pending quotes/i)).toBeVisible();
+      18 |     await expect(page.getByText(/accepted quotes/i)).toBeVisible();
+      19 |     await expect(page.getByText(/conversion rate/i)).toBeVisible();
+        at /root/.openclaw/workspace/quotegen-app/e2e/dashboard.spec.ts:16:51
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-display-dashboard-stats-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-display-dashboard-stats-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-should-display-dashboard-stats-chromium/error-context.md
+
+
+[1A[2K[2/15] [chromium] › e2e/dashboard.spec.ts:22:7 › Dashboard › should display recent quotes
+[1A[2K  2) [chromium] › e2e/dashboard.spec.ts:22:7 › Dashboard › should display recent quotes ────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/recent quotes/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/recent quotes/i)[22m
+
+
+      22 |   test('should display recent quotes', async ({ page }) => {
+      23 |     // Verify recent quotes section
+    > 24 |     await expect(page.getByText(/recent quotes/i)).toBeVisible();
+         |                                                    ^
+      25 |     
+      26 |     // Check that quote rows are visible
+      27 |     const quoteRows = page.locator('[data-testid="quote-row"]');
+        at /root/.openclaw/workspace/quotegen-app/e2e/dashboard.spec.ts:24:52
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-display-recent-quotes-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-display-recent-quotes-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-should-display-recent-quotes-chromium/error-context.md
+
+
+[1A[2K[3/15] [chromium] › e2e/dashboard.spec.ts:31:7 › Dashboard › should navigate to quotes page
+[1A[2K  3) [chromium] › e2e/dashboard.spec.ts:31:7 › Dashboard › should navigate to quotes page ──────────
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('link', { name: /quotes/i })[22m
+
+
+      31 |   test('should navigate to quotes page', async ({ page }) => {
+      32 |     // Click on quotes link
+    > 33 |     await page.getByRole('link', { name: /quotes/i }).click();
+         |                                                       ^
+      34 |
+      35 |     // Verify navigation
+      36 |     await expect(page).toHaveURL(/\/quotes/);
+        at /root/.openclaw/workspace/quotegen-app/e2e/dashboard.spec.ts:33:55
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-navigate-to-quotes-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-navigate-to-quotes-page-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-should-navigate-to-quotes-page-chromium/error-context.md
+
+
+[1A[2K[4/15] [chromium] › e2e/dashboard.spec.ts:40:7 › Dashboard › should display activity feed
+[1A[2K  4) [chromium] › e2e/dashboard.spec.ts:40:7 › Dashboard › should display activity feed ────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/recent activity/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/recent activity/i)[22m
+
+
+      40 |   test('should display activity feed', async ({ page }) => {
+      41 |     // Verify activity feed section
+    > 42 |     await expect(page.getByText(/recent activity/i)).toBeVisible();
+         |                                                      ^
+      43 |     
+      44 |     // Check for activity items
+      45 |     const activityItems = page.locator('[data-testid="activity-item"]');
+        at /root/.openclaw/workspace/quotegen-app/e2e/dashboard.spec.ts:42:54
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-display-activity-feed-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-display-activity-feed-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-should-display-activity-feed-chromium/error-context.md
+
+
+[1A[2K[5/15] [chromium] › e2e/dashboard.spec.ts:51:7 › Dashboard › should refresh data
+[1A[2K  5) [chromium] › e2e/dashboard.spec.ts:51:7 › Dashboard › should refresh data ─────────────────────
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: /refresh/i })[22m
+
+
+      51 |   test('should refresh data', async ({ page }) => {
+      52 |     // Click refresh button
+    > 53 |     await page.getByRole('button', { name: /refresh/i }).click();
+         |                                                          ^
+      54 |
+      55 |     // Verify loading state
+      56 |     await expect(page.locator('[data-testid="loading-spinner"]')).toBeVisible();
+        at /root/.openclaw/workspace/quotegen-app/e2e/dashboard.spec.ts:53:58
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-refresh-data-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dashboard-Dashboard-should-refresh-data-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Dashboard-should-refresh-data-chromium/error-context.md
+
+
+[1A[2K[6/15] [chromium] › e2e/dashboard.spec.ts:67:7 › Navigation › should navigate between pages
+[1A[2K  6) [chromium] › e2e/dashboard.spec.ts:67:7 › Navigation › should navigate between pages ──────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/dashboard/i)
+    Expected: visible
+    Error: strict mode violation: getByText(/dashboard/i) resolved to 3 elements:
+        1) <span class="font-medium whitespace-nowrap text-slate-100">Dashboard</span> aka getByRole('menuitem', { name: 'Dashboard' })
+        2) <h1 class="text-2xl sm:text-3xl font-bold text-slate-100">Dashboard</h1> aka getByRole('heading', { name: 'Dashboard' })
+        3) <h1 class="text-2xl sm:text-3xl font-bold text-slate-100">Dashboard</h1> aka getByText('Dashboard').nth(2)
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/dashboard/i)[22m
+
+
+      68 |     // Start at dashboard
+      69 |     await page.goto('/dashboard');
+    > 70 |     await expect(page.getByText(/dashboard/i)).toBeVisible();
+         |                                                ^
+      71 |
+      72 |     // Navigate to Quotes
+      73 |     await page.getByRole('link', { name: /quotes/i }).click();
+        at /root/.openclaw/workspace/quotegen-app/e2e/dashboard.spec.ts:70:48
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/dashboard-Navigation-should-navigate-between-pages-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/dashboard-Navigation-should-navigate-between-pages-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/dashboard-Navigation-should-navigate-between-pages-chromium/error-context.md
+
+
+[1A[2K[7/15] [chromium] › e2e/quote-creation.spec.ts:17:7 › Quote Creation › should create a new quote with all required fields
+[1A[2K  7) [chromium] › e2e/quote-creation.spec.ts:17:7 › Quote Creation › should create a new quote with all required fields 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel(/customer name/i)[22m
+
+
+      22 |
+      23 |     // Fill in customer information
+    > 24 |     await page.getByLabel(/customer name/i).fill('Test Customer');
+         |                                             ^
+      25 |     await page.getByLabel(/email/i).fill('test@example.com');
+      26 |     await page.getByLabel(/company/i).fill('Test Company');
+      27 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/quote-creation.spec.ts:24:45
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creat-8ad39-te-with-all-required-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creat-8ad39-te-with-all-required-fields-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/quote-creation-Quote-Creat-8ad39-te-with-all-required-fields-chromium/error-context.md
+
+
+[1A[2K[8/15] [chromium] › e2e/quote-creation.spec.ts:55:7 › Quote Creation › should validate required fields
+[1A[2K  8) [chromium] › e2e/quote-creation.spec.ts:55:7 › Quote Creation › should validate required fields 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByText(/customer name is required/i)
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByText(/customer name is required/i)[22m
+
+
+      61 |
+      62 |     // Verify validation errors
+    > 63 |     await expect(page.getByText(/customer name is required/i)).toBeVisible();
+         |                                                                ^
+      64 |     await expect(page.getByText(/email is required/i)).toBeVisible();
+      65 |   });
+      66 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/quote-creation.spec.ts:63:64
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creat-19f5f-ld-validate-required-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creat-19f5f-ld-validate-required-fields-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/quote-creation-Quote-Creat-19f5f-ld-validate-required-fields-chromium/error-context.md
+
+
+[1A[2K[9/15] [chromium] › e2e/quote-creation.spec.ts:67:7 › Quote Creation › should calculate totals correctly
+[1A[2K  9) [chromium] › e2e/quote-creation.spec.ts:67:7 › Quote Creation › should calculate totals correctly 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByLabel(/customer name/i)[22m
+
+
+      70 |
+      71 |     // Fill customer info
+    > 72 |     await page.getByLabel(/customer name/i).fill('Calc Test');
+         |                                             ^
+      73 |     await page.getByLabel(/email/i).fill('calc@example.com');
+      74 |     await page.getByRole('button', { name: /next/i }).click();
+      75 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/quote-creation.spec.ts:72:45
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creat-64d38--calculate-totals-correctly-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creat-64d38--calculate-totals-correctly-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/quote-creation-Quote-Creat-64d38--calculate-totals-correctly-chromium/error-context.md
+
+
+[1A[2K[10/15] [chromium] › e2e/quote-sending.spec.ts:14:7 › Quote Sending › should send a quote via email
+[1A[2K  10) [chromium] › e2e/quote-sending.spec.ts:14:7 › Quote Sending › should send a quote via email ──
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="quote-row"]').filter({ hasText: 'Draft' }).first()[22m
+
+
+      15 |     // Find and click on a draft quote
+      16 |     const draftQuote = page.locator('[data-testid="quote-row"]').filter({ hasText: 'Draft' }).first();
+    > 17 |     await draftQuote.click();
+         |                      ^
+      18 |
+      19 |     // Click send button
+      20 |     await page.getByRole('button', { name: /send quote/i }).click();
+        at /root/.openclaw/workspace/quotegen-app/e2e/quote-sending.spec.ts:17:22
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/quote-sending-Quote-Sending-should-send-a-quote-via-email-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/quote-sending-Quote-Sending-should-send-a-quote-via-email-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/quote-sending-Quote-Sending-should-send-a-quote-via-email-chromium/error-context.md
+
+
+[1A[2K[11/15] [chromium] › e2e/quote-sending.spec.ts:37:7 › Quote Sending › should preview quote before sending
+[1A[2K  11) [chromium] › e2e/quote-sending.spec.ts:37:7 › Quote Sending › should preview quote before sending 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="quote-row"]').first()[22m
+
+
+      38 |     // Open a quote
+      39 |     const quoteRow = page.locator('[data-testid="quote-row"]').first();
+    > 40 |     await quoteRow.click();
+         |                    ^
+      41 |
+      42 |     // Click preview
+      43 |     await page.getByRole('button', { name: /preview/i }).click();
+        at /root/.openclaw/workspace/quotegen-app/e2e/quote-sending.spec.ts:40:20
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/quote-sending-Quote-Sendin-901cc-review-quote-before-sending-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/quote-sending-Quote-Sendin-901cc-review-quote-before-sending-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/quote-sending-Quote-Sendin-901cc-review-quote-before-sending-chromium/error-context.md
+
+
+[1A[2K[12/15] [chromium] › e2e/quote-sending.spec.ts:60:7 › Quote Status Updates › should update quote status from draft to sent

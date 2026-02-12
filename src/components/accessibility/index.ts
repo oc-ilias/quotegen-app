@@ -1,26 +1,35 @@
 /**
- * Accessibility Components
- * @module components/accessibility
+ * Accessibility Components Barrel Export
+ * 
+ * This file provides convenient access to all accessibility components.
+ * Import components from this file for cleaner imports.
+ * 
+ * @example
+ * ```tsx
+ * import { 
+ *   SkipNavigation, 
+ *   FocusTrap, 
+ *   LiveAnnouncer, 
+ *   VisuallyHidden,
+ *   useAnnouncer 
+ * } from '@/components/accessibility';
+ * ```
  */
 
-export { SkipNavigation } from './SkipNavigation';
-export type { SkipLink } from './SkipNavigation';
+// SkipNavigation component for bypass blocks
+export { SkipNavigation, type SkipNavigationProps } from './SkipNavigation';
 
-export { LiveAnnouncerProvider, useLiveAnnouncer } from './LiveAnnouncer';
-export type { AnnouncerMessage } from './LiveAnnouncer';
+// FocusTrap component for modal/dialog focus management
+export { FocusTrap, type FocusTrapProps } from './FocusTrap';
 
-export { VisuallyHidden, ScreenReaderOnly } from './VisuallyHidden';
+// LiveAnnouncer component for screen reader announcements
+export { 
+  LiveAnnouncer, 
+  useAnnouncer,
+  type LiveAnnouncerProps,
+  type UseAnnouncerReturn,
+  type AnnouncePriority,
+} from './LiveAnnouncer';
 
-export { FocusTrap } from './FocusTrap';
-
-export {
-  KeyboardShortcutsHelp,
-  useKeyboardShortcutsHelp,
-} from './KeyboardShortcutsHelp';
-export type { KeyboardShortcutItem } from './KeyboardShortcutsHelp';
-
-export {
-  useKeyboardShortcuts,
-  useFocusManager,
-} from '@/hooks/useKeyboardShortcuts';
-export type { KeyboardShortcut } from '@/hooks/useKeyboardShortcuts';
+// VisuallyHidden component for screen-reader-only content
+export { VisuallyHidden, type VisuallyHiddenProps } from './VisuallyHidden';

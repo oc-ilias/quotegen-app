@@ -1,0 +1,6 @@
+
+Running 15 tests using 1 worker
+
+  ✘   1 [chromium] › e2e/dashboard.spec.ts:14:7 › Dashboard › should display dashboard stats (6.5s)
+  ✘   2 [chromium] › e2e/dashboard.spec.ts:22:7 › Dashboard › should display recent quotes (3.6s)
+  ✘   3 [chromium] › e2e/dashboard.spec.ts:31:7 › Dashboard › should navigate to quotes page (31.7s)

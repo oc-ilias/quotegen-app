@@ -56,12 +56,10 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<
 // Top Products Component
 // ============================================================================
 
-export interface TopProductsProps {
+interface TopProductsProps {
   data: TopProductData[];
   isLoading?: boolean;
   className?: string;
-  allowExport?: boolean;
-  showGrowth?: boolean;
 }
 
 export function TopProducts({ data, isLoading = false, className }: TopProductsProps) {

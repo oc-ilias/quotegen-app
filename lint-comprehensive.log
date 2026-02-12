@@ -1,0 +1,6 @@
+
+> app@0.1.0 lint
+> eslint
+
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/[root-of-the-server]__3bf6af58._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_92c0c16f._.js as it exceeds the max of 500KB.

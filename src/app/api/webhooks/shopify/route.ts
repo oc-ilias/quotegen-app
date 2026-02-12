@@ -1,61 +1,6 @@
-// Shopify OAuth and webhook handlers
+// Shopify webhook route handlers
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
-
-const SHOPIFY_API_KEY = process.env.SHOPIFY_API_KEY;
-const SHOPIFY_API_SECRET = process.env.SHOPIFY_API_SECRET;
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL;
-
-// Verify Shopify webhook signature
-export function verifyShopifyWebhook(rawBody: string, hmacHeader: string): boolean {
-  if (!SHOPIFY_API_SECRET) {
-    console.error('SHOPIFY_API_SECRET not set');
-    return false;
-  }
-  
-  const generatedHash = crypto
-    .createHmac('sha256', SHOPIFY_API_SECRET)
-    .update(rawBody, 'utf8')
-    .digest('base64');
-  
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedHash),
-    Buffer.from(hmacHeader)
-  );
-}
-
-// Verify Shopify OAuth
-export async function verifyShopifyAuth(shop: string, code: string) {
-  try {
-    const response = await fetch(`https://${shop}/admin/oauth/access_token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: SHOPIFY_API_KEY,
-        client_secret: SHOPIFY_API_SECRET,
-        code,
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to get access token');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Shopify auth error:', error);
-    throw error;
-  }
-}
-
-// Generate install URL
-export function generateInstallUrl(shop: string): string {
-  const scopes = 'read_products,write_products,read_orders,read_customers';
-  const redirectUri = `${APP_URL}/api/auth/callback`;
-  const nonce = crypto.randomBytes(16).toString('hex');
-  
-  return `https://${shop}/admin/oauth/authorize?client_id=${SHOPIFY_API_KEY}&scope=${scopes}&redirect_uri=${redirectUri}&state=${nonce}`;
-}
+import { verifyShopifyWebhook, generateInstallUrl } from '@/lib/shopify';
 
 // POST /api/webhooks/shopify - Handle Shopify webhooks
 export async function POST(request: NextRequest) {

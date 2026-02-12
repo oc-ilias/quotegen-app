@@ -1,0 +1,114 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Snapshots matches customer detail snapshot 1`] = `
+{
+  "billingAddress": {
+    "city": "New York",
+    "country": "US",
+    "state": "NY",
+    "street": "123 Main St",
+    "zipCode": "10001",
+  },
+  "companyName": "Acme Corporation",
+  "contactName": "John Smith",
+  "createdAt": Any<Date>,
+  "customerSince": Any<Date>,
+  "email": "john@acme.com",
+  "id": "cust_1",
+  "notes": "Key customer account",
+  "phone": "+1 (555) 123-4567",
+  "shippingAddress": {
+    "city": "New York",
+    "country": "US",
+    "state": "NY",
+    "street": "123 Main St",
+    "zipCode": "10001",
+  },
+  "status": "active",
+  "tags": [
+    "enterprise",
+    "priority",
+  ],
+  "taxId": "12-3456789",
+  "updatedAt": Any<Date>,
+}
+`;
+
+exports[`Snapshots matches quote detail snapshot 1`] = `
+{
+  "createdAt": Any<Date>,
+  "customer": {
+    "billingAddress": {
+      "city": "New York",
+      "country": "US",
+      "state": "NY",
+      "street": "123 Main St",
+      "zipCode": "10001",
+    },
+    "companyName": "Acme Corporation",
+    "contactName": "John Smith",
+    "createdAt": 2023-01-15T00:00:00.000Z,
+    "customerSince": 2023-01-15T00:00:00.000Z,
+    "email": "john@acme.com",
+    "id": "cust_1",
+    "notes": "Key customer account",
+    "phone": "+1 (555) 123-4567",
+    "shippingAddress": {
+      "city": "New York",
+      "country": "US",
+      "state": "NY",
+      "street": "123 Main St",
+      "zipCode": "10001",
+    },
+    "status": "active",
+    "tags": [
+      "enterprise",
+      "priority",
+    ],
+    "taxId": "12-3456789",
+    "updatedAt": 2026-02-04T00:00:00.000Z,
+  },
+  "customerId": "cust_1",
+  "discountTotal": 0,
+  "id": "qt_001",
+  "lineItems": [
+    {
+      "discountAmount": 0,
+      "id": "li_1",
+      "productId": "prod_1",
+      "quantity": 2,
+      "sku": "TEST-001",
+      "subtotal": 200,
+      "taxAmount": 20,
+      "taxRate": 10,
+      "title": "Test Product",
+      "total": 220,
+      "unitPrice": 100,
+    },
+  ],
+  "metadata": {
+    "createdBy": "user_1",
+    "createdByName": "Jane Doe",
+    "source": "web",
+  },
+  "priority": "high",
+  "quoteNumber": "QT-2026-001",
+  "sentAt": Any<Date>,
+  "shippingTotal": 10,
+  "status": "sent",
+  "subtotal": 200,
+  "taxTotal": 20,
+  "terms": {
+    "currency": "USD",
+    "deliveryTerms": "2-3 weeks",
+    "depositRequired": false,
+    "internalNotes": "",
+    "notes": "",
+    "paymentTerms": "Net 30",
+    "validityPeriod": 30,
+  },
+  "title": "Test Quote",
+  "total": 230,
+  "updatedAt": Any<Date>,
+}
+`;

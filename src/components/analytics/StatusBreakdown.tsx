@@ -73,12 +73,10 @@ const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<
 // Status Breakdown Component
 // ============================================================================
 
-export interface StatusBreakdownProps {
+interface StatusBreakdownProps {
   data: StatusBreakdownData[];
   isLoading?: boolean;
   className?: string;
-  allowExport?: boolean;
-  showLegend?: boolean;
 }
 
 export function StatusBreakdown({ data, isLoading = false, className }: StatusBreakdownProps) {
