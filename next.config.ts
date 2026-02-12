@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next/types";
 import withBundleAnalyzer from "@next/bundle-analyzer";
 
 /**
