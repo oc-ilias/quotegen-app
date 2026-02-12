@@ -15,9 +15,9 @@ import {
   ArrowTrendingUpIcon,
   ArrowTrendingDownIcon,
   MinusIcon,
-  DownloadIcon,
+  ArrowDownTrayIcon,
   ArrowPathIcon,
-  FilterIcon,
+  FunnelIcon,
   ChevronDownIcon,
   ExclamationCircleIcon,
   ChartBarIcon,
@@ -336,7 +336,7 @@ const ExportMenu = ({ onExport }: ExportMenuProps) => {
           'hover:border-slate-700 transition-colors'
         )}
       >
-        <DownloadIcon className="w-4 h-4" />
+        <ArrowDownTrayIcon className="w-4 h-4" />
         <span>Export</span>
       </button>
 
@@ -448,7 +448,7 @@ export function AnalyticsDashboardEnhanced({
   className,
 }: AnalyticsDashboardEnhancedProps) {
   const [selectedRange, setSelectedRange] = useState<DateRange>(DATE_RANGES[1]);
-  const { showToast } = useToast();
+  const { addToast } = useToast();
 
   const handleDateRangeChange = useCallback((range: DateRange) => {
     setSelectedRange(range);
@@ -457,12 +457,12 @@ export function AnalyticsDashboardEnhanced({
 
   const handleExport = useCallback((format: 'csv' | 'pdf') => {
     onExport?.(format);
-    showToast({
+    addToast({
+      type: 'success',
       title: 'Export Started',
-      description: `Your ${format.toUpperCase()} export is being prepared.`,
-      variant: 'success',
+      message: `Your ${format.toUpperCase()} export is being prepared.`,
     });
-  }, [onExport, showToast]);
+  }, [onExport, addToast]);
 
   const stats = useDashboardStats(data?.stats);
 

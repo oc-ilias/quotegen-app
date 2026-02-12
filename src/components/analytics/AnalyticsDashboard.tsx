@@ -22,6 +22,7 @@ import { DateRangeSelector, type DateRange } from './DateRangeSelector';
 import { ExportMenu, type ExportFormat } from './ExportMenu';
 import { ErrorBoundary } from '../ErrorBoundary';
 import type { ConversionDataPoint, RevenueDataPoint, StatusBreakdownData, TopProductData } from '@/types/quote';
+import { QuoteStatus } from '@/types/quote';
 import {
   ArrowPathIcon,
   ChartPieIcon,
@@ -144,12 +145,12 @@ const generateMockConversionData = (days: number): ConversionDataPoint[] => {
 };
 
 const generateMockStatusData = (): StatusBreakdownData[] => [
-  { status: 'draft' as const, count: 25, percentage: 12.5, value: 25000 },
-  { status: 'pending' as const, count: 30, percentage: 15, value: 30000 },
-  { status: 'sent' as const, count: 60, percentage: 30, value: 60000 },
-  { status: 'viewed' as const, count: 35, percentage: 17.5, value: 35000 },
-  { status: 'accepted' as const, count: 40, percentage: 20, value: 80000 },
-  { status: 'rejected' as const, count: 10, percentage: 5, value: 10000 },
+  { status: QuoteStatus.DRAFT, count: 25, percentage: 12.5, value: 25000 },
+  { status: QuoteStatus.PENDING, count: 30, percentage: 15, value: 30000 },
+  { status: QuoteStatus.SENT, count: 60, percentage: 30, value: 60000 },
+  { status: QuoteStatus.VIEWED, count: 35, percentage: 17.5, value: 35000 },
+  { status: QuoteStatus.ACCEPTED, count: 40, percentage: 20, value: 80000 },
+  { status: QuoteStatus.REJECTED, count: 10, percentage: 5, value: 10000 },
 ];
 
 const generateMockTopProducts = (): TopProductData[] => [

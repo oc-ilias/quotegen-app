@@ -27,9 +27,11 @@ interface ConversionDataPoint {
   conversionRate: number;
 }
 
-interface ConversionChartProps {
+export interface ConversionChartProps {
   data: ConversionDataPoint[];
   isLoading?: boolean;
+  allowExport?: boolean;
+  showTrend?: boolean;
 }
 
 // Mock data for demo

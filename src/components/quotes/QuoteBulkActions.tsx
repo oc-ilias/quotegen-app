@@ -202,7 +202,7 @@ const StatusChangeDropdown: React.FC<{
 }> = ({ selectedCount, onStatusChange, isLoading }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const statuses: QuoteStatus[] = ['draft', 'pending', 'sent', 'accepted', 'rejected', 'expired'];
+  const statuses: QuoteStatus[] = [QuoteStatus.DRAFT, QuoteStatus.PENDING, QuoteStatus.SENT, QuoteStatus.ACCEPTED, QuoteStatus.REJECTED, QuoteStatus.EXPIRED];
 
   return (
     <div className="relative">

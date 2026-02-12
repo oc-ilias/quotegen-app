@@ -26,9 +26,12 @@ interface RevenueDataPoint {
   avgValue: number;
 }
 
-interface RevenueChartProps {
+export interface RevenueChartProps {
   data: RevenueDataPoint[];
   isLoading?: boolean;
+  showTimeRangeSelector?: boolean;
+  allowExport?: boolean;
+  showComparison?: boolean;
 }
 
 // Mock data
