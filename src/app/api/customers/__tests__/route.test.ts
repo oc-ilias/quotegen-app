@@ -6,61 +6,73 @@
 import { GET, POST } from '@/app/api/customers/route';
 import { NextRequest } from 'next/server';
 
-// Mock the route module's Supabase client
-const mockQueryResult = {
-  data: null as any,
-  error: null as any,
-  count: null as number | null,
-};
+// Create a chainable mock query builder
+function createMockQueryBuilder() {
+  const mockQueryResult = {
+    data: null as any,
+    error: null as any,
+    count: null as number | null,
+  };
 
-const mockSelect = jest.fn().mockReturnValue(mockQueryResult);
-const mockInsert = jest.fn().mockReturnValue(mockQueryResult);
-const mockOrder = jest.fn().mockReturnValue(mockQueryResult);
-const mockRange = jest.fn().mockReturnValue(mockQueryResult);
-const mockOr = jest.fn().mockReturnValue(mockQueryResult);
-const mockIn = jest.fn().mockReturnValue(mockQueryResult);
-const mockOverlaps = jest.fn().mockReturnValue(mockQueryResult);
-const mockGte = jest.fn().mockReturnValue(mockQueryResult);
-const mockLte = jest.fn().mockReturnValue(mockQueryResult);
-const mockEq = jest.fn().mockReturnValue(mockQueryResult);
-const mockMaybeSingle = jest.fn().mockResolvedValue({ data: null, error: null });
-const mockSingle = jest.fn().mockResolvedValue({ data: null, error: null });
+  // Create the chainable builder object
+  const builder: any = {
+    data: null,
+    error: null,
+    count: null,
+  };
 
-const mockFromResult = {
-  select: mockSelect,
-  insert: mockInsert,
-  order: mockOrder,
-  range: mockRange,
-  or: mockOr,
-  in: mockIn,
-  overlaps: mockOverlaps,
-  gte: mockGte,
-  lte: mockLte,
-  eq: mockEq,
-  maybeSingle: mockMaybeSingle,
-  single: mockSingle,
-};
+  // Helper to create chainable methods that return builder
+  const chainable = () => builder;
+  
+  // Helper to create terminal methods
+  const terminal = (result: any) => Promise.resolve(result);
 
-const mockFrom = jest.fn().mockReturnValue(mockFromResult);
+  builder.select = jest.fn(() => builder);
+  builder.insert = jest.fn(() => builder);
+  builder.order = jest.fn(() => builder);
+  builder.range = jest.fn(() => builder);
+  builder.or = jest.fn(() => builder);
+  builder.in = jest.fn(() => builder);
+  builder.overlaps = jest.fn(() => builder);
+  builder.gte = jest.fn(() => builder);
+  builder.lte = jest.fn(() => builder);
+  builder.eq = jest.fn(() => builder);
+  builder.maybeSingle = jest.fn(() => Promise.resolve({ data: null, error: null }));
+  builder.single = jest.fn(() => Promise.resolve({ data: null, error: null }));
+  
+  // Store the resolved value for chained calls
+  builder._resolve = (result: any) => {
+    Object.assign(mockQueryResult, result);
+    // Override the final await to return the result
+    Object.setPrototypeOf(builder, Promise.prototype);
+    return Promise.resolve(result);
+  };
+
+  return { builder, mockQueryResult };
+}
+
+let mockBuilder = createMockQueryBuilder().builder;
+let mockQueryResult = createMockQueryBuilder().mockQueryResult;
+
+const mockFrom = jest.fn(() => mockBuilder);
 
 // Reset all mocks before each test
 const resetMocks = () => {
-  mockSelect.mockClear().mockReturnValue(mockQueryResult);
-  mockInsert.mockClear().mockReturnValue(mockQueryResult);
-  mockOrder.mockClear().mockReturnValue(mockQueryResult);
-  mockRange.mockClear().mockReturnValue(mockQueryResult);
-  mockOr.mockClear().mockReturnValue(mockQueryResult);
-  mockIn.mockClear().mockReturnValue(mockQueryResult);
-  mockOverlaps.mockClear().mockReturnValue(mockQueryResult);
-  mockGte.mockClear().mockReturnValue(mockQueryResult);
-  mockLte.mockClear().mockReturnValue(mockQueryResult);
-  mockEq.mockClear().mockReturnValue(mockQueryResult);
-  mockMaybeSingle.mockClear().mockResolvedValue({ data: null, error: null });
-  mockSingle.mockClear().mockResolvedValue({ data: null, error: null });
-  mockFrom.mockClear().mockReturnValue(mockFromResult);
-  mockQueryResult.data = null;
-  mockQueryResult.error = null;
-  mockQueryResult.count = null;
+  const fresh = createMockQueryBuilder();
+  mockBuilder = fresh.builder;
+  mockQueryResult = fresh.mockQueryResult;
+  mockFrom.mockReturnValue(mockBuilder);
+};
+
+// Helper to set up the mock response for chained calls
+const setMockResponse = (result: any) => {
+  // Mock the select method to return a thenable that resolves to the result
+  mockBuilder.select.mockImplementation(() => {
+    return {
+      ...mockBuilder,
+      then: (resolve: any) => resolve(result),
+    };
+  });
 };
 
 jest.mock('@supabase/supabase-js', () => ({
@@ -91,18 +103,31 @@ describe('GET /api/customers', () => {
       },
     ];
 
-    // First call: get customers
-    mockSelect
-      .mockResolvedValueOnce({
+    // Mock the chain to return customers with count
+    const mockChain = {
+      ...mockBuilder,
+      then: (resolve: any) => resolve({
         data: mockCustomers,
         error: null,
         count: 1,
-      })
-      // Second call: get quotes for stats
-      .mockResolvedValueOnce({
-        data: [],
-        error: null,
-      });
+      }),
+    };
+
+    // First call returns customers
+    mockBuilder.select.mockImplementation((...args: any[]) => {
+      if (args[0] === '*') {
+        // Main query
+        return mockChain;
+      }
+      // Quotes query for stats
+      return {
+        ...mockBuilder,
+        then: (resolve: any) => resolve({
+          data: [],
+          error: null,
+        }),
+      };
+    });
 
     const request = new NextRequest('http://localhost:3000/api/customers');
     const response = await GET(request);
