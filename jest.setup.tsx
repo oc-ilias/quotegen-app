@@ -432,42 +432,34 @@ jest.mock('@/lib/supabase', () => ({
     from: jest.fn((table: string) => {
       const defaultReturn = { data: null, error: null };
       
-      // Return different mock builders based on expected usage
-      return {
-        select: jest.fn((columns?: string) => ({
-          eq: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue(defaultReturn),
-            maybeSingle: jest.fn().mockResolvedValue(defaultReturn),
-            order: jest.fn(() => ({
-              limit: jest.fn().mockResolvedValue(defaultReturn),
-            })),
-          })),
-          order: jest.fn(() => ({
-            limit: jest.fn().mockResolvedValue(defaultReturn),
-          })),
-          single: jest.fn().mockResolvedValue(defaultReturn),
-          maybeSingle: jest.fn().mockResolvedValue(defaultReturn),
-        })),
-        insert: jest.fn((data: any) => ({
-          select: jest.fn(() => ({
-            single: jest.fn().mockResolvedValue({ data: Array.isArray(data) ? data[0] : data, error: null }),
-          })),
-          then: jest.fn((callback) => Promise.resolve({ data, error: null }).then(callback)),
-        })),
-        update: jest.fn((data: any) => ({
-          eq: jest.fn(() => ({
-            select: jest.fn(() => ({
-              single: jest.fn().mockResolvedValue({ data, error: null }),
-            })),
-            single: jest.fn().mockResolvedValue({ data, error: null }),
-            then: jest.fn((callback) => Promise.resolve({ data, error: null }).then(callback)),
-          })),
-        })),
-        delete: jest.fn(() => ({
-          eq: jest.fn().mockResolvedValue({ data: null, error: null }),
-        })),
-        eq: jest.fn(() => createMockQueryBuilder()),
+      // Create a comprehensive mock query builder that supports all chain methods
+      const createQueryBuilder = (returnValue = defaultReturn) => {
+        const builder: any = {};
+        
+        // Chain methods that return the builder
+        const chainMethods = [
+          'select', 'insert', 'update', 'delete', 'upsert',
+          'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
+          'like', 'ilike', 'is', 'in', 'contains',
+          'containedBy', 'overlaps', 'or', 'and',
+          'order', 'limit', 'range', 'match'
+        ];
+        
+        chainMethods.forEach(method => {
+          builder[method] = jest.fn(() => builder);
+        });
+        
+        // Terminating methods that return promises
+        builder.single = jest.fn().mockResolvedValue(returnValue);
+        builder.maybeSingle = jest.fn().mockResolvedValue(returnValue);
+        
+        // Thenable for await support
+        builder.then = jest.fn((callback: any) => Promise.resolve(returnValue).then(callback));
+        
+        return builder;
       };
+      
+      return createQueryBuilder();
     }),
     auth: {
       getUser: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),

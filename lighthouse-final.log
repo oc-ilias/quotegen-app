@@ -1,0 +1,32 @@
+
+> app@0.1.0 lighthouse:ci
+> lhci autorun --config=./lighthouserc.json
+
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+⚠️   GitHub token not set
+Healthcheck passed!
+
+Error: Command exited with code 1
+    at ChildProcess.exitListener (/root/.openclaw/workspace/quotegen-app/node_modules/@lhci/utils/src/child-process-helper.js:51:19)
+    at ChildProcess.emit (node:events:519:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12)
+
+> app@0.1.0 start
+> next start
+
+▲ Next.js 16.1.6
+- Local:         http://localhost:3000
+- Network:       http://76.13.140.146:3000
+
+✓ Starting...
+
+Error: ENOENT: no such file or directory, open '/root/.openclaw/workspace/quotegen-app/dist/prerender-manifest.json'
+    at ignore-listed frames {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/root/.openclaw/workspace/quotegen-app/dist/prerender-manifest.json'
+}
+

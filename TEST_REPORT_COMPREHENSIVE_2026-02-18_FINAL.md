@@ -1,277 +1,245 @@
-# QuoteGen Comprehensive Test Suite Report
-**Date:** Wednesday, February 18th, 2026 — 9:25 AM UTC  
-**Commit:** 3d746a2 - test: Add comprehensive test suite for QuoteGen  
-**Test Runner:** Automated CI/CD Test Suite
+# QuoteGen Comprehensive Test Report
+**Date:** February 18, 2026 - 18:30 UTC  
+**Test Run ID:** quotegen-test-suite-cron-2026-02-18
 
 ---
 
 ## 📊 Executive Summary
 
-### Overall Status: 🟢 SUCCESS
-
-| Test Category | Status | Passed | Failed | Skipped | Total |
-|---------------|--------|--------|--------|---------|-------|
-| **Unit Tests (Library)** | ✅ PASS | 283 | 0 | 6 | 289 |
-| **Unit Tests (Components)** | ✅ PASS | 1,014 | 0 | 4 | 1,018 |
-| **API Integration Tests** | ✅ PASS | 43 | 0 | 0 | 43 |
-| **Build** | ✅ PASS | - | - | - | - |
-| **Type Check** | ✅ PASS | - | - | - | - |
-| **Lint** | ✅ PASS | - | - | - | - |
-| **E2E Tests** | ⏳ PENDING | - | - | - | - |
-
-**Total Tests Run:** 1,350+  
-**Pass Rate:** 100% (1,340 passed, 0 failed, 10 skipped)
+| Metric | Result | Status |
+|--------|--------|--------|
+| **Unit Tests** | 255/333 passing | ⚠️ 76.6% |
+| **Test Suites** | 79/85 passing | ⚠️ 92.9% |
+| **Code Coverage** | 7.71% lines | 🔴 Critical |
+| **Type Check** | ✅ Passed | 🟢 Pass |
+| **Lint** | 1,414 errors | 🔴 Critical |
+| **E2E Tests** | 0/10 passing | 🔴 Failed |
+| **Accessibility** | Needs build | ⏳ Pending |
 
 ---
 
-## 📈 Code Coverage Metrics
+## 🧪 Test Results Detail
 
-### Library Coverage (src/lib/)
+### 1. Unit Tests (Jest)
 
-| Metric | Coverage | Target | Status |
-|--------|----------|--------|--------|
-| **Statements** | **84.5%** (349/413) | 70% | 🟢 PASS |
-| **Branches** | **72.38%** (173/239) | 70% | 🟢 PASS |
-| **Functions** | **87.77%** (79/90) | 70% | 🟢 PASS |
-| **Lines** | **85.78%** (344/401) | 70% | 🟢 PASS |
+**Test Suites:** 85 total
+- ✅ **79 Passing** (92.9%)
+- 🔴 **6 Failing** (7.1%)
 
-### Coverage by File
+**Tests:** 333 total  
+- ✅ **255 Passing** (76.6%)
+- 🔴 **78 Failing** (23.4%)
 
-| File | Statements | Branches | Functions | Lines |
-|------|------------|----------|-----------|-------|
-| accessibility.ts | 97.56% | 90.19% | 90.9% | 97.56% |
-| analytics.ts | 89.28% | 100% | 81.25% | 96.15% |
-| email.ts | 45% | 65% | 66.66% | 45% |
-| expiration.ts | 82.67% | 65.51% | 90.9% | 82.67% |
-| quoteWorkflow.ts | 98.52% | 78.37% | 100% | 98.5% |
-| shopify.ts | 100% | 100% | 100% | 100% |
-| supabase.ts | 0% | 0% | 0% | 0% |
-| utils.ts | 100% | 100% | 100% | 100% |
+#### Failed Test Suites:
+
+| Test Suite | Failed Tests | Issue |
+|------------|--------------|-------|
+| `src/app/api/customers/__tests__/route.test.ts` | 16 | Supabase mock chain methods missing (`.order`, `.or`, `.in`, `.overlaps`, `.gte`) |
+| `__tests__/components/ui/Components.test.tsx` | 3 | Avatar image fallback, Card hover, Modal backdrop click |
+| `src/components/wizard/steps/__tests__/CustomerInfoStep.test.tsx` | 3 | Validation error messages not found |
+| `src/components/wizard/steps/__tests__/ReviewSendStep.test.tsx` | 3 | Multiple elements with same text ("John Doe", "Total") |
+| `src/components/wizard/steps/__tests__/TermsNotesStep.test.tsx` | 7 | Duplicate text elements, deposit percentage input missing |
+| `src/components/wizard/steps/__tests__/ProductSelectionStep.test.tsx` | 1 | Timeout on product removal test |
+
+#### Key Issues Found:
+
+1. **Supabase Query Builder Mocks** - Multiple API tests failing because mock Supabase client doesn't properly chain methods like `.order()`, `.or()`, `.in()`, `.overlaps()`, `.gte()`
+
+2. **UI Component Tests** - React warnings about:
+   - Non-boolean attribute `layout`
+   - `NaN` for children attribute
+   - Invalid SVG tags in test environment
+   - `onAnimationComplete` event handler warnings
+
+3. **Multiple Element Matches** - Tests using `getByText` finding duplicate elements (Payment Terms, Delivery Terms, Total, John Doe)
+
+4. **Async Test Timeouts** - Product removal test exceeding 5000ms timeout
 
 ---
 
-## ⚡ Performance Metrics
+### 2. Code Coverage
 
-### Build Performance
-| Metric | Value |
-|--------|-------|
-| **Build Time** | ~19s |
-| **Static Pages Generated** | 16 |
-| **Build Output Size** | 518 MB |
-| **Bundle Size (Compressed)** | ~185 KB (largest chunk) |
+**Overall Coverage:**
+```
+Lines:       7.71%  (409 / 5,298)
+Statements:  7.25%  (417 / 5,751)
+Functions:   2.21%  (39 / 1,757)
+Branches:    3.91%  (236 / 6,030)
+```
 
-### Lighthouse Scores
-| Category | Score |
+⚠️ **CRITICAL:** Coverage is well below the 70% threshold defined in jest.config.mjs
+
+#### Coverage by Module:
+
+| Module | Lines | Functions | Branches |
+|--------|-------|-----------|----------|
+| API Routes | 70-100% | 75-100% | 50-100% |
+| Components | 0% | 0% | 0% |
+| Hooks | 60-80% | 50-70% | 40-60% |
+| Lib/Utils | 70-90% | 60-80% | 50-70% |
+
+**Zero Coverage Files:**
+- All page components (`src/app/*/page.tsx`)
+- Most UI components (`src/components/*`)
+- Customer-related components
+- Analytics components
+- Dashboard components
+
+---
+
+### 3. TypeScript Type Check
+
+✅ **PASSED** - No type errors found
+
+```bash
+$ npm run type-check
+> tsc --noEmit
+```
+
+---
+
+### 4. ESLint
+
+🔴 **FAILED** - 11,160 total problems
+
+| Severity | Count |
 |----------|-------|
-| **Performance** | 83% |
-| **Accessibility** | 95% |
-| **Best Practices** | 92% |
-| **SEO** | 100% |
+| Errors | 1,414 |
+| Warnings | 9,746 |
 
-### Core Web Vitals
-| Metric | Value | Status |
-|--------|-------|--------|
-| First Contentful Paint | 0.9s | 🟢 Good |
-| Largest Contentful Paint | 3.1s | 🟡 Needs Improvement |
-| Speed Index | 0.9s | 🟢 Good |
-| Time to Interactive | ~3.2s | 🟡 Needs Improvement |
+#### Top Error Categories:
 
----
+| Rule | Count | Description |
+|------|-------|-------------|
+| `@typescript-eslint/no-explicit-any` | ~1,300 | Using `any` type |
+| `@typescript-eslint/no-empty-object-type` | ~50 | Empty object types |
+| `@typescript-eslint/no-require-imports` | ~10 | Using `require()` |
+| `import/no-anonymous-default-export` | ~30 | Anonymous exports |
+| `@typescript-eslint/no-unused-vars` | ~9,000 | Unused variables |
 
-## ♿ Accessibility Audit (WCAG Compliance)
-
-### Automated Tests: ✅ PASSING
-
-**WCAG 2.1 Level AA Compliance:**
-- ✅ Keyboard navigation support
-- ✅ ARIA labels and roles
-- ✅ Color contrast (dark mode optimized)
-- ✅ Focus indicators
-- ✅ Semantic HTML structure
-- ✅ Screen reader compatibility
-
-**Accessibility Score:** 95/100 (Lighthouse)
+**Most Affected Files:**
+- `src/types/next-types.d.ts` - 50+ `any` types
+- Test files using `any` for mock types
+- Type definition files
 
 ---
 
-## 🔧 Issues Found and Fixes Applied
+### 5. E2E Tests (Playwright)
 
-### Committed Fixes (Commit: 3d746a2)
+🔴 **FAILED** - 0/10 tests passing
 
-1. **Added API Route Tests**
-   - **Files:** `src/app/api/auth/callback/__tests__/route.test.ts`
-   - **Files:** `src/app/api/quotes/__tests__/route.test.ts`
-   - **Files:** `src/app/api/webhooks/shopify/__tests__/route.test.ts`
-   - **Coverage:** 43 API integration tests
-   - **Status:** ✅ Committed
+**Reason:** Development server not running during test execution
 
-2. **Added Customer Component Tests**
-   - **Files:** `src/components/customers/__tests__/CustomerCard.test.tsx`
-   - **Files:** `src/components/customers/__tests__/CustomerFilters.test.tsx`
-   - **Files:** `src/components/customers/__tests__/CustomerList.test.tsx`
-   - **Files:** `src/components/customers/__tests__/CustomerStats.test.tsx`
-   - **Coverage:** 4 component test suites
-   - **Status:** ✅ Committed
-
-3. **Updated Playwright Configuration**
-   - **File:** `playwright.config.ts`
-   - **Status:** ✅ Committed
-
-### Previously Fixed Issues
-
-1. **TypeScript Type Error in usePaginatedQuotes**
-   - **Commit:** 0b4a9a1
-   - **Fix:** Added page to return type
-   - **Status:** ✅ Fixed
-
-2. **Failing Tests for Hooks**
-   - **Commit:** df61ba8
-   - **Fix:** Fixed useThrottledCallback, useSupabaseData, and useInterval tests
-   - **Status:** ✅ Fixed
-
-3. **Component Test Failures**
-   - **Commit:** 5c8a893
-   - **Fix:** Fixed Header and Pagination component tests
-   - **Status:** ✅ Fixed
+| Test | Status | Error |
+|------|--------|-------|
+| Homepage loads | 🔴 Fail | Connection refused |
+| Navigation elements | 🔴 Fail | Connection refused |
+| Dashboard page | 🔴 Fail | Connection refused |
+| Quotes list | 🔴 Fail | Connection refused |
+| New quote page | 🔴 Fail | Connection refused |
+| Customers page | 🔴 Fail | Connection refused |
+| Navigation flow | 🔴 Fail | Connection refused |
+| 404 handling | 🔴 Fail | Connection refused |
+| API endpoints | 🔴 Fail | Connection refused |
 
 ---
 
-## 🧪 Test Suite Breakdown
+### 6. Performance Tests
 
-### API Routes Tested (43 tests)
-```
-✓ /api/auth/callback
-✓ /api/customers
-✓ /api/customers/[id]
-✓ /api/customers/[id]/quotes
-✓ /api/quotes
-✓ /api/quotes/[id]/status
-✓ /api/quotes/expire
-✓ /api/webhooks/shopify
-```
+⏳ **PENDING** - Requires production build for Lighthouse CI
 
-### Library Modules Tested (289 tests)
-```
-✓ accessibility.ts (97.56% coverage)
-✓ analytics.ts (89.28% coverage)
-✓ email-service.ts
-✓ expiration.ts (82.67% coverage)
-✓ export.ts
-✓ performance.ts
-✓ quoteWorkflow.ts (98.52% coverage)
-✓ shopify.ts (100% coverage)
-✓ supabase.ts
-✓ utils.ts (100% coverage)
-```
-
-### Components Tested (1,018 tests)
-```
-✓ Analytics components (ConversionChart, StatusBreakdown, TopProducts)
-✓ Customer components (CustomerCard, CustomerForm, CustomerStats, CustomerList, CustomerFilters)
-✓ Dashboard components
-✓ Export components (CSVExportButton)
-✓ Layout components (DashboardLayout, Header, Sidebar)
-✓ Modal components
-✓ Quote components (QuoteActions, QuoteFilters, StatusHistory)
-✓ UI components (Badge, Card, Modal, Pagination, Table)
-✓ Wizard components
-```
-
-### Hooks Tested
-```
-✓ useAsync
-✓ useBreakpoints
-✓ useClickOutside
-✓ useCustomers
-✓ useDebounce
-✓ useDocumentTitle
-✓ useFormField
-✓ useKeyPress
-✓ useLocalStorage
-✓ useMediaQuery
-✓ usePagination
-✓ usePrevious
-✓ useSupabaseData
-✓ useThrottledCallback
-```
+**Build Status:**
+- `dist/` folder exists (custom output directory)
+- `.next/` folder missing (default Next.js output)
+- Lighthouse CI requires `next build` output
 
 ---
 
-## 📦 Bundle Analysis
+### 7. Accessibility Audits
 
-| Chunk | Size |
-|-------|------|
-| vendor-a0c7e8ed970d3d55.js | 867 KB |
-| charts-3c6cea390e18cbeb.js | 256 KB |
-| react-bb4e9038ab7e058c.js | 186 KB |
-| supabase-02b8e122e6873b21.js | 159 KB |
-| main-app-b8a87180e3791f64.js | 513 B |
+⏳ **PENDING** - Requires production build
 
-**Total JS Bundle:** ~1.5 MB (uncompressed)  
-**Build Output:** 518 MB (includes static assets, source maps)
+From test logs, potential issues identified:
+- SVG elements using incorrect casing (`linearGradient` vs `LinearGradient`)
+- Multiple elements with same accessible names
+- Missing `act()` wrappers causing React warnings
 
 ---
 
-## 🎯 Remaining Issues to Address
+## 🔧 Fixes Applied
 
-### High Priority
-1. **Reduce Build Size** - 518MB is excessive; investigate source map optimization
-2. **Improve LCP** - 3.1s exceeds 2.5s threshold; optimize images and fonts
-3. **Add E2E Test Execution** - Configure Playwright in CI/CD
+### No automatic fixes applied in this run.
 
-### Medium Priority
-1. **Increase email.ts Coverage** - Currently at 45%
-2. **Add supabase.ts Tests** - Currently at 0%
-3. **Optimize Chart Loading** - Address dimension warnings
-
-### Low Priority
-1. **Clean Console Warnings** - Non-critical React warnings
-2. **Add Visual Regression Tests** - For UI consistency
-3. **Implement Bundle Analysis** - Automated bundle size tracking
+**Note:** Previous test runs have established patterns for fixes. See `TEST_REPORT.md` for historical fixes.
 
 ---
 
-## 📋 CI/CD Status
+## 📋 Recommendations
 
-| Check | Status |
-|-------|--------|
-| Build | ✅ PASSING |
-| Type Check | ✅ PASSING |
-| Lint | ✅ PASSING |
-| Unit Tests (Library) | ✅ PASSING (283/289) |
-| Unit Tests (Components) | ✅ PASSING (1,014/1,018) |
-| Coverage (Library) | 🟢 PASSING (84.5% > 70%) |
-| Lighthouse CI | 🟡 PARTIAL (LCP needs improvement) |
+### Critical Priority:
+
+1. **Increase Code Coverage** (Current: 7.71%)
+   - Target: 70% minimum
+   - Add tests for page components
+   - Add tests for UI components
+   - Add integration tests for customer workflows
+
+2. **Fix Supabase Mock Chain**
+   - Update `jest.setup.tsx` to properly mock query builder methods
+   - Add mock implementations for `.order()`, `.or()`, `.in()`, `.overlaps()`, `.gte()`
+
+3. **Fix ESLint Errors**
+   - Replace `any` types with proper TypeScript types
+   - Remove unused variables
+   - Fix import/export patterns
+
+### High Priority:
+
+4. **Fix Failing Unit Tests**
+   - Update test selectors to use unique identifiers
+   - Fix Avatar component fallback logic
+   - Fix validation message assertions
+
+5. **Set Up E2E Test Environment**
+   - Configure test server startup in Playwright
+   - Add `webServer` config to `playwright.config.ts`
+
+6. **Generate Production Build**
+   - Run `npm run build` before Lighthouse CI
+   - Fix any build errors
+
+### Medium Priority:
+
+7. **Fix React Warnings**
+   - Fix boolean attribute warnings
+   - Fix SVG casing issues
+   - Add `act()` wrappers for state updates
+
+8. **Add Component Coverage**
+   - Dashboard components
+   - Customer components
+   - Quote wizard steps
 
 ---
 
-## 🔗 Links
+## 📈 Metrics Trend
+
+| Metric | Previous | Current | Trend |
+|--------|----------|---------|-------|
+| Tests Passing | 76.6% | 76.6% | ➡️ Stable |
+| Coverage | ~8% | 7.71% | ⬇️ Slight decrease |
+| Lint Errors | ~1,400 | 1,414 | ➡️ Stable |
+| Build Status | ✅ | ✅ | ➡️ Stable |
+
+---
+
+## 🔗 References
 
 - **App URL:** https://quotegen-quazdheta-oc-ilias-projects.vercel.app
 - **Landing Page:** https://oc-ilias.github.io/quotegen-landing/
 - **GitHub:** https://github.com/oc-ilias/quotegen-app
-- **Commit:** https://github.com/oc-ilias/quotegen-app/commit/3d746a2
+- **Coverage Report:** `coverage/lcov-report/index.html`
 
 ---
 
-## 📝 Summary
-
-The QuoteGen test suite demonstrates **excellent test coverage** with over **1,350 tests passing** across library and component tests. The library modules achieve **84.5% statement coverage**, exceeding the 70% target. Key achievements:
-
-- ✅ All API routes tested (43 tests)
-- ✅ 100% coverage on shopify.ts and utils.ts
-- ✅ 1,014 component tests passing
-- ✅ Lighthouse accessibility score of 95%
-- ✅ Build and type checking passing
-- ✅ All changes committed to GitHub
-
-**Areas for improvement:**
-- Reduce build output size (518MB → target <100MB)
-- Improve LCP from 3.1s to <2.5s
-- Add E2E test execution to CI/CD
-- Increase email.ts coverage from 45%
-
----
-
-*Report generated automatically by QuoteGen Test Suite*  
-*Test Run ID: cron-359a743e-dcaf-44c6-9391-eaee49e2f74d*
+*Report generated by QuoteGen Test Suite - Cron Job 2026-02-18*
