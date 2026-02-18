@@ -62,21 +62,6 @@ export default defineConfig({
     },
   ],
 
-  // Web server configuration with Node.js 22+ compatibility
-  webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120 * 1000,
-    stdout: 'pipe',
-    stderr: 'pipe',
-    env: {
-      // Ensure Node.js 22+ compatibility
-      NODE_OPTIONS: '--no-warnings',
-      NODE_ENV: 'test',
-    },
-  },
-
   // Global setup/teardown for Node.js 22+ compatibility
   globalSetup: './e2e/global-setup.ts',
   globalTeardown: './e2e/global-teardown.ts',
