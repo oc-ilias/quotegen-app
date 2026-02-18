@@ -151,44 +151,46 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key';
 // Window API Mocks
 // ============================================================================
 
-// Mock window.matchMedia
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(),
-    removeListener: jest.fn(),
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
+// Mock window.matchMedia (only in jsdom environment)
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
 
-// Mock IntersectionObserver
-class MockIntersectionObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
+  // Mock IntersectionObserver
+  class MockIntersectionObserver {
+    observe = jest.fn();
+    disconnect = jest.fn();
+    unobserve = jest.fn();
+  }
+
+  Object.defineProperty(window, 'IntersectionObserver', {
+    writable: true,
+    value: MockIntersectionObserver,
+  });
+
+  // Mock ResizeObserver
+  class MockResizeObserver {
+    observe = jest.fn();
+    disconnect = jest.fn();
+    unobserve = jest.fn();
+  }
+
+  Object.defineProperty(window, 'ResizeObserver', {
+    writable: true,
+    value: MockResizeObserver,
+  });
 }
-
-Object.defineProperty(window, 'IntersectionObserver', {
-  writable: true,
-  value: MockIntersectionObserver,
-});
-
-// Mock ResizeObserver
-class MockResizeObserver {
-  observe = jest.fn();
-  disconnect = jest.fn();
-  unobserve = jest.fn();
-}
-
-Object.defineProperty(window, 'ResizeObserver', {
-  writable: true,
-  value: MockResizeObserver,
-});
 
 // Mock URL methods
 global.URL.createObjectURL = jest.fn(() => 'mock-url');
