@@ -14,8 +14,13 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
+    "test:e2e:smoke": "playwright test e2e/smoke.spec.ts",
+    "test:e2e:ci": "playwright test --reporter=list",
     "type-check": "tsc --noEmit",
-    "analyze": "cross-env ANALYZE=true next build"
+    "analyze": "cross-env ANALYZE=true next build",
+    "lighthouse": "lhci autorun",
+    "lighthouse:local": "npm run build && lhci autorun",
+    "lighthouse:server": "lhci server --config=lighthouserc-server.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
@@ -58,6 +63,8 @@
     "eslint-config-next": "16.1.6",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",
+    "@lhci/cli": "^0.15.1",
+    "@lhci/server": "^0.15.1",
     "lighthouse": "^13.0.3",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",

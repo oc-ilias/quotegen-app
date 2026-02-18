@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../tsconfig.json",
   "compilerOptions": {
     "target": "ES2022",
     "module": "NodeNext",
@@ -12,7 +12,7 @@
     "noEmit": true
   },
   "include": [
-    "e2e/**/*.ts"
+    "**/*.ts"
   ],
   "exclude": [
     "node_modules"

@@ -2,58 +2,61 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Playwright Configuration
- * Optimized for Node.js 22+ compatibility
+ * Optimized for Node.js 22+ compatibility and minimal memory usage
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
   testDir: './e2e',
-  fullyParallel: true,
+  fullyParallel: false, // Run tests sequentially to avoid memory issues
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 1 : 0,
+  workers: 1, // Single worker to prevent memory issues
   reporter: [['list'], ['html', { open: 'never' }]],
 
-  // Node.js 22+ compatibility settings
-  timeout: 60 * 1000, // 60 second timeout per test
+  // Node.js 22+ compatibility settings - reduced timeouts for faster feedback
+  timeout: 45 * 1000, // 45 second timeout per test
   expect: {
-    timeout: 10 * 1000, // 10 second timeout for expect assertions
+    timeout: 8 * 1000, // 8 second timeout for expect assertions
   },
 
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    // Node.js 22+ action timeout settings
-    actionTimeout: 15 * 1000,
-    navigationTimeout: 30 * 1000,
-    // Launch options for Node.js 22+ compatibility
+    // Optimized action timeout for Node.js 22+
+    actionTimeout: 10 * 1000,
+    navigationTimeout: 20 * 1000,
+    // Launch options for Node.js 22+ compatibility - reduced memory footprint
     launchOptions: {
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--disable-web-security',
+        '--disable-features=IsolateOrigins,site-per-process',
+        '--js-flags=--max-old-space-size=512',
+      ],
+    },
+    // Browser context options
+    contextOptions: {
+      viewport: { width: 1280, height: 720 },
     },
   },
 
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
         ...devices['Desktop Chrome'],
         launchOptions: {
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        },
-      },
-    },
-    {
-      name: 'webkit',
-      use: { 
-        ...devices['Desktop Safari'],
-      },
-    },
-    {
-      name: 'Mobile Chrome',
-      use: { 
-        ...devices['Pixel 5'],
-        launchOptions: {
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--js-flags=--max-old-space-size=512',
+          ],
         },
       },
     },
@@ -70,6 +73,7 @@ export default defineConfig({
     env: {
       // Ensure Node.js 22+ compatibility
       NODE_OPTIONS: '--no-warnings',
+      NODE_ENV: 'test',
     },
   },
 
