@@ -57,8 +57,8 @@ describe('Card Component', () => {
   });
 
   it('applies hover effect when hover is true', () => {
-    render(<Card hover>Content</Card>);
-    expect(screen.getByText('Content').parentElement).toHaveClass('hover:shadow-lg');
+    const { container } = render(<Card hover>Content</Card>);
+    expect(container.firstChild).toHaveClass('hover:shadow-lg');
   });
 
   it('handles click events', () => {
@@ -154,7 +154,8 @@ describe('Modal Component', () => {
         Content
       </Modal>
     );
-    const backdrop = document.querySelector('.fixed.inset-0');
+    // The backdrop is the element with bg-slate-900/80 class
+    const backdrop = document.querySelector('.bg-slate-900\\/80');
     if (backdrop) {
       fireEvent.click(backdrop);
       expect(handleClose).toHaveBeenCalled();
@@ -315,7 +316,7 @@ describe('Pagination Component', () => {
     expect(screen.getByLabelText('Page 5')).toHaveAttribute('aria-current', 'page');
   });
 
-  it('renders with showPageNumbers prop', () => {
+  it('renders with showPageNumbers', () => {
     render(
       <Pagination
         currentPage={1}
