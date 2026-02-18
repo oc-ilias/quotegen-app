@@ -39,45 +39,46 @@ describe('Card Components', () => {
     });
 
     it('applies default hover effect', () => {
-      render(<Card>Content</Card>);
-      const card = screen.getByText('Content').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card>Content</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('hover:shadow-lg');
       expect(card).toHaveClass('hover:-translate-y-0.5');
     });
 
     it('removes hover effect when hover is false', () => {
-      render(<Card hover={false}>No Hover</Card>);
-      const card = screen.getByText('No Hover').parentElement;
+      const { container } = render(<Card hover={false}>No Hover</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).not.toHaveClass('hover:shadow-lg');
     });
 
     it('applies md padding by default', () => {
       render(<Card>Content</Card>);
-      const card = screen.getByText('Content').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card>Content</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('p-6');
     });
 
     it('applies sm padding', () => {
-      render(<Card padding="sm">Small Padding</Card>);
-      const card = screen.getByText('Small Padding').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card padding="sm">Small Padding</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('p-4');
     });
 
     it('applies lg padding', () => {
-      render(<Card padding="lg">Large Padding</Card>);
-      const card = screen.getByText('Large Padding').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card padding="lg">Large Padding</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('p-8');
     });
 
     it('applies no padding', () => {
-      render(<Card padding="none">No Padding</Card>);
-      const card = screen.getByText('No Padding').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card padding="none">No Padding</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('p-0');
     });
 
     it('applies custom className', () => {
-      render(<Card className="custom-card">Content</Card>);
-      expect(screen.getByText('Content').closest('div[class*="bg-slate-800"]')).toHaveClass('custom-card');
+      const { container } = render(<Card className="custom-card">Content</Card>);
+      expect(container.querySelector('.bg-slate-800')).toHaveClass('custom-card');
     });
 
     it('forwards ref correctly', () => {
@@ -88,7 +89,8 @@ describe('Card Components', () => {
 
     it('has proper base styling', () => {
       render(<Card>Content</Card>);
-      const card = screen.getByText('Content').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card>Content</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('bg-slate-800');
       expect(card).toHaveClass('border');
       expect(card).toHaveClass('border-slate-700');
@@ -98,7 +100,8 @@ describe('Card Components', () => {
 
     it('has transition classes for hover effects', () => {
       render(<Card>Content</Card>);
-      const card = screen.getByText('Content').closest('div[class*="bg-slate-800"]');
+      const { container } = render(<Card>Content</Card>);
+      const card = container.querySelector('.bg-slate-800');
       expect(card).toHaveClass('transition-all');
       expect(card).toHaveClass('duration-200');
     });
@@ -419,16 +422,16 @@ describe('Card Components', () => {
     });
 
     it('renders card with different padding sizes', () => {
-      const { rerender } = render(
+      const { rerender, container } = render(
         <Card padding="sm">Small</Card>
       );
-      expect(screen.getByText('Small').closest('div[class*="bg-slate-800"]')).toHaveClass('p-4');
+      expect(container.querySelector('.bg-slate-800')).toHaveClass('p-4');
 
       rerender(<Card padding="md">Medium</Card>);
-      expect(screen.getByText('Medium').closest('div[class*="bg-slate-800"]')).toHaveClass('p-6');
+      expect(container.querySelector('.bg-slate-800')).toHaveClass('p-6');
 
       rerender(<Card padding="lg">Large</Card>);
-      expect(screen.getByText('Large').closest('div[class*="bg-slate-800"]')).toHaveClass('p-8');
+      expect(container.querySelector('.bg-slate-800')).toHaveClass('p-8');
     });
 
     it('renders card without hover effect', () => {
@@ -540,16 +543,16 @@ describe('Card Components', () => {
     });
 
     it('handles rapid prop changes', () => {
-      const { rerender } = render(
+      const { rerender, container } = render(
         <Card padding="sm">Content</Card>
       );
-      expect(screen.getByText('Content').closest('div[class*="bg-slate-800"]')).toHaveClass('p-4');
+      expect(container.querySelector('.bg-slate-800')).toHaveClass('p-4');
 
       rerender(<Card padding="lg">Content</Card>);
-      expect(screen.getByText('Content').closest('div[class*="bg-slate-800"]')).toHaveClass('p-8');
+      expect(container.querySelector('.bg-slate-800')).toHaveClass('p-8');
 
       rerender(<Card hover={false}>Content</Card>);
-      const card = screen.getByText('Content').closest('div[class*="bg-slate-800"]');
+      const card = container.querySelector('.bg-slate-800');
       expect(card).not.toHaveClass('hover:shadow-lg');
     });
   });

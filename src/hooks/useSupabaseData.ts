@@ -289,6 +289,7 @@ export function usePaginatedQuotes(
   options?: QueryOptions
 ): QueryState<PaginatedResult<QuoteWithCustomer>> & {
   setPage: (page: number) => void;
+  page: number;
 } {
   const { page: initialPage = 1, pageSize = 20 } = pagination;
   const [page, setPage] = useState(initialPage);
@@ -349,6 +350,7 @@ export function usePaginatedQuotes(
 
   return {
     ...result,
+    page,
     setPage,
   };
 }
