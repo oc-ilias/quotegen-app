@@ -314,7 +314,12 @@ describe('Pagination Component', () => {
     render(<Pagination {...defaultProps} currentPage={5} />);
     expect(screen.getByLabelText('Page 5')).toHaveAttribute('aria-current', 'page');
   });
-});
+
+  it('renders with showPageNumbers prop', () => {
+    render(
+      <Pagination
+        currentPage={1}
+        totalPages={10}
         totalItems={100}
         onPageChange={() => {}}
         showPageNumbers
