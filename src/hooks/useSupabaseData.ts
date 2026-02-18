@@ -350,7 +350,6 @@ export function usePaginatedQuotes(
   return {
     ...result,
     setPage,
-    page, // Expose current page state for synchronous access
   };
 }
 
