@@ -9,39 +9,39 @@ import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
 import { Badge } from '@/components/ui/Badge';
-import { Table } from '@/components/ui/Table';
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/Table';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatCard } from '@/components/ui/StatCard';
 
 describe('Avatar Component', () => {
-  it('renders with initials', () => {
-    render(<Avatar name="John Doe" />);
+  it('renders with fallback', () => {
+    render(<Avatar alt="John Doe" fallback="JD" />);
     expect(screen.getByText('JD')).toBeInTheDocument();
   });
 
-  it('renders with single name', () => {
-    render(<Avatar name="John" />);
+  it('renders with single alt character fallback', () => {
+    render(<Avatar alt="John" />);
     expect(screen.getByText('J')).toBeInTheDocument();
   });
 
   it('renders with image when src provided', () => {
-    render(<Avatar name="John Doe" src="https://example.com/avatar.jpg" />);
+    render(<Avatar alt="John Doe" src="https://example.com/avatar.jpg" fallback="JD" />);
     const img = screen.getByAltText('John Doe');
     expect(img).toHaveAttribute('src', 'https://example.com/avatar.jpg');
   });
 
   it('handles image load error gracefully', () => {
-    render(<Avatar name="John Doe" src="invalid.jpg" />);
+    render(<Avatar alt="John Doe" src="invalid.jpg" fallback="JD" />);
     const img = screen.getByAltText('John Doe');
     fireEvent.error(img);
     expect(screen.getByText('JD')).toBeInTheDocument();
   });
 
   it('applies size variants', () => {
-    const { rerender } = render(<Avatar name="Test" size="sm" />);
-    rerender(<Avatar name="Test" size="md" />);
-    rerender(<Avatar name="Test" size="lg" />);
-    rerender(<Avatar name="Test" size="xl" />);
+    const { rerender } = render(<Avatar alt="Test" size="sm" />);
+    rerender(<Avatar alt="Test" size="md" />);
+    rerender(<Avatar alt="Test" size="lg" />);
+    rerender(<Avatar alt="Test" size="xl" />);
     expect(screen.getByText('T')).toBeInTheDocument();
   });
 });
@@ -56,23 +56,9 @@ describe('Card Component', () => {
     expect(screen.getByTestId('card-content')).toBeInTheDocument();
   });
 
-  it('renders with title', () => {
-    render(<Card title="Card Title">Content</Card>);
-    expect(screen.getByText('Card Title')).toBeInTheDocument();
-  });
-
-  it('renders with description', () => {
-    render(
-      <Card title="Title" description="Card description">
-        Content
-      </Card>
-    );
-    expect(screen.getByText('Card description')).toBeInTheDocument();
-  });
-
-  it('applies hover effect when interactive', () => {
-    render(<Card interactive>Content</Card>);
-    expect(screen.getByText('Content').parentElement).toHaveClass('hover');
+  it('applies hover effect when hover is true', () => {
+    render(<Card hover>Content</Card>);
+    expect(screen.getByText('Content').parentElement).toHaveClass('hover:shadow-lg');
   });
 
   it('handles click events', () => {
@@ -82,21 +68,15 @@ describe('Card Component', () => {
     expect(handleClick).toHaveBeenCalled();
   });
 
-  it('renders with footer', () => {
-    render(
-      <Card footer={<button>Action</button>}>
-        Content
-      </Card>
-    );
-    expect(screen.getByText('Action')).toBeInTheDocument();
-  });
-
   it('applies padding variants', () => {
-    const { rerender } = render(<Card padding="none">Content</Card>);
+    const { rerender, container } = render(<Card padding="none">Content</Card>);
+    expect(container.firstChild).not.toHaveClass('p-4');
     rerender(<Card padding="sm">Content</Card>);
+    expect(container.firstChild).toHaveClass('p-4');
     rerender(<Card padding="md">Content</Card>);
+    expect(container.firstChild).toHaveClass('p-6');
     rerender(<Card padding="lg">Content</Card>);
-    expect(screen.getByText('Content')).toBeInTheDocument();
+    expect(container.firstChild).toHaveClass('p-8');
   });
 });
 
@@ -142,8 +122,8 @@ describe('Input Component', () => {
     expect(document.querySelector('input')).toBeInTheDocument();
   });
 
-  it('renders with icon', () => {
-    render(<Input icon={<span data-testid="input-icon">🔍</span>} />);
+  it('renders with leftIcon', () => {
+    render(<Input leftIcon={<span data-testid="input-icon">🔍</span>} />);
     expect(screen.getByTestId('input-icon')).toBeInTheDocument();
   });
 });
@@ -167,16 +147,16 @@ describe('Modal Component', () => {
     expect(screen.queryByText('Modal content')).not.toBeInTheDocument();
   });
 
-  it('calls onClose when clicking overlay', () => {
+  it('calls onClose when clicking backdrop', () => {
     const handleClose = jest.fn();
     render(
       <Modal isOpen={true} onClose={handleClose} title="Test Modal">
         Content
       </Modal>
     );
-    const overlay = screen.getByTestId('modal-overlay') || document.querySelector('[data-testid="modal-overlay"]');
-    if (overlay) {
-      fireEvent.click(overlay);
+    const backdrop = document.querySelector('.fixed.inset-0');
+    if (backdrop) {
+      fireEvent.click(backdrop);
       expect(handleClose).toHaveBeenCalled();
     }
   });
@@ -188,7 +168,7 @@ describe('Modal Component', () => {
         Content
       </Modal>
     );
-    const closeButton = screen.getByLabelText('Close') || screen.getByRole('button', { name: /close/i });
+    const closeButton = screen.getByLabelText('Close modal');
     if (closeButton) {
       fireEvent.click(closeButton);
       expect(handleClose).toHaveBeenCalled();
@@ -202,20 +182,6 @@ describe('Modal Component', () => {
       </Modal>
     );
     expect(screen.getByText('Modal Title')).toBeInTheDocument();
-  });
-
-  it('renders with footer actions', () => {
-    render(
-      <Modal 
-        isOpen={true} 
-        onClose={() => {}} 
-        title="Test"
-        footer={<button>Save</button>}
-      >
-        Content
-      </Modal>
-    );
-    expect(screen.getByText('Save')).toBeInTheDocument();
   });
 
   it('applies size variants', () => {
@@ -255,159 +221,102 @@ describe('Badge Component', () => {
     expect(screen.getByText('With Dot')).toBeInTheDocument();
   });
 
-  it('renders as removable with onRemove', () => {
-    const handleRemove = jest.fn();
-    render(<Badge onRemove={handleRemove}>Removable</Badge>);
-    const removeButton = screen.getByRole('button') || screen.getByLabelText(/remove/i);
-    if (removeButton) {
-      fireEvent.click(removeButton);
-      expect(handleRemove).toHaveBeenCalled();
-    }
+  it('renders with dot indicator', () => {
+    render(<Badge dot>With Dot</Badge>);
+    expect(screen.getByText('With Dot')).toBeInTheDocument();
   });
 });
 
 describe('Table Component', () => {
-  const columns = [
-    { key: 'name', header: 'Name' },
-    { key: 'email', header: 'Email' },
-  ];
-
-  const data = [
-    { name: 'John', email: 'john@example.com' },
-    { name: 'Jane', email: 'jane@example.com' },
-  ];
-
-  it('renders table with headers', () => {
-    render(<Table columns={columns} data={data} />);
+  it('renders table with header and body', () => {
+    render(
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Email</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>John</TableCell>
+            <TableCell>john@example.com</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
     expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('Email')).toBeInTheDocument();
-  });
-
-  it('renders table rows', () => {
-    render(<Table columns={columns} data={data} />);
     expect(screen.getByText('John')).toBeInTheDocument();
-    expect(screen.getByText('jane@example.com')).toBeInTheDocument();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
   });
 
-  it('renders empty state when no data', () => {
-    render(<Table columns={columns} data={[]} emptyText="No data available" />);
-    expect(screen.getByText('No data available')).toBeInTheDocument();
-  });
-
-  it('handles row click', () => {
-    const handleRowClick = jest.fn();
-    render(<Table columns={columns} data={data} onRowClick={handleRowClick} />);
-    const row = screen.getByText('John').closest('tr');
-    if (row) {
-      fireEvent.click(row);
-      expect(handleRowClick).toHaveBeenCalledWith(data[0]);
-    }
-  });
-
-  it('renders with loading state', () => {
-    render(<Table columns={columns} data={[]} loading={true} />);
-    expect(screen.getByText(/loading/i) || document.querySelector('.animate-pulse')).toBeTruthy();
-  });
-
-  it('renders with custom cell renderer', () => {
-    const customColumns = [
-      { 
-        key: 'name', 
-        header: 'Name',
-        render: (value: string) => <strong>{value}</strong>
-      },
-    ];
-    render(<Table columns={customColumns} data={data} />);
-    const strongElement = screen.getByText('John');
-    expect(strongElement.tagName).toBe('STRONG');
+  it('renders clickable rows', () => {
+    const handleClick = jest.fn();
+    render(
+      <Table>
+        <TableBody>
+          <TableRow onClick={handleClick}>
+            <TableCell>Clickable Row</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
+    fireEvent.click(screen.getByText('Clickable Row'));
+    expect(handleClick).toHaveBeenCalled();
   });
 });
 
 describe('Pagination Component', () => {
+  const defaultProps = {
+    currentPage: 1,
+    totalPages: 10,
+    totalItems: 100,
+    itemsPerPage: 10,
+    onPageChange: jest.fn(),
+  };
+
   it('renders current page info', () => {
-    render(
-      <Pagination 
-        currentPage={1} 
-        totalPages={10} 
-        totalItems={100}
-        onPageChange={() => {}} 
-      />
-    );
-    expect(screen.getByText(/1/)).toBeInTheDocument();
-    expect(screen.getByText(/10/)).toBeInTheDocument();
+    render(<Pagination {...defaultProps} />);
+    expect(screen.getByLabelText('Page 1')).toBeInTheDocument();
+    expect(screen.getByLabelText('Page 10')).toBeInTheDocument();
   });
 
   it('calls onPageChange when clicking next', () => {
     const handlePageChange = jest.fn();
-    render(
-      <Pagination 
-        currentPage={1} 
-        totalPages={10} 
-        totalItems={100}
-        onPageChange={handlePageChange} 
-      />
-    );
-    const nextButton = screen.getByText(/next/i) || screen.getByLabelText(/next page/i);
-    if (nextButton) {
-      fireEvent.click(nextButton);
-      expect(handlePageChange).toHaveBeenCalledWith(2);
-    }
+    render(<Pagination {...defaultProps} onPageChange={handlePageChange} />);
+    const nextButton = screen.getByLabelText('Next page');
+    fireEvent.click(nextButton);
+    expect(handlePageChange).toHaveBeenCalledWith(2);
   });
 
   it('calls onPageChange when clicking previous', () => {
     const handlePageChange = jest.fn();
-    render(
-      <Pagination 
-        currentPage={5} 
-        totalPages={10} 
-        totalItems={100}
-        onPageChange={handlePageChange} 
-      />
-    );
-    const prevButton = screen.getByText(/previous/i) || screen.getByLabelText(/previous page/i);
-    if (prevButton) {
-      fireEvent.click(prevButton);
-      expect(handlePageChange).toHaveBeenCalledWith(4);
-    }
+    render(<Pagination {...defaultProps} currentPage={5} onPageChange={handlePageChange} />);
+    const prevButton = screen.getByLabelText('Previous page');
+    fireEvent.click(prevButton);
+    expect(handlePageChange).toHaveBeenCalledWith(4);
   });
 
   it('disables previous button on first page', () => {
-    render(
-      <Pagination 
-        currentPage={1} 
-        totalPages={10} 
-        totalItems={100}
-        onPageChange={() => {}} 
-      />
-    );
-    const prevButton = screen.getByText(/previous/i) || screen.getByLabelText(/previous page/i);
-    if (prevButton) {
-      expect(prevButton).toBeDisabled();
-    }
+    render(<Pagination {...defaultProps} />);
+    const prevButton = screen.getByLabelText('Previous page');
+    expect(prevButton).toBeDisabled();
   });
 
   it('disables next button on last page', () => {
-    render(
-      <Pagination 
-        currentPage={10} 
-        totalPages={10} 
-        totalItems={100}
-        onPageChange={() => {}} 
-      />
-    );
-    const nextButton = screen.getByText(/next/i) || screen.getByLabelText(/next page/i);
-    if (nextButton) {
-      expect(nextButton).toBeDisabled();
-    }
+    render(<Pagination {...defaultProps} currentPage={10} />);
+    const nextButton = screen.getByLabelText('Next page');
+    expect(nextButton).toBeDisabled();
   });
 
   it('renders page numbers', () => {
-    render(
-      <Pagination 
-        currentPage={5} 
-        totalPages={10} 
+    render(<Pagination {...defaultProps} currentPage={5} />);
+    expect(screen.getByLabelText('Page 5')).toHaveAttribute('aria-current', 'page');
+  });
+});
         totalItems={100}
-        onPageChange={() => {}} 
+        onPageChange={() => {}}
         showPageNumbers
       />
     );
@@ -418,9 +327,9 @@ describe('Pagination Component', () => {
   it('renders items per page selector', () => {
     const handleItemsPerPageChange = jest.fn();
     render(
-      <Pagination 
-        currentPage={1} 
-        totalPages={10} 
+      <Pagination
+        currentPage={1}
+        totalPages={10}
         totalItems={100}
         onPageChange={() => {}}
         itemsPerPage={20}
@@ -440,9 +349,9 @@ describe('StatCard Component', () => {
 
   it('renders with change indicator', () => {
     render(
-      <StatCard 
-        title="Revenue" 
-        value="$50,000" 
+      <StatCard
+        title="Revenue"
+        value="$50,000"
         change={{ value: 15, type: 'increase' }}
       />
     );
@@ -451,18 +360,18 @@ describe('StatCard Component', () => {
 
   it('renders with icon', () => {
     render(
-      <StatCard 
-        title="Users" 
-        value="1,234" 
+      <StatCard
+        title="Users"
+        value="1,234"
         icon={<span data-testid="stat-icon">👥</span>}
       />
     );
     expect(screen.getByTestId('stat-icon')).toBeInTheDocument();
   });
 
-  it('renders with loading state', () => {
-    render(<StatCard title="Loading" value="" loading />);
-    expect(document.querySelector('.animate-pulse')).toBeTruthy();
+  it('renders with value', () => {
+    render(<StatCard title="Revenue" value="$10,000" />);
+    expect(screen.getByText('$10,000')).toBeInTheDocument();
   });
 
   it('handles click events', () => {

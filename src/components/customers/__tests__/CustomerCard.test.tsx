@@ -135,10 +135,10 @@ describe('CustomerCard', () => {
     const customerWithNoTags = { ...mockCustomer, tags: [] };
     const { container } = render(<CustomerCard customer={customerWithNoTags} />);
 
-    // Tags section should not be rendered
-    const tagElements = container.querySelectorAll('[class*="rounded-full"]');
-    // Only status badge should be present
-    expect(tagElements.length).toBeLessThanOrEqual(1);
+    // Tags section should not be rendered - look for tag-specific class
+    const tagElements = container.querySelectorAll('.bg-slate-700.text-slate-400');
+    // No tags should be present (status badge has different classes)
+    expect(tagElements.length).toBe(0);
   });
 
   it('renders with different statuses', () => {
