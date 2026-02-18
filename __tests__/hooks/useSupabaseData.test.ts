@@ -59,6 +59,15 @@ describe('useSupabaseData Hooks', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     queryCache.clear();
+    
+    // Re-setup the mock subscription for real-time tests
+    (supabase.channel as jest.Mock) = jest.fn(() => ({
+      on: jest.fn().mockReturnThis(),
+      subscribe: jest.fn((callback) => {
+        callback('SUBSCRIBED');
+        return { unsubscribe: jest.fn() };
+      }),
+    }));
   });
 
   describe('useQuotes', () => {
@@ -161,7 +170,13 @@ describe('useSupabaseData Hooks', () => {
         result.current.setPage(2);
       });
 
-      expect(result.current.data?.page).toBe(2);
+      // Check the page state directly (synchronous update)
+      expect(result.current.page).toBe(2);
+      
+      // Data will update asynchronously after the query refetches
+      await waitFor(() => {
+        expect(result.current.data?.page).toBe(2);
+      });
     });
 
     it('should calculate pagination correctly', async () => {
@@ -639,10 +654,12 @@ describe('useSupabaseData Hooks', () => {
   });
 
   describe('useRealtimeCustomers', () => {
-    it('should subscribe to customer real-time updates', () => {
+    it('should subscribe to customer real-time updates', async () => {
       const { result } = renderHook(() => useRealtimeCustomers());
 
-      expect(result.current.isConnected).toBe(true);
+      await waitFor(() => {
+        expect(result.current.isConnected).toBe(true);
+      });
     });
   });
 

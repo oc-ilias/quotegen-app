@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 export { useMediaQuery } from './useMediaQuery';
 export { useBreakpoints } from './useBreakpoints';
 export type { Breakpoints, BreakpointValues } from './useBreakpoints';
+export { useThrottledCallback } from './useThrottledCallback';
+export { useInterval } from './useInterval';
 
 // ============================================================================
 // Hook 1: useAsync - Handle async operations with loading/error states
@@ -126,52 +128,7 @@ export function useDebounce<T>(value: T, delay: number): T {
 }
 
 // ============================================================================
-// Hook 3: useThrottledCallback - Throttle function calls
-// ============================================================================
-
-/**
- * Hook that returns a throttled version of a callback function.
- * The throttled function will only execute at most once per specified period.
- *
- * @template T - The type of the callback function
- * @param callback - The function to throttle
- * @param delay - The minimum time between calls in milliseconds
- * @returns The throttled callback function
- *
- * @example
- * ```tsx
- * const handleScroll = useThrottledCallback((e) => {
- *   console.log('Scroll position:', window.scrollY);
- * }, 100);
- * window.addEventListener('scroll', handleScroll);
- * ```
- */
-export function useThrottledCallback<T extends (...args: unknown[]) => unknown>(
-  callback: T,
-  delay: number
-): (...args: Parameters<T>) => void {
-  const lastCall = useRef<number>(0);
-  const callbackRef = useRef(callback);
-
-  // Keep the callback ref up to date
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  return useCallback(
-    (...args: Parameters<T>) => {
-      const now = Date.now();
-      if (now - lastCall.current >= delay) {
-        lastCall.current = now;
-        callbackRef.current(...args);
-      }
-    },
-    [delay]
-  );
-}
-
-// ============================================================================
-// Hook 4: useLocalStorage - Sync state with localStorage
+// Hook 3: useLocalStorage - Sync state with localStorage
 // ============================================================================
 
 /**
@@ -578,45 +535,7 @@ export function useFormField<T extends string | number | boolean | string[]>(
 }
 
 // ============================================================================
-// Hook 9: useInterval - setInterval hook
-// ============================================================================
-
-/**
- * Hook that calls a callback at a specified interval.
- * Properly handles cleanup and dynamic delay changes.
- *
- * @param callback - Function to call on each interval
- * @param delay - Interval in milliseconds (null to pause)
- *
- * @example
- * ```tsx
- * const [count, setCount] = useState(0);
- * useInterval(() => setCount(c => c + 1), 1000);
- * // count increments every second
- * ```
- */
-export function useInterval(callback: () => void, delay: number | null): void {
-  const callbackRef = useRef(callback);
-
-  useEffect(() => {
-    callbackRef.current = callback;
-  }, [callback]);
-
-  useEffect(() => {
-    if (delay === null) {
-      return;
-    }
-
-    const intervalId = setInterval(() => {
-      callbackRef.current();
-    }, delay);
-
-    return () => clearInterval(intervalId);
-  }, [delay]);
-}
-
-// ============================================================================
-// Hook 10: usePrevious - Track previous values
+// Hook 9: usePrevious - Track previous values
 // ============================================================================
 
 /**

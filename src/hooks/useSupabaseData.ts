@@ -110,7 +110,7 @@ class QueryCache {
   isStale(key: string, staleTime: number): boolean {
     const entry = this.cache.get(key);
     if (!entry) return true;
-    return Date.now() - entry.timestamp > staleTime;
+    return Date.now() - entry.timestamp >= staleTime;
   }
   
   invalidate(keyPattern: string): void {
@@ -350,6 +350,7 @@ export function usePaginatedQuotes(
   return {
     ...result,
     setPage,
+    page, // Expose current page state for synchronous access
   };
 }
 
@@ -855,7 +856,9 @@ export function useRealtimeQuotes(
       });
 
     return () => {
-      channel.unsubscribe();
+      if (channel?.unsubscribe) {
+        channel.unsubscribe();
+      }
     };
   }, [callback]);
 
@@ -890,7 +893,9 @@ export function useRealtimeCustomers(
       });
 
     return () => {
-      channel.unsubscribe();
+      if (channel?.unsubscribe) {
+        channel.unsubscribe();
+      }
     };
   }, [callback]);
 
