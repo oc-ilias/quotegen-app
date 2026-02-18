@@ -6,44 +6,72 @@
 import { GET, POST } from '@/app/api/customers/route';
 import { NextRequest } from 'next/server';
 
-// Mock Supabase
-const mockSelect = jest.fn();
-const mockInsert = jest.fn();
-const mockFrom = jest.fn();
-const mockMaybeSingle = jest.fn();
-const mockSingle = jest.fn();
-const mockOrder = jest.fn();
-const mockRange = jest.fn();
-const mockOr = jest.fn();
-const mockIn = jest.fn();
-const mockOverlaps = jest.fn();
-const mockGte = jest.fn();
-const mockLte = jest.fn();
-const mockEq = jest.fn();
+// Mock the route module's Supabase client
+const mockQueryResult = {
+  data: null as any,
+  error: null as any,
+  count: null as number | null,
+};
 
-const mockSupabaseClient = {
-  from: mockFrom.mockReturnThis(),
-  select: mockSelect.mockReturnThis(),
-  insert: mockInsert.mockReturnThis(),
-  order: mockOrder.mockReturnThis(),
-  range: mockRange.mockReturnThis(),
-  or: mockOr.mockReturnThis(),
-  in: mockIn.mockReturnThis(),
-  overlaps: mockOverlaps.mockReturnThis(),
-  gte: mockGte.mockReturnThis(),
-  lte: mockLte.mockReturnThis(),
-  eq: mockEq.mockReturnThis(),
+const mockSelect = jest.fn().mockReturnValue(mockQueryResult);
+const mockInsert = jest.fn().mockReturnValue(mockQueryResult);
+const mockOrder = jest.fn().mockReturnValue(mockQueryResult);
+const mockRange = jest.fn().mockReturnValue(mockQueryResult);
+const mockOr = jest.fn().mockReturnValue(mockQueryResult);
+const mockIn = jest.fn().mockReturnValue(mockQueryResult);
+const mockOverlaps = jest.fn().mockReturnValue(mockQueryResult);
+const mockGte = jest.fn().mockReturnValue(mockQueryResult);
+const mockLte = jest.fn().mockReturnValue(mockQueryResult);
+const mockEq = jest.fn().mockReturnValue(mockQueryResult);
+const mockMaybeSingle = jest.fn().mockResolvedValue({ data: null, error: null });
+const mockSingle = jest.fn().mockResolvedValue({ data: null, error: null });
+
+const mockFromResult = {
+  select: mockSelect,
+  insert: mockInsert,
+  order: mockOrder,
+  range: mockRange,
+  or: mockOr,
+  in: mockIn,
+  overlaps: mockOverlaps,
+  gte: mockGte,
+  lte: mockLte,
+  eq: mockEq,
   maybeSingle: mockMaybeSingle,
   single: mockSingle,
 };
 
+const mockFrom = jest.fn().mockReturnValue(mockFromResult);
+
+// Reset all mocks before each test
+const resetMocks = () => {
+  mockSelect.mockClear().mockReturnValue(mockQueryResult);
+  mockInsert.mockClear().mockReturnValue(mockQueryResult);
+  mockOrder.mockClear().mockReturnValue(mockQueryResult);
+  mockRange.mockClear().mockReturnValue(mockQueryResult);
+  mockOr.mockClear().mockReturnValue(mockQueryResult);
+  mockIn.mockClear().mockReturnValue(mockQueryResult);
+  mockOverlaps.mockClear().mockReturnValue(mockQueryResult);
+  mockGte.mockClear().mockReturnValue(mockQueryResult);
+  mockLte.mockClear().mockReturnValue(mockQueryResult);
+  mockEq.mockClear().mockReturnValue(mockQueryResult);
+  mockMaybeSingle.mockClear().mockResolvedValue({ data: null, error: null });
+  mockSingle.mockClear().mockResolvedValue({ data: null, error: null });
+  mockFrom.mockClear().mockReturnValue(mockFromResult);
+  mockQueryResult.data = null;
+  mockQueryResult.error = null;
+  mockQueryResult.count = null;
+};
+
 jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => mockSupabaseClient),
+  createClient: jest.fn(() => ({
+    from: mockFrom,
+  })),
 }));
 
 describe('GET /api/customers', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    resetMocks();
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
   });
@@ -63,16 +91,18 @@ describe('GET /api/customers', () => {
       },
     ];
 
-    mockSelect.mockResolvedValueOnce({
-      data: mockCustomers,
-      error: null,
-      count: 1,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    // First call: get customers
+    mockSelect
+      .mockResolvedValueOnce({
+        data: mockCustomers,
+        error: null,
+        count: 1,
+      })
+      // Second call: get quotes for stats
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers');
     const response = await GET(request);
@@ -89,16 +119,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle search query', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 0,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?search=test');
     const response = await GET(request);
@@ -109,16 +139,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle status filter', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 0,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?status=active,inactive');
     const response = await GET(request);
@@ -129,16 +159,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle tags filter', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 0,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?tags=vip,premium');
     const response = await GET(request);
@@ -149,16 +179,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle date range filters', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 0,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?dateFrom=2024-01-01&dateTo=2024-12-31');
     const response = await GET(request);
@@ -182,18 +212,18 @@ describe('GET /api/customers', () => {
       tags: [],
     };
 
-    mockSelect.mockResolvedValueOnce({
-      data: [mockCustomer],
-      error: null,
-      count: 1,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [
-        { customerId: '1', status: 'accepted', total: 5000, createdAt: '2024-01-01' },
-      ],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [mockCustomer],
+        error: null,
+        count: 1,
+      })
+      .mockResolvedValueOnce({
+        data: [
+          { customerId: '1', status: 'accepted', total: 5000, createdAt: '2024-01-01' },
+        ],
+        error: null,
+      });
 
     const request = new NextRequest(
       'http://localhost:3000/api/customers?minQuotes=1&maxQuotes=10&minRevenue=1000&maxRevenue=10000'
@@ -205,16 +235,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle custom sorting', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 0,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?sortBy=company&sortOrder=asc');
     const response = await GET(request);
@@ -224,16 +254,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should handle pagination parameters', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 100,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 100,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?page=2&limit=20');
     const response = await GET(request);
@@ -249,16 +279,16 @@ describe('GET /api/customers', () => {
   });
 
   it('should limit max page size to 100', async () => {
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-      count: 0,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: [],
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
+      })
+      .mockResolvedValueOnce({
+        data: [],
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers?limit=200');
     const response = await GET(request);
@@ -316,16 +346,16 @@ describe('GET /api/customers', () => {
       { customerId: '1', status: 'draft', total: 1000, createdAt: '2024-04-15' },
     ];
 
-    mockSelect.mockResolvedValueOnce({
-      data: [mockCustomer],
-      error: null,
-      count: 1,
-    });
-
-    mockSelect.mockResolvedValueOnce({
-      data: mockQuotes,
-      error: null,
-    });
+    mockSelect
+      .mockResolvedValueOnce({
+        data: [mockCustomer],
+        error: null,
+        count: 1,
+      })
+      .mockResolvedValueOnce({
+        data: mockQuotes,
+        error: null,
+      });
 
     const request = new NextRequest('http://localhost:3000/api/customers');
     const response = await GET(request);
@@ -346,7 +376,7 @@ describe('GET /api/customers', () => {
 
 describe('POST /api/customers', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    resetMocks();
     process.env.NEXT_PUBLIC_SUPABASE_URL = 'https://test.supabase.co';
     process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-key';
   });
