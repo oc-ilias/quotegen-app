@@ -189,8 +189,10 @@ describe('CustomerList', () => {
     const filterButton = screen.getByText('Filters');
     fireEvent.click(filterButton);
 
-    const activeButton = screen.getByText('Active');
-    fireEvent.click(activeButton);
+    // Get the filter button (first occurrence) - not the status badge
+    const activeButtons = screen.getAllByText('Active');
+    // Click the first one which should be the filter button
+    fireEvent.click(activeButtons[0]);
 
     expect(mockProps.onFilterChange).toHaveBeenCalledWith({
       ...defaultFilters,
@@ -204,9 +206,15 @@ describe('CustomerList', () => {
     const filterButton = screen.getByText('Filters');
     fireEvent.click(filterButton);
 
-    expect(screen.getByText('vip')).toBeInTheDocument();
-    expect(screen.getByText('enterprise')).toBeInTheDocument();
-    expect(screen.getByText('new')).toBeInTheDocument();
+    // Tags appear both in filter panel and on customer rows - get all occurrences
+    const vipElements = screen.getAllByText('vip');
+    expect(vipElements.length).toBeGreaterThanOrEqual(1);
+    
+    const enterpriseElements = screen.getAllByText('enterprise');
+    expect(enterpriseElements.length).toBeGreaterThanOrEqual(1);
+    
+    const newElements = screen.getAllByText('new');
+    expect(newElements.length).toBeGreaterThanOrEqual(1);
   });
 
   it('toggles tag filter', () => {
@@ -215,8 +223,9 @@ describe('CustomerList', () => {
     const filterButton = screen.getByText('Filters');
     fireEvent.click(filterButton);
 
-    const vipButton = screen.getByText('vip');
-    fireEvent.click(vipButton);
+    // Get the tag filter button (first occurrence)
+    const vipButtons = screen.getAllByText('vip');
+    fireEvent.click(vipButtons[0]);
 
     expect(mockProps.onFilterChange).toHaveBeenCalledWith({
       ...defaultFilters,
@@ -426,8 +435,17 @@ describe('CustomerList', () => {
   it('handles view customer click', () => {
     render(<CustomerList {...mockProps} />);
 
-    const viewButtons = screen.getAllByText('View');
-    fireEvent.click(viewButtons[0]);
+    // Click the dropdown button for the first customer
+    const dropdownButtons = screen.getAllByRole('button', { name: '' })
+      .filter(btn => btn.querySelector('svg'));
+    expect(dropdownButtons.length).toBeGreaterThan(0);
+    
+    // Click the first dropdown to open it
+    fireEvent.click(dropdownButtons[0]);
+    
+    // Now click the View option
+    const viewOptions = screen.getAllByText('View');
+    fireEvent.click(viewOptions[0]);
 
     expect(mockProps.onViewCustomer).toHaveBeenCalledWith('1');
   });
@@ -435,8 +453,17 @@ describe('CustomerList', () => {
   it('handles edit customer click', () => {
     render(<CustomerList {...mockProps} />);
 
-    const editButtons = screen.getAllByText('Edit');
-    fireEvent.click(editButtons[0]);
+    // Click the dropdown button for the first customer
+    const dropdownButtons = screen.getAllByRole('button', { name: '' })
+      .filter(btn => btn.querySelector('svg'));
+    expect(dropdownButtons.length).toBeGreaterThan(0);
+    
+    // Click the first dropdown to open it
+    fireEvent.click(dropdownButtons[0]);
+    
+    // Now click the Edit option
+    const editOptions = screen.getAllByText('Edit');
+    fireEvent.click(editOptions[0]);
 
     expect(mockProps.onEditCustomer).toHaveBeenCalledWith(mockCustomers[0]);
   });
@@ -444,8 +471,17 @@ describe('CustomerList', () => {
   it('handles delete customer click', () => {
     render(<CustomerList {...mockProps} />);
 
-    const deleteButtons = screen.getAllByText('Delete');
-    fireEvent.click(deleteButtons[0]);
+    // Click the dropdown button for the first customer
+    const dropdownButtons = screen.getAllByRole('button', { name: '' })
+      .filter(btn => btn.querySelector('svg'));
+    expect(dropdownButtons.length).toBeGreaterThan(0);
+    
+    // Click the first dropdown to open it
+    fireEvent.click(dropdownButtons[0]);
+    
+    // Now click the Delete option
+    const deleteOptions = screen.getAllByText('Delete');
+    fireEvent.click(deleteOptions[0]);
 
     expect(mockProps.onDeleteCustomer).toHaveBeenCalledWith(mockCustomers[0]);
   });
