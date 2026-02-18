@@ -75,8 +75,8 @@ const nextConfig: NextConfig = {
       },
     ],
 
-    /** Modern image formats for better compression */
-    formats: ["image/webp", "image/avif"],
+    /** Modern image formats for better compression (AVIF first for best compression) */
+    formats: ["image/avif", "image/webp"],
 
     /** Device widths for responsive images (covers common breakpoints) */
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -84,11 +84,14 @@ const nextConfig: NextConfig = {
     /** Image sizes for layout="fixed" or layout="intrinsic" */
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 
-    /** Minimum cache time for optimized images (1 day) */
-    minimumCacheTTL: 86400,
+    /** Minimum cache time for optimized images (7 days for better cache hit rate) */
+    minimumCacheTTL: 604800,
 
     /** Maximum image size (4MB) */
     contentDispositionType: "inline",
+    
+    /** Dangerously allow SVG optimization (ensure SVGs are sanitized) */
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // ==========================================================================
@@ -125,6 +128,8 @@ const nextConfig: NextConfig = {
       "recharts",
       // UI components
       "@headlessui/react",
+      // Note: PDF libraries (jspdf, html2canvas) are in serverExternalPackages
+      // and should be dynamically imported in client components
     ],
 
     /**
@@ -272,7 +277,7 @@ const nextConfig: NextConfig = {
   // HTTP Headers & Caching
   // ==========================================================================
 
-  headers() {
+  async headers() {
     return [
       {
         // Apply to all routes

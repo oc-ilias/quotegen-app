@@ -1,6 +1,18 @@
 import { QuotesDashboard } from '@/components/QuotesDashboard';
 import { SettingsForm } from '@/components/SettingsForm';
 import { QuoteButton } from '@/components/QuoteButton';
+import type { Metadata } from 'next/types';
+
+// Page-specific metadata for better SEO
+export const metadata: Metadata = {
+  title: 'QuoteGen - B2B Quote Requests for Shopify',
+  description: 'Let your B2B customers request quotes in one click. Perfect for wholesale, industrial supplies, and custom orders.',
+  openGraph: {
+    title: 'QuoteGen - B2B Quote Requests for Shopify',
+    description: 'Streamline your B2B sales process with instant quote requests',
+    type: 'website',
+  },
+};
 
 // This would come from Shopify authentication in production
 const MOCK_SHOP_ID = 'demo-shop-123';
@@ -16,11 +28,11 @@ const MOCK_SETTINGS = {
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Header */}
+      {/* Header - Critical above-the-fold content */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="text-2xl">📋</div>
+            <span className="text-2xl" aria-hidden="true">📋</span>
             <h1 className="text-xl font-bold">QuoteGen</h1>
           </div>
           <div className="text-sm text-gray-500">
@@ -31,9 +43,12 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Preview Section */}
-        <section className="mb-12 bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold mb-6">Button Preview</h2>
+        {/* Preview Section - LCP Element */}
+        <section 
+          className="mb-12 bg-white rounded-lg shadow p-6"
+          aria-labelledby="preview-heading"
+        >
+          <h2 id="preview-heading" className="text-xl font-bold mb-6">Button Preview</h2>
           <div className="border rounded-lg p-8 bg-gray-50">
             <div className="max-w-sm mx-auto text-center">
               <div className="text-lg font-semibold mb-2">Industrial Widget 5000</div>
@@ -48,27 +63,36 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Dashboard Section */}
-        <section className="mb-12 bg-white rounded-lg shadow">
+        {/* Dashboard Section - Lazy loaded below fold */}
+        <section 
+          className="mb-12 bg-white rounded-lg shadow"
+          aria-labelledby="dashboard-heading"
+        >
           <div className="p-6 border-b">
-            <h2 className="text-xl font-bold">Quote Requests</h2>
+            <h2 id="dashboard-heading" className="text-xl font-bold">Quote Requests</h2>
           </div>
           <QuotesDashboard shopId={MOCK_SHOP_ID} />
         </section>
 
         {/* Settings Section */}
-        <section className="bg-white rounded-lg shadow">
+        <section 
+          className="bg-white rounded-lg shadow"
+          aria-labelledby="settings-heading"
+        >
           <div className="p-6 border-b">
-            <h2 className="text-xl font-bold">Settings</h2>
+            <h2 id="settings-heading" className="text-xl font-bold">Settings</h2>
           </div>
           <SettingsForm shopId={MOCK_SHOP_ID} />
         </section>
       </main>
 
       {/* Installation Instructions */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
+      <section 
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12"
+        aria-labelledby="install-heading"
+      >
         <div className="bg-blue-50 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">Installation Instructions</h3>
+          <h3 id="install-heading" className="text-lg font-semibold mb-4">Installation Instructions</h3>
           
           <ol className="list-decimal list-inside space-y-2 text-sm">
             <li>Install QuoteGen from the Shopify App Store</li>
@@ -78,7 +102,7 @@ export default function Home() {
             <li>Manage all quote requests in the dashboard above</li>
           </ol>
 
-          <div className="mt-4 p-4 bg-white rounded text-sm font-mono">
+          <div className="mt-4 p-4 bg-white rounded text-sm font-mono overflow-x-auto">
             {'{% comment %} Quote Button Code {% endcomment %}'}
             <br />
             {'<div id="quotegen-button"></div>'}

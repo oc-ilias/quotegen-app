@@ -1,12 +1,16 @@
 /**
- * Dashboard Page
+ * Dashboard Page - Optimized for Performance
  * Main dashboard view with stats, recent quotes, and activity feed
+ * 
+ * Performance optimizations:
+ * - Removed artificial loading delay for faster LCP
+ * - Lazy-loaded animation components
+ * - Static data for immediate render
  */
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, Suspense } from 'react';
 import { DashboardLayout, PageHeader } from '@/components/layout/DashboardLayout';
 import { StatCardsGrid } from '@/components/dashboard/StatCards';
 import { RecentQuotes } from '@/components/dashboard/RecentQuotes';
@@ -16,7 +20,14 @@ import { StatCardSkeleton, QuoteListSkeleton, ActivityFeedSkeleton } from '@/com
 import type { QuoteStats, Quote, Activity } from '@/types/quote';
 import { CustomerStatus, QuoteStatus, QuotePriority, ActivityType } from '@/types/quote';
 
-// Mock data for demo
+// Lazy load framer-motion to reduce initial bundle
+const MotionDiv = React.lazy(() => 
+  import('framer-motion').then(mod => ({ 
+    default: mod.motion.div 
+  }))
+);
+
+// Mock data for demo - available immediately
 const mockStats: QuoteStats = {
   totalQuotes: 156,
   pendingQuotes: 23,
@@ -221,37 +232,48 @@ const mockActivities: Activity[] = [
   },
 ];
 
+// Animation wrapper with fallback
+function AnimatedSection({ 
+  children, 
+  className,
+  delay = 0 
+}: { 
+  children: React.ReactNode; 
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <Suspense fallback={<div className={className}>{children}</div>}>
+      <MotionDiv
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94], delay }}
+        className={className}
+      >
+        {children}
+      </MotionDiv>
+    </Suspense>
+  );
+}
+
 export default function DashboardPage() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState<QuoteStats | null>(null);
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  // Initialize data immediately for better LCP
+  const [stats] = useState<QuoteStats>(mockStats);
+  const [quotes] = useState<Quote[]>(mockQuotes);
+  const [activities] = useState<Activity[]>(mockActivities);
+  const [isClient, setIsClient] = useState(false);
 
+  // Mark when client-side hydration is complete
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setStats(mockStats);
-      setQuotes(mockQuotes);
-      setActivities(mockActivities);
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
+    setIsClient(true);
   }, []);
 
   const handleQuickAction = (action: string) => {
     console.log('Quick action:', action);
-    // Navigate to appropriate page or open modal
   };
 
   const handleViewQuote = (quoteId: string) => {
     console.log('View quote:', quoteId);
-    // Navigate to quote detail
-  };
-
-  const handleAction = (quoteId: string, action: string) => {
-    console.log('Quote action:', quoteId, action);
-    // Handle quote actions (send, edit, etc.)
   };
 
   return (
@@ -261,78 +283,55 @@ export default function DashboardPage() {
         subtitle="Welcome back! Here's what's happening with your quotes."
       />
 
-      {/* Stats Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCardSkeleton color="blue" />
-          <StatCardSkeleton color="green" />
-          <StatCardSkeleton color="purple" />
-          <StatCardSkeleton color="indigo" />
-        </div>
-      ) : stats ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <StatCardsGrid stats={[
-            { title: 'Total Quotes', value: stats.totalQuotes, change: stats.periodChange?.totalQuotes, icon: 'quotes', color: 'blue', format: 'number' },
-            { title: 'Total Revenue', value: stats.totalRevenue, change: stats.periodChange?.totalRevenue, icon: 'revenue', color: 'green', format: 'currency' },
-            { title: 'Conversion Rate', value: stats.conversionRate, change: stats.periodChange?.conversionRate, icon: 'conversion', color: 'purple', format: 'percent' },
-            { title: 'Pending Quotes', value: stats.pendingQuotes, icon: 'pending', color: 'indigo', format: 'number' },
-          ]} />
-        </motion.div>
-      ) : null}
+      {/* Stats Grid - Render immediately without loading state */}
+      <AnimatedSection className="mb-8">
+        <StatCardsGrid stats={[
+          { title: 'Total Quotes', value: stats.totalQuotes, change: stats.periodChange?.totalQuotes, icon: 'quotes', color: 'blue', format: 'number' },
+          { title: 'Total Revenue', value: stats.totalRevenue, change: stats.periodChange?.totalRevenue, icon: 'revenue', color: 'green', format: 'currency' },
+          { title: 'Conversion Rate', value: stats.conversionRate, change: stats.periodChange?.conversionRate, icon: 'conversion', color: 'purple', format: 'percent' },
+          { title: 'Pending Quotes', value: stats.pendingQuotes, icon: 'pending', color: 'indigo', format: 'number' },
+        ]} />
+      </AnimatedSection>
 
       {/* Quick Actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="mb-8"
-      >
-        <QuickActions onCreateQuote={() => handleQuickAction('create-quote')} onViewAnalytics={() => handleQuickAction('view-analytics')} />
-      </motion.div>
+      <AnimatedSection className="mb-8" delay={0.1}>
+        <QuickActions 
+          onCreateQuote={() => handleQuickAction('create-quote')} 
+          onViewAnalytics={() => handleQuickAction('view-analytics')} 
+        />
+      </AnimatedSection>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         {/* Recent Quotes */}
         <div className="xl:col-span-2">
-          {isLoading ? (
-            <QuoteListSkeleton />
-          ) : (
-            <RecentQuotes
-              quotes={quotes.map(q => ({
-                id: q.id,
-                quoteNumber: q.quoteNumber,
-                customerName: q.customer?.contactName || q.customer?.companyName || 'Unknown',
-                customerEmail: q.customer?.email || '',
-                company: q.customer?.companyName,
-                title: q.title,
-                total: q.total,
-                status: q.status,
-                createdAt: q.createdAt.toISOString(),
-              }))}
-              onViewQuote={handleViewQuote}
-            />
-          )}
+          <RecentQuotes
+            quotes={quotes.map(q => ({
+              id: q.id,
+              quoteNumber: q.quoteNumber,
+              customerName: q.customer?.contactName || q.customer?.companyName || 'Unknown',
+              customerEmail: q.customer?.email || '',
+              company: q.customer?.companyName,
+              title: q.title,
+              total: q.total,
+              status: q.status,
+              createdAt: q.createdAt.toISOString(),
+            }))}
+            onViewQuote={handleViewQuote}
+          />
         </div>
 
         {/* Activity Feed */}
         <div>
-          {isLoading ? (
-            <ActivityFeedSkeleton />
-          ) : (
-            <ActivityFeed activities={activities.map(a => ({
-              id: a.id,
-              type: a.type,
-              quote_id: a.quoteId || '',
-              quote_number: a.quoteNumber || '',
-              customer_name: a.customerName || '',
-              timestamp: a.createdAt.toISOString(),
-              metadata: { description: a.description },
-            }))} />
-          )}
+          <ActivityFeed activities={activities.map(a => ({
+            id: a.id,
+            type: a.type,
+            quote_id: a.quoteId || '',
+            quote_number: a.quoteNumber || '',
+            customer_name: a.customerName || '',
+            timestamp: a.createdAt.toISOString(),
+            metadata: { description: a.description },
+          }))} />
         </div>
       </div>
     </DashboardLayout>

@@ -1,0 +1,26 @@
+{
+  "name": "QuoteGen - B2B Quote Requests",
+  "short_name": "QuoteGen",
+  "description": "Let your B2B customers request quotes in one click. Perfect for wholesale, industrial supplies, and custom orders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#008060",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}
