@@ -237,8 +237,22 @@ const nextConfig: NextConfig = {
       };
 
       // ======================================================================
-      // Module Resolution Optimizations
+      // Webpack Cache Configuration - Reduce Build Output Size
       // ======================================================================
+
+      /** Disable persistent filesystem cache in production to reduce build size */
+      config.cache = dev
+        ? {
+            type: "filesystem",
+            buildDependencies: {
+              config: [__filename],
+            },
+            cacheDirectory: ".next/cache/webpack",
+          }
+        : false; // Disable cache in production to reduce build output size
+
+      // ======================================================================
+      // Module Resolution Optimizations
 
       /** Prefer ES modules over CommonJS for better tree shaking */
       config.resolve.mainFields = ["module", "browser", "main"];

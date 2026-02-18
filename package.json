@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
+    "postbuild": "./scripts/post-build-cleanup.sh",
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
@@ -19,6 +20,7 @@
     "type-check": "tsc --noEmit",
     "analyze": "cross-env ANALYZE=true next build",
     "lighthouse": "lhci autorun",
+    "lighthouse:ci": "lhci autorun --config=./lighthouserc.json",
     "lighthouse:local": "lhci autorun --config=lighthouserc.local.js",
     "lighthouse:server": "lhci server --config=lighthouserc-server.js",
     "lighthouse:assert": "lhci autorun --config=lighthouserc.js"
