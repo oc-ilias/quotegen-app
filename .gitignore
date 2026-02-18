@@ -44,3 +44,10 @@ next-env.d.ts
 .next
 vercel.json
 .env.local
+
+# Lighthouse CI
+.lighthouseci/
+lhci-reports/
+lhci-server.db
+lighthouse-*.json
+lighthouse-*.html

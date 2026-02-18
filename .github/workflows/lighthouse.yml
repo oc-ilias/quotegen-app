@@ -1,0 +1,254 @@
+name: Lighthouse CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: 'Comma-separated URLs to test (optional)'
+        required: false
+        default: ''
+
+# Cancel previous runs on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Build the application first
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          CI: true
+          
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            .next/
+            dist/
+            public/
+            package*.json
+          retention-days: 1
+
+  # Run Lighthouse CI audits
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      # Install Chrome for Lighthouse
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+          install-dependencies: true
+          
+      - name: Verify Chrome installation
+        run: |
+          google-chrome --version
+          which google-chrome
+          
+      # Run Lighthouse CI with environment variables
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.15.x
+          lhci autorun || EXIT_CODE=$?
+          echo "Lighthouse CI completed with exit code: ${EXIT_CODE:-0}"
+          exit ${EXIT_CODE:-0}
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+          CI: true
+          
+      # Upload Lighthouse reports as artifacts
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-reports
+          path: |
+            lhci-reports/
+            .lighthouseci/
+          retention-days: 30
+          
+      # Comment on PR with results
+      - name: Comment PR with Lighthouse results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Find the Lighthouse manifest
+            const manifestPath = path.join('.lighthouseci', 'manifest.json');
+            
+            if (!fs.existsSync(manifestPath)) {
+              console.log('No manifest found, skipping comment');
+              return;
+            }
+            
+            const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+            
+            // Build comment body
+            let commentBody = '## 🚨 Lighthouse CI Report\n\n';
+            commentBody += '| URL | Performance | Accessibility | Best Practices | SEO |\n';
+            commentBody += '|-----|-------------|---------------|----------------|-----|\n';
+            
+            for (const result of manifest) {
+              const url = new URL(result.url).pathname || '/';
+              const perf = Math.round(result.summary.performance * 100);
+              const a11y = Math.round(result.summary.accessibility * 100);
+              const bp = Math.round(result.summary['best-practices'] * 100);
+              const seo = Math.round(result.summary.seo * 100);
+              
+              // Emoji indicators
+              const pEmoji = perf >= 90 ? '🟢' : perf >= 50 ? '🟠' : '🔴';
+              const aEmoji = a11y >= 90 ? '🟢' : a11y >= 50 ? '🟠' : '🔴';
+              const bEmoji = bp >= 90 ? '🟢' : bp >= 50 ? '🟠' : '🔴';
+              const sEmoji = seo >= 90 ? '🟢' : seo >= 50 ? '🟠' : '🔴';
+              
+              commentBody += `| ${url} | ${pEmoji} ${perf} | ${aEmoji} ${a11y} | ${bEmoji} ${bp} | ${sEmoji} ${seo} |\n`;
+            }
+            
+            commentBody += '\n### Core Web Vitals\n';
+            commentBody += '| URL | LCP | TBT | CLS |\n';
+            commentBody += '|-----|-----|-----|-----|\n';
+            
+            for (const result of manifest) {
+              const url = new URL(result.url).pathname || '/';
+              const lcp = result.timings?.['largest-contentful-paint']?.numericValue 
+                ? `${(result.timings['largest-contentful-paint'].numericValue / 1000).toFixed(2)}s` 
+                : 'N/A';
+              const tbt = result.timings?.['total-blocking-time']?.numericValue 
+                ? `${result.timings['total-blocking-time'].numericValue}ms` 
+                : 'N/A';
+              const cls = result.timings?.['cumulative-layout-shift']?.numericValue 
+                ? result.timings['cumulative-layout-shift'].numericValue.toFixed(3)
+                : 'N/A';
+              
+              commentBody += `| ${url} | ${lcp} | ${tbt} | ${cls} |\n`;
+            }
+            
+            commentBody += '\n---\n';
+            commentBody += '*Generated by [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci)*';
+            
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const lighthouseComment = comments.find(comment => 
+              comment.body.includes('🚨 Lighthouse CI Report')
+            );
+            
+            if (lighthouseComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: lighthouseComment.id,
+                body: commentBody,
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody,
+              });
+            }
+
+  # Generate summary report
+  summary:
+    runs-on: ubuntu-latest
+    needs: lighthouse
+    if: always()
+    
+    steps:
+      - name: Download Lighthouse reports
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-reports
+          
+      - name: Generate summary
+        run: |
+          echo "# Lighthouse CI Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f .lighthouseci/manifest.json ]; then
+            echo "## Results by URL" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| URL | Performance | Accessibility | Best Practices | SEO |" >> $GITHUB_STEP_SUMMARY
+            echo "|-----|-------------|---------------|----------------|-----|" >> $GITHUB_STEP_SUMMARY
+            
+            # Parse manifest and create summary
+            cat .lighthouseci/manifest.json | jq -r '.[] | "| \(.url | split("/") | last) | \(.summary.performance * 100 | round)% | \(.summary.accessibility * 100 | round)% | \(.summary["best-practices"] * 100 | round)% | \(.summary.seo * 100 | round)% |"' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ No Lighthouse results found" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Artifacts" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- [Lighthouse Reports](lighthouse-reports)" >> $GITHUB_STEP_SUMMARY
+
+  # Notify on failure
+  notify:
+    runs-on: ubuntu-latest
+    needs: [lighthouse]
+    if: failure() && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Notify on failure
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('Lighthouse CI failed on main branch');
+            // Add notification logic here (Slack, Discord, email, etc.)
