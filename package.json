@@ -19,11 +19,11 @@
     "test:e2e:ci": "playwright test --reporter=list",
     "type-check": "tsc --noEmit",
     "analyze": "cross-env ANALYZE=true next build",
-    "lighthouse": "lhci autorun",
-    "lighthouse:ci": "lhci autorun --config=./lighthouserc.json",
-    "lighthouse:local": "lhci autorun --config=lighthouserc.local.js",
-    "lighthouse:server": "lhci server --config=lighthouserc-server.js",
-    "lighthouse:assert": "lhci autorun --config=lighthouserc.js"
+    "lighthouse": "lhci autorun --config=./lighthouserc.cjs",
+    "lighthouse:ci": "lhci autorun --config=./lighthouserc.cjs",
+    "lighthouse:local": "lhci autorun --config=lighthouserc.cjs",
+    "lighthouse:server": "lhci server --config=lighthouserc.cjs",
+    "lighthouse:assert": "lhci autorun --config=lighthouserc.cjs"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
