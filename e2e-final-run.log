@@ -1,0 +1,550 @@
+
+> app@0.1.0 test:e2e:ci
+> playwright test --reporter=list
+
+🎭 Starting Playwright global setup...
+Node.js version: v22.22.0
+✅ Node.js 22+ detected - compatibility settings applied
+✅ TransformStream available
+✅ Global setup complete
+
+Running 63 tests using 1 worker
+
+  ✘   1 [chromium] › e2e/analytics.spec.ts:15:3 › Analytics Dashboard › should display analytics page (421ms)
+  ✘   2 [chromium] › e2e/analytics.spec.ts:28:3 › Analytics Dashboard › should display date range selector (258ms)
+  ✘   3 [chromium] › e2e/analytics.spec.ts:34:3 › Analytics Dashboard › should display stat cards (306ms)
+  ✘   4 [chromium] › e2e/analytics.spec.ts:41:3 › Analytics Dashboard › should display charts (404ms)
+  ✘   5 [chromium] › e2e/analytics.spec.ts:47:3 › Analytics Dashboard › should refresh data (370ms)
+  ✓   6 [chromium] › e2e/analytics.spec.ts:57:3 › Analytics Dashboard › should export data (2.3s)
+  ✓   7 [chromium] › e2e/analytics.spec.ts:69:3 › Analytics - Responsive › should adapt to mobile viewport (591ms)
+  ✓   8 [chromium] › e2e/analytics.spec.ts:82:3 › Analytics - Responsive › should adapt to tablet viewport (654ms)
+  ✓   9 [chromium] › e2e/analytics.spec.ts:98:3 › Analytics - Date Range Selection › should allow selecting different date ranges (1.9s)
+  ✓  10 [chromium] › e2e/analytics.spec.ts:115:3 › Analytics - Date Range Selection › should update data when date range changes (1.7s)
+  ✓  11 [chromium] › e2e/dashboard.spec.ts:14:3 › Dashboard › should display dashboard title (2.4s)
+  ✓  12 [chromium] › e2e/dashboard.spec.ts:23:3 › Dashboard › should display navigation elements (1.0s)
+  ✓  13 [chromium] › e2e/dashboard.spec.ts:29:3 › Dashboard › should have visible content (2.5s)
+  ✓  14 [chromium] › e2e/dashboard.spec.ts:44:3 › Dashboard Responsiveness › should adapt to mobile viewport (258ms)
+  ✓  15 [chromium] › e2e/dashboard.spec.ts:55:3 › Dashboard Responsiveness › should adapt to tablet viewport (285ms)
+  ✘  16 [chromium] › e2e/health-check.spec.ts:10:3 › Health Checks › landing page loads (228ms)
+  ✓  17 [chromium] › e2e/health-check.spec.ts:16:3 › Health Checks › static assets are served (95ms)
+  ✓  18 [chromium] › e2e/health-check.spec.ts:24:3 › Navigation Smoke Tests › can navigate to dashboard (520ms)
+  ✓  19 [chromium] › e2e/health-check.spec.ts:32:3 › Navigation Smoke Tests › can navigate to quotes page (243ms)
+  ✓  20 [chromium] › e2e/health-check.spec.ts:40:3 › Navigation Smoke Tests › can navigate to customers page (413ms)
+  ✓  21 [chromium] › e2e/health-check.spec.ts:48:3 › Navigation Smoke Tests › 404 page works for unknown routes (241ms)
+  ✓  22 [chromium] › e2e/quote-creation.spec.ts:15:3 › Quote Creation › quote creation page loads (268ms)
+  ✘  23 [chromium] › e2e/quote-creation.spec.ts:24:3 › Quote Creation › page has content (9.3s)
+  ✓  24 [chromium] › e2e/quote-creation.spec.ts:39:3 › Quotes List › quotes list page loads (737ms)
+  ✓  25 [chromium] › e2e/quote-sending.spec.ts:9:3 › Quote Management › can access quote pages (550ms)
+  ✓  26 [chromium] › e2e/quote-sending.spec.ts:18:3 › Quote Management › can access new quote page (438ms)
+  ✓  27 [chromium] › e2e/sidebar.spec.ts:32:3 › Sidebar - Desktop › should display sidebar on desktop (748ms)
+  ✓  28 [chromium] › e2e/sidebar.spec.ts:38:3 › Sidebar - Desktop › should show navigation items (701ms)
+  ✓  29 [chromium] › e2e/sidebar.spec.ts:48:3 › Sidebar - Desktop › should highlight active navigation item (1.3s)
+  ✓  30 [chromium] › e2e/sidebar.spec.ts:59:3 › Sidebar - Desktop › should support keyboard navigation (521ms)
+  ✓  31 [chromium] › e2e/sidebar.spec.ts:74:3 › Sidebar - Mobile › should hide sidebar behind hamburger menu on mobile (581ms)
+  ✓  32 [chromium] › e2e/sidebar.spec.ts:86:3 › Sidebar - Mobile › should open mobile menu when clicking hamburger (1.2s)
+  ✓  33 [chromium] › e2e/sidebar.spec.ts:97:3 › Sidebar - Mobile › should close mobile menu when clicking outside (1.1s)
+  ✘  34 [chromium] › e2e/sidebar.spec.ts:113:3 › Sidebar - Mobile › should support swipe gestures on mobile (762ms)
+  ✘  35 [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Dashboard (862ms)
+  ✘  36 [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Quotes (653ms)
+  ✘  37 [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Customers (1.1s)
+  ✘  38 [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Analytics (1.4s)
+  ✘  39 [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Settings (974ms)
+  ✓  40 [chromium] › e2e/sidebar.spec.ts:146:3 › Sidebar - Navigation Functionality › should preserve scroll position on navigation (1.7s)
+  ✓  41 [chromium] › e2e/sidebar.spec.ts:170:3 › Sidebar - Accessibility › should have proper ARIA attributes (837ms)
+  ✓  42 [chromium] › e2e/sidebar.spec.ts:180:3 › Sidebar - Accessibility › should support keyboard shortcuts (1.1s)
+  ✓  43 [chromium] › e2e/sidebar.spec.ts:200:3 › Sidebar - Accessibility › should trap focus in mobile sidebar (1.2s)
+  ✘  44 [chromium] › e2e/smoke.spec.ts:10:3 › Smoke Tests - Homepage › homepage loads successfully (604ms)
+  ✘  45 [chromium] › e2e/smoke.spec.ts:26:3 › Smoke Tests - Homepage › homepage has navigation elements (8.7s)
+  ✓  46 [chromium] › e2e/smoke.spec.ts:37:3 › Smoke Tests - Dashboard › dashboard page loads (1.6s)
+  ✓  47 [chromium] › e2e/smoke.spec.ts:49:3 › Smoke Tests - Dashboard › dashboard shows content after loading (3.6s)
+  ✓  48 [chromium] › e2e/smoke.spec.ts:62:3 › Smoke Tests - Quotes › quotes list page loads (1.7s)
+  ✓  49 [chromium] › e2e/smoke.spec.ts:70:3 › Smoke Tests - Quotes › new quote page loads (2.2s)
+  ✓  50 [chromium] › e2e/smoke.spec.ts:80:3 › Smoke Tests - Customers › customers page loads (1.1s)
+  ✓  51 [chromium] › e2e/smoke.spec.ts:90:3 › Smoke Tests - Navigation › can navigate from home to dashboard (1.6s)
+  ✓  52 [chromium] › e2e/smoke.spec.ts:103:3 › Smoke Tests - Navigation › 404 page handles unknown routes (715ms)
+  ✓  53 [chromium] › e2e/smoke.spec.ts:110:3 › Smoke Tests - API › api endpoints respond (167ms)
+  ✘  54 [chromium] › e2e/wizard.spec.ts:22:3 › Quote Wizard - Step 1: Customer Info › should display wizard with step 1 active (1.5s)
+  ✘  55 [chromium] › e2e/wizard.spec.ts:32:3 › Quote Wizard - Step 1: Customer Info › should allow creating a new customer (3.2s)
+  ✘  56 [chromium] › e2e/wizard.spec.ts:56:3 › Quote Wizard - Step 1: Customer Info › should show validation errors for empty fields (9.3s)
+  ✓  57 [chromium] › e2e/wizard.spec.ts:80:3 › Quote Wizard - Navigation › should show all wizard steps (2.0s)
+  ✓  58 [chromium] › e2e/wizard.spec.ts:93:3 › Quote Wizard - Navigation › should have navigation buttons (1.6s)
+  ✘  59 [chromium] › e2e/wizard.spec.ts:116:3 › Quote Wizard - Responsive › should work on mobile viewport (5.6s)
+  ✘  60 [chromium] › e2e/wizard.spec.ts:124:3 › Quote Wizard - Responsive › should work on tablet viewport (5.6s)
+  ✓  61 [chromium] › e2e/wizard.spec.ts:138:3 › Quote Wizard - Accessibility › should have proper heading structure (1.0s)
+  ✓  62 [chromium] › e2e/wizard.spec.ts:145:3 › Quote Wizard - Accessibility › should have focusable elements (1.0s)
+  ✓  63 [chromium] › e2e/wizard.spec.ts:152:3 › Quote Wizard - Accessibility › should pass basic a11y checks (1.1s)
+🧹 Starting Playwright global teardown...
+✅ Killed processes on port 3000
+✅ Global teardown complete
+
+
+  1) [chromium] › e2e/analytics.spec.ts:15:3 › Analytics Dashboard › should display analytics page ─
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/analytics
+    Call log:
+    [2m  - navigating to "http://localhost:3000/analytics", waiting until "load"[22m
+
+
+       9 | test.describe('Analytics Dashboard', () => {
+      10 |   test.beforeEach(async ({ page }) => {
+    > 11 |     await page.goto('/analytics');
+         |                ^
+      12 |     await page.waitForLoadState('domcontentloaded');
+      13 |   });
+      14 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/analytics.spec.ts:11:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/analytics-Analytics-Dashboard-should-display-analytics-page-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › e2e/analytics.spec.ts:28:3 › Analytics Dashboard › should display date range selector 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/analytics
+    Call log:
+    [2m  - navigating to "http://localhost:3000/analytics", waiting until "load"[22m
+
+
+       9 | test.describe('Analytics Dashboard', () => {
+      10 |   test.beforeEach(async ({ page }) => {
+    > 11 |     await page.goto('/analytics');
+         |                ^
+      12 |     await page.waitForLoadState('domcontentloaded');
+      13 |   });
+      14 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/analytics.spec.ts:11:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/analytics-Analytics-Dashbo-bcdc3-display-date-range-selector-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › e2e/analytics.spec.ts:34:3 › Analytics Dashboard › should display stat cards ─────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/analytics
+    Call log:
+    [2m  - navigating to "http://localhost:3000/analytics", waiting until "load"[22m
+
+
+       9 | test.describe('Analytics Dashboard', () => {
+      10 |   test.beforeEach(async ({ page }) => {
+    > 11 |     await page.goto('/analytics');
+         |                ^
+      12 |     await page.waitForLoadState('domcontentloaded');
+      13 |   });
+      14 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/analytics.spec.ts:11:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/analytics-Analytics-Dashboard-should-display-stat-cards-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › e2e/analytics.spec.ts:41:3 › Analytics Dashboard › should display charts ─────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/analytics
+    Call log:
+    [2m  - navigating to "http://localhost:3000/analytics", waiting until "load"[22m
+
+
+       9 | test.describe('Analytics Dashboard', () => {
+      10 |   test.beforeEach(async ({ page }) => {
+    > 11 |     await page.goto('/analytics');
+         |                ^
+      12 |     await page.waitForLoadState('domcontentloaded');
+      13 |   });
+      14 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/analytics.spec.ts:11:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/analytics-Analytics-Dashboard-should-display-charts-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › e2e/analytics.spec.ts:47:3 › Analytics Dashboard › should refresh data ───────────
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/analytics
+    Call log:
+    [2m  - navigating to "http://localhost:3000/analytics", waiting until "load"[22m
+
+
+       9 | test.describe('Analytics Dashboard', () => {
+      10 |   test.beforeEach(async ({ page }) => {
+    > 11 |     await page.goto('/analytics');
+         |                ^
+      12 |     await page.waitForLoadState('domcontentloaded');
+      13 |   });
+      14 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/analytics.spec.ts:11:16
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/analytics-Analytics-Dashboard-should-refresh-data-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › e2e/health-check.spec.ts:10:3 › Health Checks › landing page loads ───────────────
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m200[39m
+    Received: [31m500[39m
+
+      10 |   test('landing page loads', async ({ page }) => {
+      11 |     const response = await page.goto('/');
+    > 12 |     expect(response?.status()).toBe(200);
+         |                                ^
+      13 |     await expect(page).toHaveTitle(/QuoteGen|B2B/i);
+      14 |   });
+      15 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/health-check.spec.ts:12:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/health-check-Health-Checks-landing-page-loads-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/health-check-Health-Checks-landing-page-loads-chromium/error-context.md
+
+  7) [chromium] › e2e/quote-creation.spec.ts:24:3 › Quote Creation › page has content ──────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('main').first()
+    Expected: visible
+    Timeout: 8000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 8000ms[22m
+    [2m  - waiting for locator('main').first()[22m
+
+
+      32 |     // Check main content area
+      33 |     const main = page.locator('main').first();
+    > 34 |     await expect(main).toBeVisible();
+         |                        ^
+      35 |   });
+      36 | });
+      37 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/quote-creation.spec.ts:34:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/quote-creation-Quote-Creation-page-has-content-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/quote-creation-Quote-Creation-page-has-content-chromium/error-context.md
+
+  8) [chromium] › e2e/sidebar.spec.ts:113:3 › Sidebar - Mobile › should support swipe gestures on mobile 
+
+    Error: touchscreen.tap: x: expected float, got object
+
+      116 |
+      117 |     // Try swiping from left edge to open sidebar
+    > 118 |     await page.touchscreen.tap({ x: 10, y: 300 });
+          |                            ^
+      119 |   });
+      120 | });
+      121 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/sidebar.spec.ts:118:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sidebar-Sidebar---Mobile-s-d20e4-rt-swipe-gestures-on-mobile-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sidebar-Sidebar---Mobile-s-d20e4-rt-swipe-gestures-on-mobile-chromium/error-context.md
+
+  9) [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Dashboard 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a:has-text("Dashboard"), button:has-text("Dashboard"), text=Dashboard". Did you mean to CSS.escape it?
+
+      133 |       const navLink = page.locator(`a:has-text("${item.label}"), button:has-text("${item.label}"), text=${item.label}`).first();
+      134 |       
+    > 135 |       if (await navLink.count() > 0) {
+          |                         ^
+      136 |         await navLink.click();
+      137 |         await page.waitForTimeout(500);
+      138 |         
+        at /root/.openclaw/workspace/quotegen-app/e2e/sidebar.spec.ts:135:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sidebar-Sidebar---Navigati-add97-hould-navigate-to-Dashboard-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sidebar-Sidebar---Navigati-add97-hould-navigate-to-Dashboard-chromium/error-context.md
+
+  10) [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Quotes 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a:has-text("Quotes"), button:has-text("Quotes"), text=Quotes". Did you mean to CSS.escape it?
+
+      133 |       const navLink = page.locator(`a:has-text("${item.label}"), button:has-text("${item.label}"), text=${item.label}`).first();
+      134 |       
+    > 135 |       if (await navLink.count() > 0) {
+          |                         ^
+      136 |         await navLink.click();
+      137 |         await page.waitForTimeout(500);
+      138 |         
+        at /root/.openclaw/workspace/quotegen-app/e2e/sidebar.spec.ts:135:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sidebar-Sidebar---Navigati-01054-y-should-navigate-to-Quotes-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sidebar-Sidebar---Navigati-01054-y-should-navigate-to-Quotes-chromium/error-context.md
+
+  11) [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Customers 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a:has-text("Customers"), button:has-text("Customers"), text=Customers". Did you mean to CSS.escape it?
+
+      133 |       const navLink = page.locator(`a:has-text("${item.label}"), button:has-text("${item.label}"), text=${item.label}`).first();
+      134 |       
+    > 135 |       if (await navLink.count() > 0) {
+          |                         ^
+      136 |         await navLink.click();
+      137 |         await page.waitForTimeout(500);
+      138 |         
+        at /root/.openclaw/workspace/quotegen-app/e2e/sidebar.spec.ts:135:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sidebar-Sidebar---Navigati-5b6cd-hould-navigate-to-Customers-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sidebar-Sidebar---Navigati-5b6cd-hould-navigate-to-Customers-chromium/error-context.md
+
+  12) [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Analytics 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a:has-text("Analytics"), button:has-text("Analytics"), text=Analytics". Did you mean to CSS.escape it?
+
+      133 |       const navLink = page.locator(`a:has-text("${item.label}"), button:has-text("${item.label}"), text=${item.label}`).first();
+      134 |       
+    > 135 |       if (await navLink.count() > 0) {
+          |                         ^
+      136 |         await navLink.click();
+      137 |         await page.waitForTimeout(500);
+      138 |         
+        at /root/.openclaw/workspace/quotegen-app/e2e/sidebar.spec.ts:135:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sidebar-Sidebar---Navigati-04cae-hould-navigate-to-Analytics-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sidebar-Sidebar---Navigati-04cae-hould-navigate-to-Analytics-chromium/error-context.md
+
+  13) [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Settings 
+
+    Error: locator.count: Unexpected token "=" while parsing css selector "a:has-text("Settings"), button:has-text("Settings"), text=Settings". Did you mean to CSS.escape it?
+
+      133 |       const navLink = page.locator(`a:has-text("${item.label}"), button:has-text("${item.label}"), text=${item.label}`).first();
+      134 |       
+    > 135 |       if (await navLink.count() > 0) {
+          |                         ^
+      136 |         await navLink.click();
+      137 |         await page.waitForTimeout(500);
+      138 |         
+        at /root/.openclaw/workspace/quotegen-app/e2e/sidebar.spec.ts:135:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/sidebar-Sidebar---Navigati-5c14c-should-navigate-to-Settings-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/sidebar-Sidebar---Navigati-5c14c-should-navigate-to-Settings-chromium/error-context.md
+
+  14) [chromium] › e2e/smoke.spec.ts:10:3 › Smoke Tests - Homepage › homepage loads successfully ───
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m200[39m
+    Received: [31m500[39m
+
+      10 |   test('homepage loads successfully', async ({ page }) => {
+      11 |     const response = await page.goto('/');
+    > 12 |     expect(response?.status()).toBe(200);
+         |                                ^
+      13 |
+      14 |     // Wait for the page to be fully loaded
+      15 |     await page.waitForLoadState('domcontentloaded');
+        at /root/.openclaw/workspace/quotegen-app/e2e/smoke.spec.ts:12:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/smoke-Smoke-Tests---Homepage-homepage-loads-successfully-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/smoke-Smoke-Tests---Homepage-homepage-loads-successfully-chromium/error-context.md
+
+  15) [chromium] › e2e/smoke.spec.ts:26:3 › Smoke Tests - Homepage › homepage has navigation elements 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('header').first()
+    Expected: visible
+    Timeout: 8000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 8000ms[22m
+    [2m  - waiting for locator('header').first()[22m
+
+
+      30 |     // Check for header
+      31 |     const header = page.locator('header').first();
+    > 32 |     await expect(header).toBeVisible();
+         |                          ^
+      33 |   });
+      34 | });
+      35 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/smoke.spec.ts:32:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/smoke-Smoke-Tests---Homepa-eb47b-age-has-navigation-elements-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/smoke-Smoke-Tests---Homepa-eb47b-age-has-navigation-elements-chromium/error-context.md
+
+  16) [chromium] › e2e/wizard.spec.ts:22:3 › Quote Wizard - Step 1: Customer Info › should display wizard with step 1 active 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-testid="quote-wizard"]')
+    Expected: visible
+    Error: strict mode violation: locator('[data-testid="quote-wizard"]') resolved to 2 elements:
+        1) <div data-testid="quote-wizard" class="w-full max-w-6xl mx-auto">…</div> aka getByTestId('page-content-desktop').getByTestId('quote-wizard')
+        2) <div data-testid="quote-wizard" class="w-full max-w-6xl mx-auto">…</div> aka getByTestId('page-content-mobile').getByTestId('quote-wizard')
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 8000ms[22m
+    [2m  - waiting for locator('[data-testid="quote-wizard"]')[22m
+
+
+      23 |     // Check wizard container
+      24 |     const wizard = page.locator('[data-testid="quote-wizard"]');
+    > 25 |     await expect(wizard).toBeVisible();
+         |                          ^
+      26 |
+      27 |     // Check step indicator shows step 1
+      28 |     const step1 = page.locator('[data-testid="wizard-step-1"]').or(page.locator('text=Customer Information'));
+        at /root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:25:26
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/wizard-Quote-Wizard---Step-f34e5-y-wizard-with-step-1-active-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/wizard-Quote-Wizard---Step-f34e5-y-wizard-with-step-1-active-chromium/error-context.md
+
+  17) [chromium] › e2e/wizard.spec.ts:32:3 › Quote Wizard - Step 1: Customer Info › should allow creating a new customer 
+
+    Error: locator.fill: Error: strict mode violation: locator('input[type="email"]').or(locator('[data-testid="customer-email-input"]')) resolved to 2 elements:
+        1) <input value="" type="email" placeholder="customer@company.com" data-testid="customer-email-input" class="↵                      w-full pl-12 pr-4 py-3 bg-slate-800 border rounded-xl transition-all text-slate-200 placeholder-slate-500↵                      border-slate-700 focus:ring-indigo-500 focus:border-indigo-500↵                    "/> aka getByTestId('page-content-desktop').getByTestId('customer-email-input')
+        2) <input value="" type="email" placeholder="customer@company.com" data-testid="customer-email-input" class="↵                      w-full pl-12 pr-4 py-3 bg-slate-800 border rounded-xl transition-all text-slate-200 placeholder-slate-500↵                      border-slate-700 focus:ring-indigo-500 focus:border-indigo-500↵                    "/> aka getByTestId('page-content-mobile').getByTestId('customer-email-input')
+
+    Call log:
+    [2m  - waiting for locator('input[type="email"]').or(locator('[data-testid="customer-email-input"]'))[22m
+
+
+      40 |     const emailInput = page.locator('input[type="email"]').or(page.locator('[data-testid="customer-email-input"]'));
+      41 |     if (await emailInput.count() > 0) {
+    > 42 |       await emailInput.fill('test@example.com');
+         |                        ^
+      43 |     }
+      44 |
+      45 |     const companyInput = page.locator('input[placeholder*="company" i]').or(page.locator('[data-testid="customer-company-input"]'));
+        at /root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:42:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/wizard-Quote-Wizard---Step-8dfbc-low-creating-a-new-customer-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/wizard-Quote-Wizard---Step-8dfbc-low-creating-a-new-customer-chromium/error-context.md
+
+  18) [chromium] › e2e/wizard.spec.ts:56:3 › Quote Wizard - Step 1: Customer Info › should show validation errors for empty fields 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('form, [data-testid="customer-info-step"]')
+    Expected: visible
+    Timeout: 8000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 8000ms[22m
+    [2m  - waiting for locator('form, [data-testid="customer-info-step"]')[22m
+
+
+      69 |     const errorElements = page.locator('.text-red-400, .text-red-500, [aria-invalid="true"], .error');
+      70 |     // Don't assert count - just verify form exists
+    > 71 |     await expect(page.locator('form, [data-testid="customer-info-step"]')).toBeVisible();
+         |                                                                            ^
+      72 |   });
+      73 | });
+      74 |
+        at /root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:71:76
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/wizard-Quote-Wizard---Step-06a05-ion-errors-for-empty-fields-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/wizard-Quote-Wizard---Step-06a05-ion-errors-for-empty-fields-chromium/error-context.md
+
+  19) [chromium] › e2e/wizard.spec.ts:116:3 › Quote Wizard - Responsive › should work on mobile viewport 
+
+    TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="quote-wizard"]') to be visible[22m
+    [2m    14 × locator resolved to 2 elements. Proceeding with the first one: <div data-testid="quote-wizard" class="w-full max-w-6xl mx-auto">…</div>[22m
+
+
+      12 |   await page.waitForLoadState('domcontentloaded');
+      13 |   // Wait for wizard to mount
+    > 14 |   await page.waitForSelector('[data-testid="quote-wizard"]', { timeout: 5000 });
+         |              ^
+      15 | }
+      16 |
+      17 | test.describe('Quote Wizard - Step 1: Customer Info', () => {
+        at navigateToWizard (/root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:14:14)
+        at /root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:118:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/wizard-Quote-Wizard---Resp-afa72-uld-work-on-mobile-viewport-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/wizard-Quote-Wizard---Resp-afa72-uld-work-on-mobile-viewport-chromium/error-context.md
+
+  20) [chromium] › e2e/wizard.spec.ts:124:3 › Quote Wizard - Responsive › should work on tablet viewport 
+
+    TimeoutError: page.waitForSelector: Timeout 5000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('[data-testid="quote-wizard"]') to be visible[22m
+    [2m    14 × locator resolved to 2 elements. Proceeding with the first one: <div data-testid="quote-wizard" class="w-full max-w-6xl mx-auto">…</div>[22m
+
+
+      12 |   await page.waitForLoadState('domcontentloaded');
+      13 |   // Wait for wizard to mount
+    > 14 |   await page.waitForSelector('[data-testid="quote-wizard"]', { timeout: 5000 });
+         |              ^
+      15 | }
+      16 |
+      17 | test.describe('Quote Wizard - Step 1: Customer Info', () => {
+        at navigateToWizard (/root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:14:14)
+        at /root/.openclaw/workspace/quotegen-app/e2e/wizard.spec.ts:126:5
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/wizard-Quote-Wizard---Resp-7be57-uld-work-on-tablet-viewport-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/wizard-Quote-Wizard---Resp-7be57-uld-work-on-tablet-viewport-chromium/error-context.md
+
+  20 failed
+    [chromium] › e2e/analytics.spec.ts:15:3 › Analytics Dashboard › should display analytics page ──
+    [chromium] › e2e/analytics.spec.ts:28:3 › Analytics Dashboard › should display date range selector 
+    [chromium] › e2e/analytics.spec.ts:34:3 › Analytics Dashboard › should display stat cards ──────
+    [chromium] › e2e/analytics.spec.ts:41:3 › Analytics Dashboard › should display charts ──────────
+    [chromium] › e2e/analytics.spec.ts:47:3 › Analytics Dashboard › should refresh data ────────────
+    [chromium] › e2e/health-check.spec.ts:10:3 › Health Checks › landing page loads ────────────────
+    [chromium] › e2e/quote-creation.spec.ts:24:3 › Quote Creation › page has content ───────────────
+    [chromium] › e2e/sidebar.spec.ts:113:3 › Sidebar - Mobile › should support swipe gestures on mobile 
+    [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Dashboard 
+    [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Quotes 
+    [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Customers 
+    [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Analytics 
+    [chromium] › e2e/sidebar.spec.ts:128:5 › Sidebar - Navigation Functionality › should navigate to Settings 
+    [chromium] › e2e/smoke.spec.ts:10:3 › Smoke Tests - Homepage › homepage loads successfully ─────
+    [chromium] › e2e/smoke.spec.ts:26:3 › Smoke Tests - Homepage › homepage has navigation elements 
+    [chromium] › e2e/wizard.spec.ts:22:3 › Quote Wizard - Step 1: Customer Info › should display wizard with step 1 active 
+    [chromium] › e2e/wizard.spec.ts:32:3 › Quote Wizard - Step 1: Customer Info › should allow creating a new customer 
+    [chromium] › e2e/wizard.spec.ts:56:3 › Quote Wizard - Step 1: Customer Info › should show validation errors for empty fields 
+    [chromium] › e2e/wizard.spec.ts:116:3 › Quote Wizard - Responsive › should work on mobile viewport 
+    [chromium] › e2e/wizard.spec.ts:124:3 › Quote Wizard - Responsive › should work on tablet viewport 
+  43 passed (3.1m)

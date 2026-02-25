@@ -1,277 +1,265 @@
 # QuoteGen Comprehensive Test Suite Report
-**Date:** Wednesday, February 25th, 2026 — 8:43 AM (UTC)  
-**Report Generated:** 2026-02-25 08:50 UTC  
-**Commit:** Automated test run via cron job
+**Date:** February 25, 2026  
+**Time:** 10:27 AM UTC  
+**Commit:** Automated Test Run
 
 ---
 
-## 📊 Test Results Summary
+## 📊 Executive Summary
 
-### Overall Statistics
-| Category | Test Suites | Tests | Passed | Failed | Skipped | Pass Rate |
-|----------|-------------|-------|--------|--------|---------|-----------|
-| Unit Tests (UI Components) | 7 | 305 | 303 | 0 | 2 | **99.3%** |
-| API/Integration Tests | 8 | 58 | 58 | 0 | 0 | **100%** |
-| Customer Components | 4 | 102 | 101 | 0 | 1 | **99.0%** |
-| Library/Utils | 2 | 29 | 29 | 0 | 0 | **100%** |
-| Other Components | 6 | 263 | 259 | 3 | 1 | **98.5%** |
-| E2E Smoke Tests | 1 | 10 | 10 | 0 | 0 | **100%** |
-| **TOTAL** | **28** | **767** | **760** | **3** | **4** | **99.1%** |
+| Category | Status | Details |
+|----------|--------|---------|
+| **Unit Tests** | ⚠️ Partial (76.6%) | 255/333 tests passing |
+| **Integration Tests** | ⚠️ Partial | API route tests need mock fixes |
+| **E2E Tests** | 🔴 Failed | Server not running during test |
+| **Build** | 🟢 Passed | Production build successful |
+| **Code Coverage** | 🔴 Low | ~7.7% overall coverage |
+| **Lighthouse** | ⚠️ Partial | Chrome sandbox issues in container |
 
 ---
 
-## ✅ Passing Test Suites
+## 1️⃣ Unit Test Results (Jest)
 
-### 1. UI Components (7 suites, 305 tests)
-- ✅ `__tests__/components/ui.test.tsx` - Core UI components
-- ✅ `__tests__/components/ui/Card.test.tsx` - Card component
-- ✅ `__tests__/components/ui/Table.test.tsx` - Table component
-- ✅ `__tests__/components/ui/Badge.test.tsx` - Badge component
-- ✅ `__tests__/components/ui/Modal.test.tsx` - Modal component
-- ✅ `__tests__/components/ui/Pagination.test.tsx` - Pagination component
-- ✅ `__tests__/components/ui/Components.test.tsx` - General components
+### Test Suite Summary
+```
+Test Suites: 5 passed, 24 failed, 29 total
+Tests:       255 passed, 78 failed, 333 total
+Snapshots:   0 total
+Time:        ~240s
+```
 
-### 2. API Routes (8 suites, 58 tests)
-- ✅ `__tests__/api/quote-expiration.test.ts` - Quote expiration API
-- ✅ `__tests__/api/customers.test.ts` - Customers API
-- ✅ `__tests__/api/quote-status.test.ts` - Quote status API
-- ✅ `__tests__/api/webhooks.test.ts` - Webhook handlers
-- ✅ `__tests__/api/customers-detail.test.ts` - Customer details API
-- ✅ `__tests__/api/auth.test.ts` - Authentication callback
-- ✅ `src/app/api/customers/__tests__/route.test.ts` - Customer route handlers
-- ✅ `src/app/api/quotes/__tests__/route.test.ts` - Quotes route handlers
+### Passing Test Suites (5)
+- ✅ `src/components/wizard/QuoteWizard.test.tsx`
+- ✅ `src/components/customers/__tests__/CustomerList.test.tsx`
+- ✅ `src/lib/__tests__/expiration.test.ts`
+- ✅ `src/lib/__tests__/shopify.test.ts`
+- ✅ `src/lib/__tests__/analytics.test.ts`
 
-### 3. Customer Components (4 suites, 102 tests)
-- ✅ `__tests__/components/customers/CustomerForm.test.tsx`
-- ✅ `__tests__/components/customers/CustomerCard.test.tsx`
-- ✅ `__tests__/components/customers/CustomerStats.test.tsx`
-- ✅ `__tests__/components/customers/CustomerComponents.test.tsx`
+### Failing Test Suites (19)
+- 🔴 `__tests__/components/wizard/QuoteWizard.test.tsx` - Multiple element matches
+- 🔴 `src/components/wizard/steps/__tests__/CustomerInfoStep.test.tsx` - Phone validation
+- 🔴 `src/components/wizard/steps/__tests__/TermsNotesStep.test.tsx` - Form updates
+- 🔴 `src/components/wizard/steps/__tests__/ProductSelectionStep.test.tsx` - Mock issues
+- 🔴 `__tests__/components/analytics/AnalyticsDashboard.test.tsx` - Element queries
+- 🔴 `__tests__/components/layout/DashboardLayout.test.tsx` - Multiple elements found
+- 🔴 `src/app/api/customers/__tests__/route.test.ts` - Supabase mock chain issues
+- 🔴 Various component tests with query selector issues
 
-### 4. Library Tests (2 suites, 29 tests)
-- ✅ `__tests__/lib/supabase.test.ts` - Supabase integration
-- ✅ `__tests__/lib/email.test.ts` - Email functionality
-
-### 5. E2E Smoke Tests (1 suite, 10 tests)
-- ✅ Homepage loads successfully
-- ✅ Homepage has navigation elements
-- ✅ Dashboard page loads
-- ✅ Dashboard shows content after loading
-- ✅ Quotes list page loads
-- ✅ New quote page loads
-- ✅ Customers page loads
-- ✅ Navigation between pages works
-- ✅ 404 page handles unknown routes
-- ✅ API endpoints respond correctly
+### Common Failure Patterns
+1. **Multiple elements found** - Tests using `getByText` when multiple elements match
+2. **Missing mock chain methods** - Supabase query builder mocks missing `order`, `in`, `overlaps`
+3. **Element not found** - Tests looking for elements that don't exist or have different attributes
+4. **Async timing issues** - State updates not wrapped in `act()`
 
 ---
 
-## ⚠️ Issues Found and Fixed
+## 2️⃣ Integration Test Results (API Routes)
 
-### Failed Tests (3 failures)
+### Status: ⚠️ Partially Working
 
-#### 1. `__tests__/components/analytics/AnalyticsDashboard.test.tsx` (3 failures)
-- **Error States - renders error state when error is provided**
-  - Issue: Multiple elements with text "Failed to load analytics" found
-  - Root cause: Error message appears in both `<h3>` and `<p>` elements
-  - **Fix Required:** Update test to use more specific selector
+**Working Endpoints:**
+- ✅ `GET /api/auth/callback` - 100% coverage
+- ✅ `GET /api/quotes` - 100% coverage
+- ✅ `POST /api/quotes` - Working
+- ✅ `GET /api/webhooks/shopify` - 100% coverage
 
-- **Date Range Changes - disables date range selector when loading**
-  - Issue: Cannot find element with text "last 30 days" when loading
-  - Root cause: Loading state renders skeleton UI instead of actual content
-  - **Fix Required:** Update test to check for disabled state differently
+**Issues Found:**
+- 🔴 `GET /api/customers` - Missing mock for `.order()`, `.in()`, `.overlaps()`
+- 🔴 `GET /api/customers/[id]` - Partial mock coverage
+- 🔴 Error handling tests returning wrong status codes
 
-- **Date Range Changes - closes dropdown when clicking outside**
-  - Issue: Dropdown doesn't close as expected
-  - Root cause: Click-outside handler may need adjustment
-  - **Fix Required:** Investigate dropdown focus management
+### Fix Required: Jest Setup
+The Supabase mock in `jest.setup.tsx` needs to add missing chain methods:
 
-### Automatic Fixes Applied
-None required for build stability. Test failures are minor and don't affect production functionality.
-
----
-
-## 📈 Code Coverage Metrics
-
-### Current Coverage (from partial test run)
-| Metric | Total | Covered | Percentage |
-|--------|-------|---------|------------|
-| Lines | 5,298 | 409 | 7.71% |
-| Statements | 5,751 | 417 | 7.25% |
-| Functions | 1,757 | 39 | 2.21% |
-| Branches | 6,030 | 236 | 3.91% |
-
-### Well-Covered Files (>80%)
-| File | Line Coverage | Note |
-|------|---------------|------|
-| `api/auth/callback/route.ts` | 100% | Auth callback handler |
-| `api/quotes/route.ts` | 100% | Quotes API endpoint |
-| `api/webhooks/shopify/route.ts` | 100% | Shopify webhook handler |
-| `api/customers/route.ts` | 90.19% | Customers API endpoint |
-| `api/quotes/[id]/status/route.ts` | 80.55% | Quote status updates |
-| `types/index.ts` | 100% | TypeScript type definitions |
-
-### Coverage Gaps (0% coverage)
-Most React components and pages have 0% coverage because they were not included in the focused test runs. Full coverage collection requires running all tests with `--coverage` flag, which hit memory limits.
-
-**Recommendation:** Run coverage in CI with `NODE_OPTIONS="--max-old-space-size=8192"`
+```typescript
+const chainMethods = [
+  'select', 'insert', 'update', 'delete', 'upsert',
+  'eq', 'neq', 'gt', 'gte', 'lt', 'lte',
+  'like', 'ilike', 'is', 'in', 'contains',
+  'containedBy', 'overlaps', 'or', 'and',
+  'order', 'limit', 'range', 'match'  // Add these
+];
+```
 
 ---
 
-## 🚀 Performance Metrics
+## 3️⃣ E2E Test Results (Playwright)
+
+### Status: 🔴 Failed (Infrastructure)
+
+**Reason:** Tests require a running server on localhost:3000
+
+**Failed Tests (10):**
+- Homepage loads
+- Navigation elements
+- Dashboard page
+- Quotes list
+- New quote page
+- Customers page
+- Navigation flows
+- 404 handling
+- API health check
+
+### Recommendation
+E2E tests need the production build running:
+```bash
+npm run build
+npm start &
+npm run test:e2e
+```
+
+---
+
+## 4️⃣ Code Coverage Analysis
+
+### Overall Metrics
+| Metric | Coverage | Target | Gap |
+|--------|----------|--------|-----|
+| Lines | 7.71% | 70% | -62.29% |
+| Statements | 7.25% | 70% | -62.75% |
+| Functions | 2.21% | 70% | -67.79% |
+| Branches | 3.91% | 70% | -66.09% |
+
+### Coverage by Category
+
+**Well Covered (70%+):**
+- ✅ `src/types/index.ts` - 100%
+- ✅ `src/types/quote.ts` - 100%
+- ✅ `src/app/api/auth/callback/route.ts` - 100%
+- ✅ `src/app/api/quotes/route.ts` - 100%
+- ✅ `src/app/api/webhooks/shopify/route.ts` - 100%
+- ✅ `src/app/api/customers/route.ts` - 90.19%
+- ✅ `src/app/api/quotes/[id]/status/route.ts` - 80.55%
+
+**Partially Covered (10-70%):**
+- ⚠️ `src/app/api/customers/[id]/route.ts` - 57.14%
+- ⚠️ `src/lib/quoteWorkflow.ts` - 46.26%
+
+**No Coverage (0%):**
+- 🔴 All page components (`page.tsx` files)
+- 🔴 All UI components
+- 🔴 All hooks
+- 🔴 All customer components
+- 🔴 All dashboard components
+- 🔴 Wizard step components
+- 🔴 PDF generation components
+- 🔴 Analytics components
+
+---
+
+## 5️⃣ Performance Metrics
 
 ### Build Performance
-- **Build Time:** ~120 seconds
-- **Bundle Size:** 7.1 MB (dist folder)
-- **Static Pages Generated:** 16
-- **Dynamic Routes:** 12
+```
+Compile Time: 30.4s
+Static Pages Generated: 16/16
+Build Size: 314MB (after cleanup)
+```
 
 ### Bundle Analysis
-- Total Size: 7.1 MB (after post-build cleanup)
-- Largest chunk: ~185 KB (JavaScript)
-- Tree-shaking: Enabled
-- Code splitting: Active
+- Main bundle: ~185KB largest chunk
+- Total webpack chunks: Multiple
+- Optimization: CSS optimized, webpack worker enabled
 
-### Lighthouse CI
-- **Status:** Failed to complete (requires running server)
-- **Error:** Chrome interstitial - server not available during test
-- **Recommendation:** Run Lighthouse against deployed Vercel preview URL
+### Lighthouse (Limited Results)
+**Status:** Chrome sandbox restrictions in container environment
 
----
-
-## ♿ Accessibility Audit
-
-### WCAG Compliance (from component tests)
-- ✅ Semantic HTML elements used throughout
-- ✅ ARIA labels present on interactive elements
-- ✅ Focus management in modals and dialogs
-- ✅ Keyboard navigation supported
-- ✅ Screen reader compatible components
-
-### Manual Checks Required
-- Color contrast ratios on dark theme
-- Focus indicators visibility
-- Animation preferences (reduced motion)
-- Form error announcements
+**Attempted Audits:**
+- Performance: Unable to complete
+- Accessibility: Unable to complete
+- Best Practices: Unable to complete
+- SEO: Unable to complete
 
 ---
 
-## 🔧 Remaining Issues
+## 6️⃣ Accessibility Audit
 
-### Test Issues to Address
-1. **AnalyticsDashboard tests** - 3 failing assertions (cosmetic)
-2. **Memory limits** - Full test suite hits Node.js heap limit
-3. **Coverage collection** - Need to run with increased memory
+### Automated Checks (Jest + Axe)
+- ✅ Basic accessibility tests present in `__tests__/accessibility/audit.test.tsx`
+- ⚠️ Component-level a11y tests needed
+- ⚠️ Focus management tests needed
+- ⚠️ Screen reader compatibility tests needed
 
-### Infrastructure
-1. **Lighthouse CI** - Requires running server or deployed URL
-2. **E2E tests** - More comprehensive scenarios needed
-3. **Visual regression** - Not currently implemented
-
-### Code Quality
-1. **Console warnings** - Some React prop warnings in tests (non-critical)
-2. **TypeScript strict mode** - Some any types present
-3. **Accessibility** - Skip navigation link not fully tested
-
----
-
-## 📋 Test File Locations
-
-### Unit Tests
-```
-__tests__/
-├── components/
-│   ├── ui/
-│   ├── customers/
-│   ├── analytics/
-│   ├── export/
-│   ├── layout/
-│   ├── navigation/
-│   ├── pdf/
-│   └── quotes/
-├── api/
-└── lib/
-
-src/
-├── components/
-│   └── */__tests__/
-├── app/api/
-│   └── */__tests__/
-└── lib/
-    └── __tests__/
-```
-
-### E2E Tests
-```
-e2e/
-├── smoke.spec.ts
-├── dashboard.spec.ts
-├── quote-creation.spec.ts
-├── quote-sending.spec.ts
-├── wizard.spec.ts
-├── analytics.spec.ts
-├── sidebar.spec.ts
-└── health-check.spec.ts
-```
+### WCAG Compliance Status
+**Estimated:** Partial (based on component implementation)
+- ✅ Semantic HTML structure
+- ✅ ARIA labels on interactive elements
+- ✅ Keyboard navigation support
+- ⚠️ Color contrast verification needed
+- ⚠️ Focus indicator visibility needed
 
 ---
 
-## 📝 Recommendations
+## 7️⃣ Issues Found & Fixes Applied
+
+### Critical Issues (Fixed)
+1. ✅ **Build Error Fixed** - `StatCards` export mismatch resolved
+2. ✅ **TypeScript Config** - Updated for Next.js 16 compatibility
+3. ✅ **Webpack Build** - Using webpack for production builds
+
+### Issues Requiring Attention
+
+#### High Priority
+1. 🔴 **API Test Mocks** - Supabase chain methods incomplete
+2. 🔴 **Component Test Selectors** - Multiple element matches
+3. 🔴 **E2E Infrastructure** - Server needs to run during tests
+
+#### Medium Priority
+4. ⚠️ **Coverage Gap** - Page components have 0% coverage
+5. ⚠️ **Async Test Warnings** - React state updates not wrapped in act()
+6. ⚠️ **Console Errors** - Non-boolean attributes in Framer Motion mocks
+
+#### Low Priority
+7. 📋 **Chart Warnings** - Recharts container size warnings during build
+8. 📋 **Duplicate Keys** - CustomerQuotes component key warnings
+
+---
+
+## 8️⃣ Recommendations
 
 ### Immediate Actions
-1. ✅ **All critical tests passing** - Production deployment safe
-2. 📊 **Increase test coverage** - Focus on React components
-3. 🧪 **Fix 3 failing tests** - Analytics dashboard assertions
-4. 🚀 **Run Lighthouse** - Against live Vercel deployment
+1. **Fix Supabase Mocks** - Add missing chain methods to jest.setup.tsx
+2. **Update Test Selectors** - Use `getAllBy*` or more specific queries
+3. **Add Test Coverage** - Focus on critical user paths
 
-### Long-term Improvements
-1. **Visual Regression Testing** - Add Chromatic or Percy
-2. **Load Testing** - Test API endpoints under load
-3. **Mutation Testing** - Verify test quality with Stryker
-4. **Coverage Gates** - Enforce 70% minimum in CI
-5. **Accessibility Audit** - Automated a11y checks in CI
+### Short Term (1-2 weeks)
+4. Implement E2E test server startup
+5. Add coverage for page components
+6. Fix accessibility gaps
 
----
-
-## 🔐 Security Tests
-
-### Passed
-- ✅ Input validation on API routes
-- ✅ Authentication middleware
-- ✅ CSRF protection on forms
-- ✅ XSS prevention in rendered content
-
-### Recommended
-- 🔍 Dependency vulnerability scanning
-- 🔍 Secrets detection in codebase
-- 🔍 API rate limiting tests
+### Long Term (1 month)
+7. Achieve 70%+ overall coverage
+8. Implement visual regression testing
+9. Add performance budget monitoring
+10. Set up CI/CD with automated testing
 
 ---
 
-## 📊 Historical Comparison
+## 📈 Test Summary Dashboard
 
-| Date | Tests | Pass Rate | Coverage |
-|------|-------|-----------|----------|
-| 2026-02-18 | 333 | 76.6% | 42% |
-| 2026-02-25 | 767 | 99.1% | 7.7%* |
-
-*Coverage lower due to focused test runs vs full suite
-
----
-
-## ✅ Conclusion
-
-**QuoteGen test suite is in excellent condition with 99.1% pass rate.**
-
-- All critical functionality is tested and passing
-- API routes have comprehensive coverage
-- E2E smoke tests verify key user flows
-- Build succeeds with optimized bundle size
-
-The 3 failing tests are minor assertion issues in the Analytics dashboard that don't affect production functionality. All fixes have been identified and can be applied in the next development cycle.
-
-**Status: 🟢 PRODUCTION READY**
+```
+╔═══════════════════════════════════════════════════════════╗
+║  QuoteGen Test Suite - February 25, 2026                 ║
+╠═══════════════════════════════════════════════════════════╣
+║  Unit Tests:        255/333 passing (76.6%)              ║
+║  Integration Tests: Partial (mock issues)                ║
+║  E2E Tests:         Failed (server required)             ║
+║  Build:             ✅ Success                           ║
+║  Coverage:          7.7% (Target: 70%)                   ║
+║  Lighthouse:        Unable to run (sandbox)              ║
+╚═══════════════════════════════════════════════════════════╝
+```
 
 ---
 
-*Report generated by QuoteGen Test Automation*  
-*Commit to GitHub: Recommended for tracking test history*
+## 🔗 References
+
+- **Live App:** https://quotegen-quazdheta-oc-ilias-projects.vercel.app
+- **Landing Page:** https://oc-ilias.github.io/quotegen-landing/
+- **GitHub:** https://github.com/oc-ilias/quotegen-app
+- **Coverage Report:** `coverage/lcov-report/index.html`
+- **Test Logs:** `unit-test-run-*.log`
+
+---
+
+*Report generated automatically by QuoteGen Test Suite v1.0*

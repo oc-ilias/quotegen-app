@@ -1,0 +1,109 @@
+{
+  "testRun": "Jest Unit Tests - QuoteGen App",
+  "timestamp": "2026-02-25T09:41:00Z",
+  "summary": {
+    "testFiles": 88,
+    "passed": 81,
+    "failed": 7,
+    "passRate": "92%"
+  },
+  "failingTests": [
+    {
+      "file": "__tests__/components/wizard/QuoteWizard.test.tsx",
+      "errors": [
+        "QuoteWizard - Step Navigation › calls previousStep when previous button clicked",
+        "QuoteWizard - Form Validation › shows validation errors when trying to proceed with invalid data",
+        "QuoteWizard - Form Validation › validates customer email format",
+        "QuoteWizard - Form Validation › validates line items have required fields",
+        "QuoteWizard - Form Validation › validates line items have positive quantity",
+        "QuoteWizard - Form Validation › validates line items have non-negative price",
+        "QuoteWizard - Form Validation › clears validation errors when data is corrected",
+        "QuoteWizard - Error Handling › displays external error when provided",
+        "QuoteWizard - Error Handling › displays wizard error from hook",
+        "QuoteWizard - Error Handling › dismisses error when dismiss button clicked",
+        "QuoteWizard - Error Handling › shows retry count when retrying",
+        "QuoteWizard - Error Handling › shows loading overlay during step transition",
+        "QuoteWizard - Keyboard Navigation › navigates to next step on ArrowRight",
+        "QuoteWizard - Keyboard Navigation › navigates to previous step on ArrowLeft",
+        "QuoteWizard - Keyboard Navigation › shows keyboard navigation hints when enabled",
+        "QuoteWizard - Step Content › renders line items step",
+        "QuoteWizard - Integration › handles error and retry flow",
+        "QuoteWizard - Integration › handles loading state during transitions"
+      ]
+    },
+    {
+      "file": "src/components/wizard/steps/__tests__/CustomerInfoStep.test.tsx",
+      "errors": [
+        "CustomerInfoStep › validates phone number format"
+      ]
+    },
+    {
+      "file": "src/components/wizard/steps/__tests__/TermsNotesStep.test.tsx",
+      "errors": [
+        "TermsNotesStep › calls onUpdate when validity period changes",
+        "TermsNotesStep › shows deposit percentage input when deposit is required",
+        "TermsNotesStep › calls onUpdate when customer notes change",
+        "TermsNotesStep › calls onUpdate when internal notes change"
+      ]
+    },
+    {
+      "file": "__tests__/components/analytics/AnalyticsDashboard.test.tsx",
+      "errors": [
+        "AnalyticsDashboard - Error States › renders error state when error is provided",
+        "AnalyticsDashboard - Date Range Changes › disables date range selector when loading",
+        "AnalyticsDashboard - Date Range Changes › closes dropdown when clicking outside"
+      ]
+    },
+    {
+      "file": "__tests__/components/layout/DashboardLayout.test.tsx",
+      "errors": [
+        "DashboardLayout - Desktop Layout › renders desktop layout with sidebar and content area",
+        "DashboardLayout - Desktop Layout › toggles sidebar collapsed state",
+        "DashboardLayout - Desktop Layout › handles navigation callback",
+        "DashboardLayout - Mobile Layout › renders mobile layout with header and content",
+        "DashboardLayout - Loading States › shows content when not loading",
+        "DashboardLayout - Breadcrumb Generation › last breadcrumb item has no href (current page)",
+        "DashboardLayout - Page Transitions › supports fade transition mode",
+        "DashboardLayout - Page Transitions › supports slide transition mode",
+        "DashboardLayout - Page Transitions › supports scale transition mode",
+        "DashboardLayout - Integration › renders full layout with all components"
+      ]
+    },
+    {
+      "file": "src/components/wizard/steps/__tests__/ProductSelectionStep.test.tsx",
+      "errors": [
+        "ProductSelectionStep › calls onUpdate when removing a product"
+      ]
+    },
+    {
+      "file": "src/app/api/customers/__tests__/route.test.ts",
+      "errors": [
+        "GET /api/customers › should return customers with default pagination",
+        "GET /api/customers › should handle search query",
+        "GET /api/customers › should handle tags filter",
+        "GET /api/customers › should handle date range filters",
+        "GET /api/customers › should handle custom sorting",
+        "GET /api/customers › should handle pagination parameters",
+        "GET /api/customers › should limit max page size to 100",
+        "GET /api/customers › should handle database errors",
+        "GET /api/customers › should handle unexpected errors",
+        "GET /api/customers › should calculate customer stats correctly",
+        "POST /api/customers › should handle missing request body"
+      ]
+    }
+  ],
+  "notes": {
+    "apiTests": "API route tests include customers, quotes, status, webhooks, and auth endpoints",
+    "componentTests": "Component tests cover QuoteWizard, DashboardLayout, Analytics, and various UI components",
+    "commonIssues": [
+      "Multiple elements found with same text/data-testid (need to use getAllBy* or more specific selectors)",
+      "Form validation tests failing - validation error messages not found in DOM",
+      "Mock function assertions failing - callbacks not being called",
+      "Phone input validation test failing - input value not being set correctly"
+    ]
+  },
+  "coverage": {
+    "status": "Partial - full coverage report generation timed out",
+    "estimatedLines": "Unknown - run 'npm run test:coverage' locally for full report"
+  }
+}

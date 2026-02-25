@@ -1,0 +1,182 @@
+{
+  "testRun": {
+    "timestamp": "2026-02-25T09:41:00Z",
+    "project": "QuoteGen App",
+    "totalTests": 63,
+    "passed": 48,
+    "failed": 15,
+    "passRate": "76.2%",
+    "browser": "Chromium",
+    "workerCount": 1,
+    "duration": "~4.3 minutes"
+  },
+  "summary": {
+    "status": "COMPLETED_WITH_FAILURES",
+    "devServer": "Running on localhost:3000",
+    "nodeVersion": "v22.22.0"
+  },
+  "failedTests": [
+    {
+      "test": "Analytics Dashboard › should display analytics page",
+      "file": "e2e/analytics.spec.ts:15:3",
+      "error": "TimeoutError: page.goto: Timeout 20000ms exceeded. navigating to \"http://localhost:3000/analytics\"",
+      "screenshot": null
+    },
+    {
+      "test": "Sidebar - Mobile › should support swipe gestures on mobile",
+      "file": "e2e/sidebar.spec.ts:113:3",
+      "error": "Error: touchscreen.tap: x: expected float, got object",
+      "screenshot": "test-results/sidebar-Sidebar---Mobile-s-d20e4-rt-swipe-gestures-on-mobile-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Sidebar - Navigation Functionality › should navigate to Dashboard",
+      "file": "e2e/sidebar.spec.ts:128:5",
+      "error": "Error: locator.count: Unexpected token \"=\" while parsing css selector",
+      "screenshot": "test-results/sidebar-Sidebar---Navigati-add97-hould-navigate-to-Dashboard-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Sidebar - Navigation Functionality › should navigate to Quotes",
+      "file": "e2e/sidebar.spec.ts:128:5",
+      "error": "Error: locator.count: Unexpected token \"=\" while parsing css selector",
+      "screenshot": "test-results/sidebar-Sidebar---Navigati-01054-y-should-navigate-to-Quotes-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Sidebar - Navigation Functionality › should navigate to Customers",
+      "file": "e2e/sidebar.spec.ts:128:5",
+      "error": "Error: locator.count: Unexpected token \"=\" while parsing css selector",
+      "screenshot": "test-results/sidebar-Sidebar---Navigati-5b6cd-hould-navigate-to-Customers-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Sidebar - Navigation Functionality › should navigate to Analytics",
+      "file": "e2e/sidebar.spec.ts:128:5",
+      "error": "Error: locator.count: Unexpected token \"=\" while parsing css selector",
+      "screenshot": "test-results/sidebar-Sidebar---Navigati-04cae-hould-navigate-to-Analytics-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Sidebar - Navigation Functionality › should navigate to Settings",
+      "file": "e2e/sidebar.spec.ts:128:5",
+      "error": "Error: locator.count: Unexpected token \"=\" while parsing css selector",
+      "screenshot": "test-results/sidebar-Sidebar---Navigati-5c14c-should-navigate-to-Settings-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Step 1 › should display wizard with step 1 active",
+      "file": "e2e/wizard.spec.ts:22:3",
+      "error": "strict mode violation: locator('[data-testid=\"quote-wizard\"]') resolved to 2 elements (desktop + mobile)",
+      "screenshot": "test-results/wizard-Quote-Wizard---Step-f34e5-y-wizard-with-step-1-active-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Step 1 › should allow creating a new customer",
+      "file": "e2e/wizard.spec.ts:32:3",
+      "error": "strict mode violation: email input resolved to 2 elements (desktop + mobile)",
+      "screenshot": "test-results/wizard-Quote-Wizard---Step-8dfbc-low-creating-a-new-customer-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Step 1 › should show validation errors for empty fields",
+      "file": "e2e/wizard.spec.ts:56:3",
+      "error": "element(s) not found: locator('form, [data-testid=\"customer-info-step\"]')",
+      "screenshot": "test-results/wizard-Quote-Wizard---Step-06a05-ion-errors-for-empty-fields-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Responsive › should work on mobile viewport",
+      "file": "e2e/wizard.spec.ts:116:3",
+      "error": "net::ERR_CONNECTION_RESET at http://localhost:3000/quotes/new",
+      "screenshot": "test-results/wizard-Quote-Wizard---Resp-afa72-uld-work-on-mobile-viewport-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Responsive › should work on tablet viewport",
+      "file": "e2e/wizard.spec.ts:124:3",
+      "error": "net::ERR_CONNECTION_REFUSED at http://localhost:3000/quotes/new",
+      "screenshot": "test-results/wizard-Quote-Wizard---Resp-7be57-uld-work-on-tablet-viewport-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Accessibility › should have proper heading structure",
+      "file": "e2e/wizard.spec.ts:138:3",
+      "error": "net::ERR_CONNECTION_REFUSED at http://localhost:3000/quotes/new",
+      "screenshot": "test-results/wizard-Quote-Wizard---Acce-a8b97-ve-proper-heading-structure-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Accessibility › should have focusable elements",
+      "file": "e2e/wizard.spec.ts:145:3",
+      "error": "net::ERR_CONNECTION_REFUSED at http://localhost:3000/quotes/new",
+      "screenshot": "test-results/wizard-Quote-Wizard---Acce-5394b-uld-have-focusable-elements-chromium/test-failed-1.png"
+    },
+    {
+      "test": "Quote Wizard - Accessibility › should pass basic a11y checks",
+      "file": "e2e/wizard.spec.ts:152:3",
+      "error": "net::ERR_CONNECTION_REFUSED at http://localhost:3000/quotes/new",
+      "screenshot": "test-results/wizard-Quote-Wizard---Acce-1f7fe-ould-pass-basic-a11y-checks-chromium/test-failed-1.png"
+    }
+  ],
+  "screenshotPaths": [
+    "test-results/sidebar-Sidebar---Mobile-s-d20e4-rt-swipe-gestures-on-mobile-chromium/test-failed-1.png",
+    "test-results/sidebar-Sidebar---Navigati-add97-hould-navigate-to-Dashboard-chromium/test-failed-1.png",
+    "test-results/sidebar-Sidebar---Navigati-01054-y-should-navigate-to-Quotes-chromium/test-failed-1.png",
+    "test-results/sidebar-Sidebar---Navigati-5b6cd-hould-navigate-to-Customers-chromium/test-failed-1.png",
+    "test-results/sidebar-Sidebar---Navigati-04cae-hould-navigate-to-Analytics-chromium/test-failed-1.png",
+    "test-results/sidebar-Sidebar---Navigati-5c14c-should-navigate-to-Settings-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Step-f34e5-y-wizard-with-step-1-active-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Step-8dfbc-low-creating-a-new-customer-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Step-06a05-ion-errors-for-empty-fields-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Resp-afa72-uld-work-on-mobile-viewport-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Resp-7be57-uld-work-on-tablet-viewport-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Acce-a8b97-ve-proper-heading-structure-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Acce-5394b-uld-have-focusable-elements-chromium/test-failed-1.png",
+    "test-results/wizard-Quote-Wizard---Acce-1f7fe-ould-pass-basic-a11y-checks-chromium/test-failed-1.png"
+  ],
+  "connectionIssues": [
+    {
+      "type": "ERR_CONNECTION_RESET",
+      "details": "Connection reset when navigating to /quotes/new during mobile viewport test"
+    },
+    {
+      "type": "ERR_CONNECTION_REFUSED",
+      "details": "Connection refused on 5 wizard tests - dev server may have been temporarily unavailable"
+    },
+    {
+      "type": "TIMEOUT",
+      "details": "Analytics page timeout (20s exceeded) - possible slow loading or missing route"
+    }
+  ],
+  "testSuites": {
+    "analytics.spec.ts": {
+      "total": 10,
+      "passed": 9,
+      "failed": 1
+    },
+    "dashboard.spec.ts": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "health-check.spec.ts": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "quote-creation.spec.ts": {
+      "total": 3,
+      "passed": 3,
+      "failed": 0
+    },
+    "quote-sending.spec.ts": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0
+    },
+    "sidebar.spec.ts": {
+      "total": 14,
+      "passed": 8,
+      "failed": 6
+    },
+    "smoke.spec.ts": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0
+    },
+    "wizard.spec.ts": {
+      "total": 12,
+      "passed": 4,
+      "failed": 8
+    }
+  }
+}

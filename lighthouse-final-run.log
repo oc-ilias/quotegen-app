@@ -1,0 +1,25 @@
+
+> app@0.1.0 lighthouse:ci
+> lhci autorun --config=./lighthouserc.json
+
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+⚠️   GitHub token not set
+Healthcheck passed!
+
+Started a web server with "npm start"...
+WARNING: Timed out waiting for the server to start listening.
+         Ensure the server prints a pattern that matches /Ready on/i when it is ready.
+Running Lighthouse 3 time(s) on http://localhost:3000/
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Running Lighthouse 3 time(s) on http://localhost:3000/dashboard
+Run #1...done.
+Run #2...done.
+Run #3...done.
+Running Lighthouse 3 time(s) on http://localhost:3000/quotes
+Run #1...done.
+Run #2...done.
+Run #3...
