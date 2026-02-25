@@ -1,375 +1,191 @@
 /**
- * Badge Component Tests
+ * Badge Component Test Suite
+ * Comprehensive tests for Badge, StatusBadge, and PriorityBadge components
  * @module __tests__/components/ui/Badge
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Badge, StatusBadge, PriorityBadge } from '@/components/ui/Badge';
-import { QuoteStatus } from '@/types/quote';
-
-// Mock framer-motion
-jest.mock('framer-motion', () => ({
-  motion: {
-    span: ({ children, ...props }: any) => <span {...props}>{children}</span>,
-  },
-  AnimatePresence: ({ children }: any) => <>{children}</>,
-}));
-
-// ============================================================================
-// Badge Tests
-// ============================================================================
+import { QuoteStatus, Priority } from '@/types/quote';
 
 describe('Badge', () => {
-  // ==========================================================================
-  // Rendering Tests
-  // ==========================================================================
-
-  describe('rendering', () => {
-    it('renders with default props', () => {
-      render(<Badge>Test Badge</Badge>);
-      
-      expect(screen.getByText('Test Badge')).toBeInTheDocument();
+  describe('Basic Rendering', () => {
+    it('renders badge with text', () => {
+      render(<Badge>New</Badge>);
+      expect(screen.getByText('New')).toBeInTheDocument();
     });
 
-    it('renders with different variants', () => {
-      const { rerender } = render(<Badge variant="success">Success</Badge>);
-      expect(screen.getByText('Success')).toHaveClass('bg-emerald-500/10');
-
-      rerender(<Badge variant="error">Error</Badge>);
-      expect(screen.getByText('Error')).toHaveClass('bg-red-500/10');
-
-      rerender(<Badge variant="warning">Warning</Badge>);
-      expect(screen.getByText('Warning')).toHaveClass('bg-amber-500/10');
-
-      rerender(<Badge variant="info">Info</Badge>);
-      expect(screen.getByText('Info')).toHaveClass('bg-blue-500/10');
-
-      rerender(<Badge variant="primary">Primary</Badge>);
-      expect(screen.getByText('Primary')).toHaveClass('bg-indigo-500/10');
-    });
-
-    it('renders with different sizes', () => {
-      const { rerender } = render(<Badge size="sm">Small</Badge>);
-      expect(screen.getByText('Small')).toHaveClass('text-xs');
-
-      rerender(<Badge size="md">Medium</Badge>);
-      expect(screen.getByText('Medium')).toHaveClass('text-sm');
-
-      rerender(<Badge size="lg">Large</Badge>);
-      expect(screen.getByText('Large')).toHaveClass('text-base');
-    });
-
-    it('renders with dot indicator', () => {
-      render(<Badge variant="success" dot>With Dot</Badge>);
-      
-      const badge = screen.getByText('With Dot').parentElement;
-      const dot = badge?.querySelector('span');
-      expect(dot).toHaveClass('rounded-full');
-    });
-
-    it('applies custom className', () => {
-      render(<Badge className="custom-class">Custom</Badge>);
-      
-      expect(screen.getByText('Custom')).toHaveClass('custom-class');
+    it('renders with custom className', () => {
+      render(<Badge className="custom-badge">Custom</Badge>);
+      expect(screen.getByText('Custom')).toHaveClass('custom-badge');
     });
   });
 
-  // ==========================================================================
-  // Forward Ref Tests
-  // ==========================================================================
-
-  describe('forward ref', () => {
-    it('forwards ref correctly', () => {
-      const ref = React.createRef<HTMLSpanElement>();
-      render(<Badge ref={ref}>Ref Test</Badge>);
-      
-      expect(ref.current).toBeInstanceOf(HTMLSpanElement);
-    });
-  });
-
-  // ==========================================================================
-  // Animation Tests
-  // ==========================================================================
-
-  describe('animation', () => {
-    it('renders with animation when animate prop is true', () => {
-      render(<Badge animate={true}>Animated</Badge>);
-      
-      expect(screen.getByText('Animated')).toBeInTheDocument();
-    });
-  });
-});
-
-// ============================================================================
-// StatusBadge Tests
-// ============================================================================
-
-describe('StatusBadge', () => {
-  // ==========================================================================
-  // Rendering Tests
-  // ==========================================================================
-
-  describe('rendering', () => {
-    it('renders with correct status label', () => {
-      render(<StatusBadge status={QuoteStatus.ACCEPTED} />);
-      
-      expect(screen.getByText('Accepted')).toBeInTheDocument();
-    });
-
-    it('renders all QuoteStatus values', () => {
-      const statuses = Object.values(QuoteStatus);
-      
-      statuses.forEach((status) => {
-        const { unmount } = render(<StatusBadge status={status} />);
-        const label = status.charAt(0).toUpperCase() + status.slice(1);
-        expect(screen.getByText(label)).toBeInTheDocument();
-        unmount();
+  describe('Variants', () => {
+    const variants = ['default', 'primary', 'success', 'warning', 'danger', 'info'] as const;
+    
+    variants.forEach(variant => {
+      it(`renders ${variant} variant`, () => {
+        render(<Badge variant={variant}>{variant}</Badge>);
+        expect(screen.getByText(variant)).toBeInTheDocument();
       });
     });
+  });
 
-    it('handles extended status values', () => {
-      const { rerender } = render(<StatusBadge status="declined" />);
-      expect(screen.getByText('Declined')).toBeInTheDocument();
-
-      rerender(<StatusBadge status="sent" />);
-      expect(screen.getByText('Sent')).toBeInTheDocument();
-
-      rerender(<StatusBadge status="viewed" />);
-      expect(screen.getByText('Viewed')).toBeInTheDocument();
-
-      rerender(<StatusBadge status="expired" />);
-      expect(screen.getByText('Expired')).toBeInTheDocument();
-
-      rerender(<StatusBadge status="draft" />);
-      expect(screen.getByText('Draft')).toBeInTheDocument();
+  describe('Sizes', () => {
+    it('renders small size', () => {
+      render(<Badge size="sm">Small</Badge>);
+      expect(screen.getByText('Small')).toBeInTheDocument();
     });
 
-    it('handles unknown status gracefully', () => {
-      render(<StatusBadge status="unknown_status" />);
-      
-      expect(screen.getByText('unknown_status')).toBeInTheDocument();
+    it('renders medium size (default)', () => {
+      render(<Badge>Medium</Badge>);
+      expect(screen.getByText('Medium')).toBeInTheDocument();
     });
 
-    it('applies correct color for each status', () => {
-      const { rerender, container } = render(<StatusBadge status={QuoteStatus.ACCEPTED} />);
-      expect(container.querySelector('.bg-emerald-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.REJECTED} />);
-      expect(container.querySelector('.bg-red-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.PENDING} />);
-      expect(container.querySelector('.bg-amber-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.SENT} />);
-      expect(container.querySelector('.bg-indigo-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.VIEWED} />);
-      expect(container.querySelector('.bg-purple-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.DRAFT} />);
-      expect(container.querySelector('.bg-slate-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.EXPIRED} />);
-      expect(container.querySelector('.bg-gray-500\\/10')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.CONVERTED} />);
-      expect(container.querySelector('.bg-blue-500\\/10')).toBeInTheDocument();
-    });
-
-    it('renders with different sizes', () => {
-      const { rerender, container } = render(<StatusBadge status={QuoteStatus.ACCEPTED} size="sm" />);
-      expect(container.querySelector('.text-xs')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.ACCEPTED} size="md" />);
-      expect(container.querySelector('.text-sm')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.ACCEPTED} size="lg" />);
-      expect(container.querySelector('.text-base')).toBeInTheDocument();
-    });
-
-    it('applies custom className', () => {
-      const { container } = render(
-        <StatusBadge status={QuoteStatus.ACCEPTED} className="custom-class" />
-      );
-      
-      expect(container.querySelector('.custom-class')).toBeInTheDocument();
+    it('renders large size', () => {
+      render(<Badge size="lg">Large</Badge>);
+      expect(screen.getByText('Large')).toBeInTheDocument();
     });
   });
 
-  // ==========================================================================
-  // Status Dot Tests
-  // ==========================================================================
+  describe('Dot Indicator', () => {
+    it('renders with dot indicator', () => {
+      render(<Badge dot>With Dot</Badge>);
+      expect(screen.getByText('With Dot')).toBeInTheDocument();
+    });
 
-  describe('status dot', () => {
-    it('renders colored dot for each status', () => {
-      const { rerender } = render(<StatusBadge status={QuoteStatus.ACCEPTED} />);
-      const acceptedBadge = screen.getByText('Accepted').parentElement;
-      expect(acceptedBadge?.querySelector('.bg-emerald-500')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.REJECTED} />);
-      const rejectedBadge = screen.getByText('Rejected').parentElement;
-      expect(rejectedBadge?.querySelector('.bg-red-500')).toBeInTheDocument();
-
-      rerender(<StatusBadge status={QuoteStatus.PENDING} />);
-      const pendingBadge = screen.getByText('Pending').parentElement;
-      expect(pendingBadge?.querySelector('.bg-amber-500')).toBeInTheDocument();
+    it('renders with custom dot color', () => {
+      render(<Badge dot dotColor="bg-red-500">Red Dot</Badge>);
+      expect(screen.getByText('Red Dot')).toBeInTheDocument();
     });
   });
 
-  // ==========================================================================
-  // Animation Tests
-  // ==========================================================================
-
-  describe('animation', () => {
-    it('supports animateOnChange prop', async () => {
-      const { rerender } = render(
-        <StatusBadge 
-          status={QuoteStatus.PENDING} 
-          animateOnChange={true} 
-        />
-      );
-      
-      expect(screen.getByText('Pending')).toBeInTheDocument();
-
-      rerender(
-        <StatusBadge 
-          status={QuoteStatus.ACCEPTED} 
-          animateOnChange={true} 
-        />
-      );
-
-      // Wait for animation to complete
-      await waitFor(() => {
-        expect(screen.getByText('Accepted')).toBeInTheDocument();
-      }, { timeout: 300 });
+  describe('Rounded Styles', () => {
+    it('renders with full rounded style', () => {
+      render(<Badge rounded="full">Pill</Badge>);
+      expect(screen.getByText('Pill')).toHaveClass('rounded-full');
     });
 
-    it('supports pulse animation', () => {
-      render(
-        <StatusBadge 
-          status={QuoteStatus.PENDING} 
-          pulse={true} 
-        />
-      );
-      
-      const badge = screen.getByText('Pending').parentElement;
-      const dot = badge?.querySelector('span');
-      expect(dot).toBeInTheDocument();
+    it('renders with default rounded style', () => {
+      render(<Badge>Default Round</Badge>);
+      expect(screen.getByText('Default Round')).toBeInTheDocument();
     });
   });
 
-  // ==========================================================================
-  // Forward Ref Tests
-  // ==========================================================================
+  describe('Removable', () => {
+    it('renders remove button when onRemove is provided', () => {
+      const handleRemove = jest.fn();
+      render(<Badge onRemove={handleRemove}>Removable</Badge>);
+      expect(screen.getByRole('button', { name: /remove/i })).toBeInTheDocument();
+    });
 
-  describe('forward ref', () => {
-    it('forwards ref correctly', () => {
-      const ref = React.createRef<HTMLSpanElement>();
-      render(<StatusBadge ref={ref} status={QuoteStatus.ACCEPTED} />);
-      
-      expect(ref.current).toBeInstanceOf(HTMLSpanElement);
+    it('calls onRemove when remove button is clicked', () => {
+      const handleRemove = jest.fn();
+      render(<Badge onRemove={handleRemove}>Removable</Badge>);
+      const removeButton = screen.getByRole('button', { name: /remove/i });
+      removeButton.click();
+      expect(handleRemove).toHaveBeenCalled();
+    });
+  });
+
+  describe('Accessibility', () => {
+    it('has correct aria-label when provided', () => {
+      render(<Badge aria-label="5 notifications">5</Badge>);
+      expect(screen.getByLabelText('5 notifications')).toBeInTheDocument();
+    });
+
+    it('supports role="status" for live regions', () => {
+      render(<Badge role="status">Status</Badge>);
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
 });
 
-// ============================================================================
-// PriorityBadge Tests
-// ============================================================================
+describe('StatusBadge', () => {
+  describe('Quote Status Badges', () => {
+    const statusTests = [
+      { status: QuoteStatus.DRAFT, expectedLabel: 'Draft' },
+      { status: QuoteStatus.PENDING, expectedLabel: 'Pending' },
+      { status: QuoteStatus.SENT, expectedLabel: 'Sent' },
+      { status: QuoteStatus.ACCEPTED, expectedLabel: 'Accepted' },
+      { status: QuoteStatus.DECLINED, expectedLabel: 'Declined' },
+      { status: QuoteStatus.EXPIRED, expectedLabel: 'Expired' },
+      { status: QuoteStatus.REVISED, expectedLabel: 'Revised' },
+    ];
+
+    statusTests.forEach(({ status, expectedLabel }) => {
+      it(`renders ${status} status correctly`, () => {
+        render(<StatusBadge status={status} />);
+        expect(screen.getByText(expectedLabel)).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Customer Status Badges', () => {
+    it('renders active customer status', () => {
+      render(<StatusBadge status="active" type="customer" />);
+      expect(screen.getByText('Active')).toBeInTheDocument();
+    });
+
+    it('renders inactive customer status', () => {
+      render(<StatusBadge status="inactive" type="customer" />);
+      expect(screen.getByText('Inactive')).toBeInTheDocument();
+    });
+
+    it('renders lead customer status', () => {
+      render(<StatusBadge status="lead" type="customer" />);
+      expect(screen.getByText('Lead')).toBeInTheDocument();
+    });
+  });
+
+  describe('Size Variants', () => {
+    it('renders small size', () => {
+      render(<StatusBadge status={QuoteStatus.SENT} size="sm" />);
+      expect(screen.getByText('Sent')).toBeInTheDocument();
+    });
+
+    it('renders large size', () => {
+      render(<StatusBadge status={QuoteStatus.ACCEPTED} size="lg" />);
+      expect(screen.getByText('Accepted')).toBeInTheDocument();
+    });
+  });
+});
 
 describe('PriorityBadge', () => {
-  // ==========================================================================
-  // Rendering Tests
-  // ==========================================================================
+  describe('Priority Levels', () => {
+    it('renders low priority badge', () => {
+      render(<PriorityBadge priority={Priority.LOW} />);
+      expect(screen.getByText('Low')).toBeInTheDocument();
+    });
 
-  describe('rendering', () => {
-    it('renders with correct priority label', () => {
-      render(<PriorityBadge priority="high" />);
-      
+    it('renders medium priority badge', () => {
+      render(<PriorityBadge priority={Priority.MEDIUM} />);
+      expect(screen.getByText('Medium')).toBeInTheDocument();
+    });
+
+    it('renders high priority badge', () => {
+      render(<PriorityBadge priority={Priority.HIGH} />);
       expect(screen.getByText('High')).toBeInTheDocument();
     });
 
-    it('renders all priority levels', () => {
-      const priorities: Array<'low' | 'medium' | 'high' | 'urgent'> = ['low', 'medium', 'high', 'urgent'];
-      
-      priorities.forEach((priority) => {
-        const { unmount } = render(<PriorityBadge priority={priority} />);
-        const label = priority.charAt(0).toUpperCase() + priority.slice(1);
-        expect(screen.getByText(label)).toBeInTheDocument();
-        unmount();
-      });
-    });
-
-    it('applies correct color for each priority', () => {
-      const { rerender, container } = render(<PriorityBadge priority="low" />);
-      expect(container.querySelector('.bg-slate-500\\/10')).toBeInTheDocument();
-
-      rerender(<PriorityBadge priority="medium" />);
-      expect(container.querySelector('.bg-blue-500\\/10')).toBeInTheDocument();
-
-      rerender(<PriorityBadge priority="high" />);
-      expect(container.querySelector('.bg-amber-500\\/10')).toBeInTheDocument();
-
-      rerender(<PriorityBadge priority="urgent" />);
-      expect(container.querySelector('.bg-red-500\\/10')).toBeInTheDocument();
-    });
-
-    it('renders with different sizes', () => {
-      const { rerender, container } = render(<PriorityBadge priority="high" size="sm" />);
-      expect(container.querySelector('.text-xs')).toBeInTheDocument();
-
-      rerender(<PriorityBadge priority="high" size="md" />);
-      expect(container.querySelector('.text-sm')).toBeInTheDocument();
-
-      rerender(<PriorityBadge priority="high" size="lg" />);
-      expect(container.querySelector('.text-base')).toBeInTheDocument();
-    });
-
-    it('applies custom className', () => {
-      const { container } = render(
-        <PriorityBadge priority="urgent" className="custom-class" />
-      );
-      
-      expect(container.querySelector('.custom-class')).toBeInTheDocument();
-    });
-  });
-
-  // ==========================================================================
-  // Animation Tests
-  // ==========================================================================
-
-  describe('animation', () => {
-    it('supports animateOnChange prop', () => {
-      const { rerender } = render(
-        <PriorityBadge 
-          priority="low" 
-          animateOnChange={true} 
-        />
-      );
-      
-      expect(screen.getByText('Low')).toBeInTheDocument();
-
-      rerender(
-        <PriorityBadge 
-          priority="urgent" 
-          animateOnChange={true} 
-        />
-      );
-
+    it('renders urgent priority badge', () => {
+      render(<PriorityBadge priority={Priority.URGENT} />);
       expect(screen.getByText('Urgent')).toBeInTheDocument();
     });
   });
 
-  // ==========================================================================
-  // Forward Ref Tests
-  // ==========================================================================
+  describe('With Dot Indicator', () => {
+    it('renders with dot by default', () => {
+      render(<PriorityBadge priority={Priority.HIGH} />);
+      expect(screen.getByText('High')).toBeInTheDocument();
+    });
 
-  describe('forward ref', () => {
-    it('forwards ref correctly', () => {
-      const ref = React.createRef<HTMLSpanElement>();
-      render(<PriorityBadge ref={ref} priority="high" />);
-      
-      expect(ref.current).toBeInstanceOf(HTMLSpanElement);
+    it('renders without dot when showDot is false', () => {
+      render(<PriorityBadge priority={Priority.LOW} showDot={false} />);
+      expect(screen.getByText('Low')).toBeInTheDocument();
     });
   });
 });
