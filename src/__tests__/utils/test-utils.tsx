@@ -3,7 +3,14 @@
  * Shared helpers and mocks for consistent testing
  */
 
+/// <reference types="jest" />
+
+import type { jest as Jest } from '@jest/globals';
 import React from 'react';
+
+declare global {
+  const jest: typeof Jest;
+}
 import { render as rtlRender, RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from 'next-themes';

@@ -39,12 +39,13 @@
   ],
   "exclude": [
     "node_modules",
-    "__tests__",
+    "**/__tests__/**",
     "**/*.test.ts",
     "**/*.test.tsx",
     "jest.setup.ts",
     "jest.setup.tsx",
     "jest.config.js",
+    "jest.config.mjs",
     "coverage",
     "e2e"
   ]

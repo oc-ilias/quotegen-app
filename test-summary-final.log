@@ -1,0 +1,150 @@
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/quotes/[id]/status/route.ts:295:15)
+      at Object.<anonymous> (__tests__/api/quote-status.test.ts:252:24)
+
+PASS src/app/api/quotes/[id]/status/__tests__/route.test.ts
+  ● Console
+
+    console.error
+      Error fetching quote: { code: 'PGRST116', message: 'Database connection failed' }
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/quotes/[id]/status/route.ts:93:15)
+      at Object.<anonymous> (src/app/api/quotes/[id]/status/__tests__/route.test.ts:152:24)
+
+    console.error
+      Error fetching quote: { code: 'UNKNOWN', message: 'Database connection failed' }
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/quotes/[id]/status/route.ts:93:15)
+      at Object.<anonymous> (src/app/api/quotes/[id]/status/__tests__/route.test.ts:170:24)
+
+    console.error
+      Error recording status history: { message: 'Insert failed' }
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/quotes/[id]/status/route.ts:255:15)
+      at Object.<anonymous> (src/app/api/quotes/[id]/status/__tests__/route.test.ts:347:24)
+
+    console.log
+      No customer email available for notification
+
+      at log (src/app/api/quotes/[id]/status/route.ts:362:13)
+
+PASS __tests__/api/customers.test.ts
+PASS __tests__/api/webhooks.test.ts
+  ● Console
+
+    console.log
+      New order in : 12345
+
+      at log (src/app/api/webhooks/shopify/route.ts:36:17)
+
+    console.log
+      Unhandled webhook topic: orders/updated
+
+      at log (src/app/api/webhooks/shopify/route.ts:40:17)
+
+    console.log
+      Product products/create in : 12345
+
+      at log (src/app/api/webhooks/shopify/route.ts:31:17)
+
+PASS __tests__/api/quotes.test.ts
+  ● Console
+
+    console.error
+      Error fetching quotes: Error: Database error
+          at Object.<anonymous> (/root/.openclaw/workspace/quotegen-app/__tests__/api/quotes.test.ts:79:50)
+          at Promise.finally.completed (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/root/.openclaw/workspace/quotegen-app/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/root/.openclaw/workspace/quotegen-app/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/root/.openclaw/workspace/quotegen-app/node_modules/jest-runner/build/index.js:343:7)
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/quotes/route.ts:90:13)
+      at Object.<anonymous> (__tests__/api/quotes.test.ts:82:24)
+
+    console.error
+      Failed to send status email: TypeError: Cannot destructure property 'subject' of '((cov_2oe8hkms1a(...).s[43]++) , (0 , email_1.quoteStatusUpdateEmailTemplate)(...))' as it is undefined.
+          at subject (/root/.openclaw/workspace/quotegen-app/src/app/api/quotes/route.ts:124:17)
+          at Object.<anonymous> (/root/.openclaw/workspace/quotegen-app/__tests__/api/quotes.test.ts:179:24)
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/quotes/route.ts:134:17)
+      at Object.<anonymous> (__tests__/api/quotes.test.ts:179:24)
+
+
+<--- Last few GCs --->
+
+[740191:0x2c612000]    97662 ms: Mark-Compact 2142.1 (2205.2) -> 2028.8 (2091.6) MB, pooled: 6 MB, 1987.90 / 0.00 ms  (average mu = 0.291, current mu = 0.304) allocation failure; scavenge might not succeed
+[740191:0x2c612000]   100821 ms: Mark-Compact (reduce) 2207.8 (2261.6) -> 2088.4 (2117.2) MB, pooled: 0 MB, 747.44 / 0.00 ms  (+ 1054.1 ms in 0 steps since start of marking, biggest step 0.0 ms, walltime since start of marking 1872 ms) (average mu = 0.361
+
+<--- JS stacktrace --->
+
+FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0xe40d24 node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 2: 0x1216be0 v8::Utils::ReportOOMFailure(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [node]
+ 3: 0x1216eb7 v8::internal::V8::FatalProcessOutOfMemory(v8::internal::Isolate*, char const*, v8::OOMDetails const&) [node]
+ 4: 0x1444875  [node]
+ 5: 0x145e109 v8::internal::Heap::CollectGarbage(v8::internal::AllocationSpace, v8::internal::GarbageCollectionReason, v8::GCCallbackFlags) [node]
+ 6: 0x13afec8 v8::internal::StackGuard::HandleInterrupts(v8::internal::StackGuard::InterruptLevel) [node]
+ 7: 0x186ce7f v8::internal::Runtime_StackGuard(int, unsigned long*, v8::internal::Isolate*) [node]
+ 8: 0x7198ab66c476 
+Aborted (core dumped)
