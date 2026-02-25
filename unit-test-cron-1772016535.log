@@ -1,0 +1,134 @@
+
+> app@0.1.0 test:coverage
+> jest --coverage --json --outputFile=jest-cron-results-1772016535.json
+
+FAIL src/app/api/customers/__tests__/route.test.ts (15.795 s)
+  ● Console
+
+    console.error
+      Error fetching customers: { message: 'Database connection failed' }
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/customers/route.ts:135:15)
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:378:22)
+
+    console.error
+      Error fetching customers: { message: 'Database connection failed' }
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/customers/route.ts:135:15)
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:390:22)
+
+    console.error
+      Error creating customer: { message: 'Insert failed' }
+
+      491 |       return;
+      492 |     }
+    > 493 |     originalError.call(console, ...args);
+          |                   ^
+      494 |   };
+      495 |
+      496 |   console.warn = (...args: any[]) => {
+
+      at console.error (jest.setup.tsx:493:19)
+      at error (src/app/api/customers/route.ts:312:15)
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:596:22)
+
+  ● GET /api/customers › should handle unexpected errors
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "INTERNAL_ERROR"
+    Received: "FETCH_ERROR"
+
+      393 |     expect(response.status).toBe(500);
+      394 |     expect(body.success).toBe(false);
+    > 395 |     expect(body.error.code).toBe('INTERNAL_ERROR');
+          |                             ^
+      396 |   });
+      397 |
+      398 |   it('should calculate customer stats correctly', async () => {
+
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:395:29)
+
+  ● POST /api/customers › should create a new customer successfully
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      485 |   };
+      486 |
+    > 487 |   it('should create a new customer successfully', async () => {
+          |   ^
+      488 |     let callCount = 0;
+      489 |     mockFrom.mockImplementation(() => {
+      490 |       currentMock = createChainableMock();
+
+      at src/app/api/customers/__tests__/route.test.ts:487:3
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:463:1)
+
+  ● POST /api/customers › should handle unexpected errors
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      602 |   });
+      603 |
+    > 604 |   it('should handle unexpected errors', async () => {
+          |   ^
+      605 |     process.env.NEXT_PUBLIC_SUPABASE_URL = '';
+      606 |
+      607 |     const request = new NextRequest('http://localhost:3000/api/customers', {
+
+      at src/app/api/customers/__tests__/route.test.ts:604:3
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:463:1)
+
+  ● POST /api/customers › should handle missing request body
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 500
+    Received: 400
+
+      627 |     const body = await response.json();
+      628 |
+    > 629 |     expect(response.status).toBe(500);
+          |                             ^
+      630 |     expect(body.success).toBe(false);
+      631 |   });
+      632 |
+
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:629:29)
+
+  ● POST /api/customers › should accept optional address fields
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      631 |   });
+      632 |
+    > 633 |   it('should accept optional address fields', async () => {
+          |   ^
+      634 |     const customerWithAddresses = {
+      635 |       ...validCustomer,
+      636 |       billingAddress: {
+
+      at src/app/api/customers/__tests__/route.test.ts:633:3
+      at Object.<anonymous> (src/app/api/customers/__tests__/route.test.ts:463:1)
+
