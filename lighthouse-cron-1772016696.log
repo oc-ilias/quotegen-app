@@ -1,0 +1,26 @@
+
+> app@0.1.0 lighthouse
+> lhci autorun
+
+✅  .lighthouseci/ directory writable
+✅  Configuration file found
+✅  Chrome installation found
+Healthcheck passed!
+
+
+ERROR:
+Unable to automatically determine the location of static site files.
+Use the CLI flag --collect.staticDistDir or a lighthouserc config file to tell Lighthouse CI where your HTML files are located.
+Learn More: https://github.com/GoogleChrome/lighthouse-ci/blob/v0.15.1/docs/configuration.md
+
+Error: Failed to automatically determine `staticDistDir`
+    at findBuildDir (/root/.openclaw/workspace/quotegen-app/node_modules/@lhci/cli/src/autorun/autorun.js:86:9)
+    at Object.runCommand (/root/.openclaw/workspace/quotegen-app/node_modules/@lhci/cli/src/autorun/autorun.js:132:29)
+    at run (/root/.openclaw/workspace/quotegen-app/node_modules/@lhci/cli/src/cli.js:109:24)
+    at Object.<anonymous> (/root/.openclaw/workspace/quotegen-app/node_modules/@lhci/cli/src/cli.js:134:1)
+    at Module._compile (node:internal/modules/cjs/loader:1706:14)
+    at Object..js (node:internal/modules/cjs/loader:1839:10)
+    at Module.load (node:internal/modules/cjs/loader:1441:32)
+    at Function._load (node:internal/modules/cjs/loader:1263:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:328:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:237:24)

@@ -1,0 +1,40 @@
+
+> app@0.1.0 lint
+> eslint
+
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/[root-of-the-server]__b7953070._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/[root-of-the-server]__e8dbf6a8._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/[root-of-the-server]__7db19cf0._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/[root-of-the-server]__f0e931f4._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_7eb0c764._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_c20b0cbb._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_bbdcecd0._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_d6be9950._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_e07c3bf0._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_eaaa5242._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_fa4f0933._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_next_dist_3e1f69b5._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_next_dist_afb60855._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_5e342eb5._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_b48e8483._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_3eae3086._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_8959ac03._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_c19b705d._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_next_dist_client_17643121._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_next_dist_compiled_next-devtools_index_1dd7fb59.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/node_modules_next_dist_compiled_react-dom_1e674e59._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/src_4f3b9beb._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/src_23e3e6bd._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/src_6fe891a1._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/static/chunks/src_73b982a6._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_next_dist_c02905e8._.js as it exceeds the max of 500KB.
+[BABEL] Note: The code generator has deoptimised the styling of /root/.openclaw/workspace/quotegen-app/dist/dev/server/chunks/ssr/node_modules_next_dist_eac56746._.js as it exceeds the max of 500KB.
+
+Oops! Something went wrong! :(
+
+ESLint: 9.39.2
+
+Error: ENOENT: no such file or directory, open '/root/.openclaw/workspace/quotegen-app/dist/static/chunks/main-app-b8a87180e3791f64.js'
+    at async open (node:internal/fs/promises:636:25)
+    at async Object.readFile (node:internal/fs/promises:1235:14)
+    at async readAndVerifyFile (/root/.openclaw/workspace/quotegen-app/node_modules/eslint/lib/eslint/eslint-helpers.js:1306:16)
