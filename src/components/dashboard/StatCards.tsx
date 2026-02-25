@@ -236,6 +236,7 @@ export function StatCard({
         'hover:border-opacity-50 hover:shadow-lg',
         `hover:shadow-${color}-500/10`
       )}
+      data-testid={`stat-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
     >
       {/* Background gradient overlay */}
       <div className={cn(
@@ -324,7 +325,7 @@ export function StatCardsGrid({ stats, isLoading }: StatCardsGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" data-testid="stat-cards-grid">
       {stats.map((stat, index) => (
         <StatCard
           key={stat.title}

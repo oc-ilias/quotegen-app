@@ -165,7 +165,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="customer-list">
       {/* Search and Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -176,6 +176,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-150"
+            data-testid="customer-search-input"
           />
         </div>
 
@@ -255,7 +256,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
 
       {/* Customers Table */}
       {customers.length === 0 ? (
-        <div className="text-center py-16 bg-slate-800/30 border border-slate-700/50 rounded-2xl">
+        <div className="text-center py-16 bg-slate-800/30 border border-slate-700/50 rounded-2xl" data-testid="customer-empty-state">
           <InboxIcon className="w-16 h-16 text-slate-600 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-300 mb-2">No customers found</h3>
           <p className="text-slate-500 mb-6">
@@ -332,6 +333,7 @@ export const CustomerList: React.FC<CustomerListProps> = ({
                     animate="visible"
                     className="group cursor-pointer border-b border-slate-800 hover:bg-slate-800/50 transition-colors"
                     onClick={() => onViewCustomer(customer.id)}
+                    data-testid={`customer-row-${customer.id}`}
                   >
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <input

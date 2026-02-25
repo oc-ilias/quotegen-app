@@ -1221,6 +1221,7 @@ export const Sidebar = forwardRef<SidebarHandle, SidebarProps>(
         )}
         aria-label="Main navigation"
         data-collapsed={isCollapsed}
+        data-testid="sidebar"
       >
         <SidebarContent
           variant="desktop"
@@ -1329,6 +1330,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
             handleNavigate('dashboard');
           }}
           aria-label="Go to dashboard"
+          data-testid="sidebar-logo"
         >
           <motion.div
             whileHover={{ scale: 1.08, rotate: 5 }}
@@ -1384,6 +1386,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
             className="p-2 text-slate-400 hover:text-slate-200 rounded-lg transition-colors"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             title={`${isCollapsed ? 'Expand' : 'Collapse'} sidebar (⌘B)`}
+            data-testid="sidebar-toggle"
           >
             <motion.div
               animate={{ rotate: isCollapsed ? 180 : 0 }}
@@ -1417,6 +1420,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
             aria-expanded={isCreateMenuOpen}
             aria-haspopup="menu"
             aria-controls="create-menu"
+            data-testid="create-quote-button"
           >
             <PlusIcon className="w-5 h-5" />
             <AnimatePresence mode="wait">
@@ -1558,6 +1562,7 @@ const SidebarContent: React.FC<SidebarContentProps> = ({
                         : 'text-slate-400 hover:bg-slate-800/60 hover:text-slate-200'
                     )}
                     tabIndex={item.disabled ? -1 : 0}
+                    data-testid={`nav-${item.id}`}
                   >
                     {/* Active indicator */}
                     {isActive && (
