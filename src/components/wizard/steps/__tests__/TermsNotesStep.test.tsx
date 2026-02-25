@@ -57,8 +57,8 @@ describe('TermsNotesStep', () => {
   it('renders payment terms section', () => {
     render(<TermsNotesStep data={defaultData} onUpdate={mockOnUpdate} />);
     
-    expect(screen.getByText('Payment Terms')).toBeInTheDocument();
     expect(screen.getByTestId('payment-terms-select')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /payment terms/i })).toBeInTheDocument();
   });
 
   it('calls onUpdate when payment terms change', async () => {
@@ -76,8 +76,8 @@ describe('TermsNotesStep', () => {
   it('renders delivery terms section', () => {
     render(<TermsNotesStep data={defaultData} onUpdate={mockOnUpdate} />);
     
-    expect(screen.getByText('Delivery Terms')).toBeInTheDocument();
     expect(screen.getByTestId('delivery-terms-select')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /delivery terms/i })).toBeInTheDocument();
   });
 
   it('calls onUpdate when delivery terms change', async () => {
@@ -100,16 +100,18 @@ describe('TermsNotesStep', () => {
   });
 
   it('calls onUpdate when validity period changes', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<TermsNotesStep data={defaultData} onUpdate={mockOnUpdate} />);
     
     const input = screen.getByTestId('validity-period-input');
     await user.clear(input);
     await user.type(input, '60');
     
-    expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      validityPeriod: 60
-    }));
+    // Check that onUpdate was called with the expected value at some point
+    const matchingCall = mockOnUpdate.mock.calls.find(call => 
+      call[0]?.validityPeriod === 60
+    );
+    expect(matchingCall).toBeTruthy();
   });
 
   it('renders deposit required checkbox', () => {
@@ -137,15 +139,17 @@ describe('TermsNotesStep', () => {
   });
 
   it('calls onUpdate when customer notes change', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<TermsNotesStep data={defaultData} onUpdate={mockOnUpdate} />);
     
     const textarea = screen.getByTestId('customer-notes-textarea');
     await user.type(textarea, 'Special delivery instructions');
     
-    expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      notes: 'Special delivery instructions'
-    }));
+    // Check that onUpdate was called with the expected value at some point
+    const matchingCall = mockOnUpdate.mock.calls.find(call => 
+      call[0]?.notes === 'Special delivery instructions'
+    );
+    expect(matchingCall).toBeTruthy();
   });
 
   it('renders internal notes textarea', () => {
@@ -156,15 +160,17 @@ describe('TermsNotesStep', () => {
   });
 
   it('calls onUpdate when internal notes change', async () => {
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<TermsNotesStep data={defaultData} onUpdate={mockOnUpdate} />);
     
     const textarea = screen.getByTestId('internal-notes-textarea');
     await user.type(textarea, 'Follow up required');
     
-    expect(mockOnUpdate).toHaveBeenCalledWith(expect.objectContaining({
-      internalNotes: 'Follow up required'
-    }));
+    // Check that onUpdate was called with the expected value at some point
+    const matchingCall = mockOnUpdate.mock.calls.find(call => 
+      call[0]?.internalNotes === 'Follow up required'
+    );
+    expect(matchingCall).toBeTruthy();
   });
 
   it('displays error message when error prop is provided', () => {

@@ -98,7 +98,8 @@ describe('ReviewSendStep', () => {
     
     expect(screen.getByText('Bill To')).toBeInTheDocument();
     expect(screen.getByText('Acme Corp')).toBeInTheDocument();
-    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    // Use getAllByText for elements that appear multiple times
+    expect(screen.getAllByText('John Doe').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('john@example.com')).toBeInTheDocument();
   });
 
@@ -125,7 +126,8 @@ describe('ReviewSendStep', () => {
     );
     
     expect(screen.getByText('Subtotal')).toBeInTheDocument();
-    expect(screen.getByText('Total')).toBeInTheDocument();
+    // Total appears in multiple places (table header and summary)
+    expect(screen.getAllByText('Total').length).toBeGreaterThanOrEqual(1);
   });
 
   it('displays notes in preview', () => {
@@ -230,7 +232,8 @@ describe('ReviewSendStep', () => {
     expect(screen.getByText('Quote Summary')).toBeInTheDocument();
     expect(screen.getByText('Items')).toBeInTheDocument();
     expect(screen.getByText('Customer')).toBeInTheDocument();
-    expect(screen.getByText('Total')).toBeInTheDocument();
+    // Total appears in multiple places (table header and summary)
+    expect(screen.getAllByText('Total').length).toBeGreaterThanOrEqual(1);
   });
 
   it('shows ready to send status when data is valid', () => {
